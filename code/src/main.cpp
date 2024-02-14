@@ -3,7 +3,7 @@
 #include <fstream> 
 #include <math.h>      
 
-#define BRANCHING 10
+#define BRANCHING 5
 
 using namespace LavaCake;
 
@@ -26,32 +26,44 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
 }
 
 int main(){
+    // grids: represent the layers of branch deviations (by height)
     std::vector<Grid2D> grids;
     
+    // Indicate the subdivision size of the current space
+    // i.e tile the space into 10x10 grid
     float init_subdiv = 10;
     float subdiv = 10;
 
     
-    int gridSubdiv = 4;
+    // int gridSubdiv = 4;
 
     float flatness = 1.5;
 
+    // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
         grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445 ));
+
+        // increase the subdivision at the next layer
         subdiv = subdiv * flatness;
     }
     
+    // edges: representing the branches of the trees
     std::vector<Edge> edges;
+
+    /*
+    Start from the top layer, for each point of each layer, find and connect to the closest point of the layer below
+    */
     for(int k = BRANCHING-1; k >= 1; k--){
         for(u_int16_t  j = 0; j < grids[k].points.size() ; j++ ){
-            for(u_int16_t  i = 0; i <  grids[k].points[j].size() ; i++ ){
-
+            for(u_int16_t  i = 0; i <  grids[k].points[j].size() ; i++ ){   
+                std::cout << grids[k].points.size() << " " << grids[k].points[j][0].size()<< std::endl;
+ 
                 Coord c1;
                 c1.coord = closestPoint(grids[k-1],grids[k].points[j][i]);
                 c1.gridIndex = k-1;
 
                 Coord c2;
-                c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});
+                c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});  // why i and j ? and not points[j][i]
                 c2.gridIndex = k;
 
                 edges.push_back({c1,c2});
@@ -70,7 +82,7 @@ int main(){
 
     for (int k = 0; k < BRANCHING; k++) {
     
-        for(u_int16_t  j = 0; j < grids[k].points.size() ; j++ ){
+        for(u_int16_t  j = 0; j < grids[k].points.size() ; j++ ){   
             for(u_int16_t  i = 0; i <  grids[k].points[j].size() ; i++ ){
                 points.push_back(vec3f({grids[k].points[j][i][0] *init_subdiv, grids[k].points[j][i][1] * init_subdiv, float(1)}));
             }

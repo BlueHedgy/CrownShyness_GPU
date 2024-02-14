@@ -4,7 +4,10 @@
 using namespace LavaCake;
 
 
-
+/*
+    GenerateGrid:   randomize points line by line through an
+                    abstractly subdivided grid
+*/
 
 Grid2D generateGrid(u_int16_t subdivision, int seed){
 
@@ -26,6 +29,10 @@ Grid2D generateGrid(u_int16_t subdivision, int seed){
     return grid;
     
 }
+
+/*
+    
+*/
 
 vec2u closestPoint(const Grid2D& grid, const vec2f& point){
 
