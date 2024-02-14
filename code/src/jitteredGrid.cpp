@@ -7,6 +7,7 @@ using namespace LavaCake;
 /*
     GenerateGrid:   randomize points line by line through an
                     abstractly subdivided grid
+                    Currently: 1 point per cell per grid
 */
 
 Grid2D generateGrid(u_int16_t subdivision, int seed){
@@ -30,8 +31,23 @@ Grid2D generateGrid(u_int16_t subdivision, int seed){
     
 }
 
-/*
-    
+/* 
+    Pseudocode for generateGrid(subdivision, seed):
+        Grid2D grid;
+
+        for (i=0; i < subdiv; i++){
+            vector<2f> line;
+            for (j=0; j < subdiv; j++){
+                vector<vec2f> roots;
+                for (t=0; t < maxTreePerCell; t++){
+                    // generate x and y of points
+                    // append point to roots
+                }
+                // append roots to line
+            }
+            // append line to grid.points   
+            // gonna have to change the grid.points structure
+        }
 */
 
 vec2u closestPoint(const Grid2D& grid, const vec2f& point){

@@ -6,6 +6,11 @@ struct Grid2D{
     std::vector<std::vector<LavaCake::vec2f>> points;
 };
 
+/* struct Grid2D{
+    std::vector<std::vector<LavaCake::vec2f>> points;
+    bool isDenseCenter;
+}; */
+
 Grid2D generateGrid(u_int16_t subdivision, int seed);
 
 

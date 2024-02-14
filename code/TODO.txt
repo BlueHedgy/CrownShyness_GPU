@@ -1,0 +1,6 @@
+Current issues: (sorted by importance)
+- Allow density management (randomized then user decision)
+- Some trees don't get to branch out => remove them or try to let them branch
+- Horizontal branching => It's weird
+- Randomize a small amount of points to go higher (Emergent layer) and lower (Understory layer) than the Canopy layer
+- Vertical body

@@ -16,6 +16,11 @@ struct Edge{
     Coord c1, c2;
 };
 
+
+/*
+coordToIndex:
+
+ */
 uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
     uint index = grids[0].points.size() *  grids[0].points[0].size();
     for(int i = 0; i <c.gridIndex; i++){
@@ -31,13 +36,17 @@ int main(){
     
     // Indicate the subdivision size of the current space
     // i.e tile the space into 10x10 grid
-    float init_subdiv = 10;
+
     float subdiv = 10;
 
+    float init_subdiv = 10; // area of generation (e.g 20 means 20x20 m^2)
     
     // int gridSubdiv = 4;
 
-    float flatness = 1.5;
+    float flatness = 2;
+
+
+    int dense_region_count = 1; // Default number of dense clusters in the generation area
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
@@ -56,14 +65,14 @@ int main(){
     for(int k = BRANCHING-1; k >= 1; k--){
         for(u_int16_t  j = 0; j < grids[k].points.size() ; j++ ){
             for(u_int16_t  i = 0; i <  grids[k].points[j].size() ; i++ ){   
-                std::cout << grids[k].points.size() << " " << grids[k].points[j][0].size()<< std::endl;
+                // std::cout << grids[k].points.size() << " " << grids[k].points[j][0].size()<< std::endl;
  
                 Coord c1;
                 c1.coord = closestPoint(grids[k-1],grids[k].points[j][i]);
                 c1.gridIndex = k-1;
 
                 Coord c2;
-                c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});  // why i and j ? and not points[j][i]
+                c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});
                 c2.gridIndex = k;
 
                 edges.push_back({c1,c2});
@@ -71,24 +80,24 @@ int main(){
         }
     }
 
-    
     std::vector<vec3f> points;
 
+    // Generating 3D points for the root layer
     for(u_int16_t  j = 0; j < grids[0].points.size() ; j++ ){
         for(u_int16_t  i = 0; i <  grids[0].points[j].size() ; i++ ){
+
             points.push_back(vec3f({grids[0].points[j][i][0] *init_subdiv, grids[0].points[j][i][1] * init_subdiv, float(0)}));
         }
     }
 
-    for (int k = 0; k < BRANCHING; k++) {
+    // Generate the 3D points for each layer at height of "float(h)" above the initial points in root layer
     
         for(u_int16_t  j = 0; j < grids[k].points.size() ; j++ ){   
             for(u_int16_t  i = 0; i <  grids[k].points[j].size() ; i++ ){
-                points.push_back(vec3f({grids[k].points[j][i][0] *init_subdiv, grids[k].points[j][i][1] * init_subdiv, float(1)}));
+                points.push_back(vec3f({grids[k].points[j][i][0] *init_subdiv, grids[k].points[j][i][1] * init_subdiv, float(k)}));  
             }
         }
     }
-
 
 
     for(int  i = edges.size() -1; i>= 0; i-- ){
@@ -96,17 +105,17 @@ int main(){
         auto i1 = coordToIndex(e.c1,grids) ;
         auto i2 = coordToIndex(e.c2,grids) ;
 
-        vec3f p1 = points[i1];
-        vec3f& p2 = points[i2];
-        auto delta = p2-p1;
-        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+        // vec3f p1 = points[i1];
+        // vec3f& p2 = points[i2];
+        // auto delta = p2-p1;
+        // float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-        float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
+        // float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
 
-        float deltasqrd = edgeLength*edgeLength - l2 ;
+        // float deltasqrd = edgeLength*edgeLength - l2 ;
 
-        deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
-        p2[2] = p1[2] + sqrt(deltasqrd);
+        // deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
+        // p2[2] = p1[2] + sqrt(deltasqrd);
         
     }
 
