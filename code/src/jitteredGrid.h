@@ -11,4 +11,4 @@
 Grid2D generateGrid(u_int16_t subdivision, int seed);
 
 
-Coord getClosestPoint(const Grid2D & grid, const LavaCake::vec2f & point, const  uint32_t gridLayer);
+Coord getClosestPoint(const Grid2D & grid, const LavaCake::vec2f & point, const uint32_t gridLayer);

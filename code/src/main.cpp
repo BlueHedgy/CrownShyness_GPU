@@ -4,7 +4,7 @@
 #include <math.h>      
 
 
-#define BRANCHING 5
+#define BRANCHING 3
 
 using namespace LavaCake;
 
@@ -57,9 +57,11 @@ int main(){
 
                 Cell currentCell = grids[k].cells[i][j];
                 // iterating through the points in the current cells
-                // fix this
                 for (u_int16_t p = 0; p < currentCell.points.size(); p++){
-                    Coord c1 = getClosestPoint(grids[k-1], grids[k].cells[j][i].points[p], k-1);
+                    // closest point in the lower level
+                    Coord c1 = getClosestPoint(grids[k-1], currentCell.points[p], k-1);
+
+                    // coord of the current point
                     Coord c2;
                     c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});
                     c2.gridIndex = k;
@@ -76,22 +78,26 @@ int main(){
     std::vector<vec3f> points;
 
     // Generating 3D points for the root layer
-    for(u_int16_t  j = 0; j < grids[0].cells.size() ; j++ ){
-        for(u_int16_t  i = 0; i <  grids[0].cells[j].size() ; i++ ){
-            for (u_int16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
-
-                points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *init_subdiv, grids[0].cells[j][i].points[p][1] * init_subdiv, float(0)}));
+    for(u_int16_t  i = 0; i < grids[0].cells.size() ; i++ ){
+        for(u_int16_t  j = 0; j <  grids[0].cells[i].size(); j++ ){
+            for (u_int16_t p = 0; p < grids[0].cells[i][j].points.size(); p ++){
+                points.push_back(vec3f({grids[0].cells[i][j].points[p][0] *init_subdiv, grids[0].cells[i][j].points[p][1] * init_subdiv, float(0)}));
             }
         }
     }
+    std::cout << points[0][0] << " " << points[0][1] << " " << points[0][2]<< std::endl;
+
 
     // Generate the 3D points for each layer at height of "float(h)" above the initial points in root layer
     
     for (uint16_t k = 0; k < BRANCHING; k++){
-        for(u_int16_t  j = 0; j < grids[k].cells.size() ; j++ ){   
-            for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
-                for (u_int16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
-                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(k)}));  
+        for(u_int16_t  i = 0; i < grids[k].cells.size() ; i++ ){   
+            for(u_int16_t  j = 0; j <  grids[k].cells[i].size() ; j++ ){
+                for (u_int16_t p = 0; p < grids[0].cells[i][j].points.size(); p ++){
+                // TODO: SEG FAULT HERE
+                    // std::cout << grids[k].cells[i][j].points[p].size() << std::endl;
+                    // points.push_back(vec3f({grids[k].cells[i][j].points[p][0] *init_subdiv, grids[k].cells[i][j].points[p][1] * init_subdiv, float(1)}));  
+                    points.push_back(vec3f({0.0, 0.0, float(k)}));
                 }
             }
         }
@@ -118,27 +124,27 @@ int main(){
         
     } */
 
-    // std::cout<<(edges.size())<<"\n";
-    // std::ofstream ofs;
-    // ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
+    std::cout<<(edges.size())<<"\n";
+    std::ofstream ofs;
+    ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
 
     
 
-    // for (int k = 0; k < points.size(); k++) {
-    //     ofs << "v " << points[k][0] << " " << points[k][1] << " "  <<  points[k][2]  << "\n";
-    // }
+    for (int k = 0; k < points.size(); k++) {
+        ofs << "v " << points[k][0] << " " << points[k][1] << " "  <<  points[k][2]  << "\n";
+    }
 
-    // for (auto e: edges) {
-    //     auto i1 = coordToIndex(e.c1,grids) + 1;
-    //     auto i2 = coordToIndex(e.c2,grids) + 1;
-    //     ofs << "l " << i1 << " " << i2  << "\n";
-    // }
+    for (auto e: edges) {
+        auto i1 = coordToIndex(e.c1,grids) + 1;
+        auto i2 = coordToIndex(e.c2,grids) + 1;
+        ofs << "l " << i1 << " " << i2  << "\n";
+    }
     
-    // for (int k = 0; k < grids[0].cells.size() *  grids[0].cells[0].size(); k++) {
-    //     ofs << "l " << k+1 << " " << k+1 + grids[0].cells.size() *  grids[0].cells[0].size() << "\n";
-    // }
+    for (int k = 0; k < grids[0].cells.size() *  grids[0].cells[0].size(); k++) {
+        ofs << "l " << k+1 << " " << k+1 + grids[0].cells.size() *  grids[0].cells[0].size() << "\n";
+    }
 
-    // ofs.close();
+    ofs.close();
 
     return 0;
 }
