@@ -1,3 +1,4 @@
 [submodule "code/LavaCake"]
 	path = code/LavaCake
 	url = https://github.com/ThibaultTricard/LavaCake.git
+	ignore = dirty
