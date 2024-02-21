@@ -4,19 +4,64 @@
 #include <math.h>      
 
 
-#define BRANCHING 3
+#define BRANCHING 5
 
 using namespace LavaCake;
 
-
+// TODO: MODIFY THIS
 uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
-    uint index = grids[0].cells.size() *  grids[0].cells[0].size();
-    for(int i = 0; i <c.gridIndex; i++){
-        index += grids[i].cells.size() *  grids[i].cells[0].size();
+    uint32_t index = 0;
+    
+    for (int i = 0; i < grids[0].cells.size(); i++){
+        for (int j = 0; j < grids[0].cells[i].size(); j++){
+            for (int p = 0; p < grids[0].cells[i][j].points.size(); p++){
+                index ++;
+            }
+        }
     }
 
-    return index + c.coord[1] * grids[c.gridIndex].cells.size() +  c.coord[0];
+
+    for(int k = 0; k < int(c.gridIndex); k++){
+        for (int i = 0; i < grids[k].cells.size(); i++){
+            for (int j = 0; j < grids[k].cells[i].size(); j++){
+                for (int p = 0; p < grids[k].cells[i][j].points.size(); p++){
+                    index ++;
+                }
+            }
+        }
+    }
+    int gridStart = index;
+
+    for (int i = 0; i < int(c.coord[1]); i++){
+        for (int j = 0; j < grids[c.gridIndex].cells[i].size(); j++){
+            for (int p = 0; p < grids[c.gridIndex].cells[i][j].points.size(); p++){
+                index ++;
+            }
+        }
+    }
+
+    int rowStart = index;
+
+    for (int j = 0; j < int(c.coord[0]); j++){
+        for (int p = 0; p < grids[c.gridIndex].cells[c.coord[0]][j].points.size(); p++){
+            index ++;
+        }
+    }
+    int cellStart = index;
+    index+= c.pointIndex;
+    
+    return index;
 }
+
+// uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
+//     uint index = grids[0].cells.size() *  grids[0].cells[0].size();
+//     for(int i = 0; i <c.gridIndex; i++){
+//         index += grids[i].cells.size() *  grids[i].cells[0].size();
+//     }
+
+//     return index + c.coord[1] * grids[c.gridIndex].cells.size() +  c.coord[0];
+// }
+
 
 int main(){
     // grids: represent the layers of branch deviations (by height)
@@ -24,12 +69,9 @@ int main(){
     
     // Indicate the subdivision size of the current space
     // i.e tile the space into 10x10 grid
+    float subdiv = 2;
 
-    float subdiv = 10;
-
-    float init_subdiv = 10; // area of generation (e.g 20 means 20x20 m^2)
-    
-    // int gridSubdiv = 4;
+    float init_subdiv = 2; // area of generation (e.g 20 means 20x20 m^2)
 
     float flatness = 2;
 
@@ -51,17 +93,18 @@ int main(){
     */
     for(int k = BRANCHING-1; k >= 1; k--){
         // iterating through the cell Rows of the current grid layer
-        for(u_int16_t  i = 0; i < grids[k].cells.size() ; i++ ){
+        for(u_int16_t  j = 0; j < grids[k].cells.size() ; j++ ){
             // iterating through the cells in a row
-            for(u_int16_t  j = 0; j <  grids[k].cells[i].size() ; j++ ){   
+            for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){   
 
-                Cell currentCell = grids[k].cells[i][j];
+                Cell currentCell = grids[k].cells[j][i];
                 // iterating through the points in the current cells
                 for (u_int16_t p = 0; p < currentCell.points.size(); p++){
+
                     // closest point in the lower level
                     Coord c1 = getClosestPoint(grids[k-1], currentCell.points[p], k-1);
 
-                    // coord of the current point
+                    // current point
                     Coord c2;
                     c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});
                     c2.gridIndex = k;
@@ -69,19 +112,18 @@ int main(){
 
                     edges.push_back({c1,c2});
                 }
-                
             }
         }
     }
 
-// Flattening the data structure
+// Flattening the data structure--------------------------------------------------------
     std::vector<vec3f> points;
 
     // Generating 3D points for the root layer
-    for(u_int16_t  i = 0; i < grids[0].cells.size() ; i++ ){
-        for(u_int16_t  j = 0; j <  grids[0].cells[i].size(); j++ ){
-            for (u_int16_t p = 0; p < grids[0].cells[i][j].points.size(); p ++){
-                points.push_back(vec3f({grids[0].cells[i][j].points[p][0] *init_subdiv, grids[0].cells[i][j].points[p][1] * init_subdiv, float(0)}));
+    for(u_int16_t  j = 0; j < grids[0].cells.size(); j++ ){
+        for(u_int16_t  i = 0; i <  grids[0].cells[j].size(); i++ ){
+            for (u_int16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
+                points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *init_subdiv, grids[0].cells[j][i].points[p][1] * init_subdiv, float(0)}));
             }
         }
     }
@@ -91,19 +133,17 @@ int main(){
     // Generate the 3D points for each layer at height of "float(h)" above the initial points in root layer
     
     for (uint16_t k = 0; k < BRANCHING; k++){
-        for(u_int16_t  i = 0; i < grids[k].cells.size() ; i++ ){   
-            for(u_int16_t  j = 0; j <  grids[k].cells[i].size() ; j++ ){
-                for (u_int16_t p = 0; p < grids[0].cells[i][j].points.size(); p ++){
-                // TODO: SEG FAULT HERE
-                    // std::cout << grids[k].cells[i][j].points[p].size() << std::endl;
-                    // points.push_back(vec3f({grids[k].cells[i][j].points[p][0] *init_subdiv, grids[k].cells[i][j].points[p][1] * init_subdiv, float(1)}));  
-                    points.push_back(vec3f({0.0, 0.0, float(k)}));
+        for(u_int16_t  j = 0; j< grids[k].cells.size(); j++ ){   
+            for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
+                for (u_int16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
+
+                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(k)}));  
                 }
             }
         }
     }
 
-// ------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 
 /*     for(int  i = edges.size() -1; i>= 0; i-- ){
         auto e = edges[i];
@@ -124,6 +164,7 @@ int main(){
         
     } */
 
+// Write to OBJ
     std::cout<<(edges.size())<<"\n";
     std::ofstream ofs;
     ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
