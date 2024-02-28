@@ -3,17 +3,52 @@
 
 using namespace LavaCake;
 
+std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv){
+
+    std::vector<LavaCake::vec2i> dense_centers;
+    std::vector<std::vector<float>> map;
+
+    // Pick randomly dense_region_count cells in the current grid as density center
+    for (int i = 0; i < dense_region_count; i++){
+        int x = rand() % subdiv;
+        int y = rand() % subdiv;
+        dense_centers.push_back(vec2i({x,y}));
+    }
+
+
+    // generate a weighted map to be used with generate grid
+
+    for (int j = 0; j < subdiv; j++){
+        std::vector<float> currentRow;
+
+        for(int i = 0; i < subdiv; i++){ 
+            float minDistSqr = 10000.0f;
+            for (auto c: dense_centers){
+                float distSqr = dot(c - vec2i({i, j}), c - vec2i({i, j}));
+                if (distSqr < minDistSqr){
+                    minDistSqr = distSqr;
+                }
+            }
+            currentRow.push_back(sqrt(minDistSqr));
+        }
+        map.push_back(currentRow);
+    }
+    
+    return map;
+    
+}
 
 /*
     GenerateGrid:   randomize points line by line through an
                     abstractly subdivided grid
                     Currently: 1 point per cell per grid
 */
-u_int16_t maxTreePerCell = 4;
+u_int16_t maxTreePerCell = 1;
 
 Grid2D generateGrid(u_int16_t subdivision, int seed){
 //TODO : fix this
     Grid2D grid;
+    std::vector<std::vector<float>> weight_map = density_map(5, subdivision);
 
     srand(seed);
 
@@ -23,7 +58,8 @@ Grid2D generateGrid(u_int16_t subdivision, int seed){
 
             Cell currentCell;
             // generate maxTreePerCell amount of points for each cell
-            for (u_int16_t c = 0; c < maxTreePerCell; c++){
+            for (u_int16_t c = 0; c < floor(maxTreePerCell * weight_map[j][i]); c++){
+                // std::cout << c << std::endl;
                 vec2f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
                 point [1] =  ((float)rand() / RAND_MAX + float(j)) / float(subdivision);

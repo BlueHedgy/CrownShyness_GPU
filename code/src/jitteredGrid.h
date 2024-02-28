@@ -8,6 +8,8 @@
 //     bool isDenseCenter;
 // };
 
+std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv);
+
 Grid2D generateGrid(u_int16_t subdivision, int seed);
 
 

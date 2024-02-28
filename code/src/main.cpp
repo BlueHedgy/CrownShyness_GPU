@@ -71,7 +71,7 @@ int main(){
     // i.e tile the space into 10x10 grid
     float subdiv = 2;
 
-    float init_subdiv = 2; // area of generation (e.g 20 means 20x20 m^2)
+    float init_subdiv = 5; // area of generation (e.g 20 means 20x20 m^2)
 
     float flatness = 2;
 
@@ -145,24 +145,24 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-/*     for(int  i = edges.size() -1; i>= 0; i-- ){
-        auto e = edges[i];
-        auto i1 = coordToIndex(e.c1,grids) ;
-        auto i2 = coordToIndex(e.c2,grids) ;
+    // for(int  i = edges.size() -1; i>= 0; i-- ){
+    //     auto e = edges[i];
+    //     auto i1 = coordToIndex(e.c1,grids) ;
+    //     auto i2 = coordToIndex(e.c2,grids) ;
 
-        vec3f p1 = points[i1];
-        vec3f& p2 = points[i2];
-        auto delta = p2-p1;
-        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+    //     vec3f p1 = points[i1];
+    //     vec3f& p2 = points[i2];
+    //     auto delta = p2-p1;
+    //     float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-        float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
+    //     float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
 
-        float deltasqrd = edgeLength*edgeLength - l2 ;
+    //     float deltasqrd = edgeLength*edgeLength - l2 ;
 
-        deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
-        p2[2] = p1[2] + sqrt(deltasqrd);
+    //     deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
+    //     p2[2] = p1[2] + sqrt(deltasqrd);
         
-    } */
+    // }
 
 // Write to OBJ
     std::cout<<(edges.size())<<"\n";
