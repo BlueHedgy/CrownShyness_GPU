@@ -27,5 +27,7 @@ struct Cell{
 
 struct Grid2D{
     std::vector<std::vector<Cell>> cells;
+    std::vector<std::vector<int>> pointsCount; // keep track of number of points in grids and their cells
+
 };
 

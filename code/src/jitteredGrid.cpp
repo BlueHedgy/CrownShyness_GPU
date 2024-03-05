@@ -3,6 +3,17 @@
 
 using namespace LavaCake;
 
+std::vector<LavaCake::vec2f> randomizeDenseCenter(int dense_region_count, int init_subdiv){
+    std::vector<LavaCake::vec2f> dense_centers;
+    for (int i=0; i< dense_region_count; i++){
+        float x = rand() % init_subdiv + ((float)rand() / RAND_MAX + float(i));
+        float y = rand() % init_subdiv + ((float)rand() / RAND_MAX + float(i));
+        dense_centers.push_back(vec2f({x,y}));
+    }
+
+    return dense_centers;
+}
+
 std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv){
 
     std::vector<LavaCake::vec2i> dense_centers;
@@ -29,7 +40,7 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
                     minDistSqr = distSqr;
                 }
             }
-            currentRow.push_back(sqrt(minDistSqr));
+            currentRow.push_back(sqrt(minDistSqr)/(subdiv * sqrt(2)));
         }
         map.push_back(currentRow);
     }
@@ -43,22 +54,28 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
                     abstractly subdivided grid
                     Currently: 1 point per cell per grid
 */
-u_int16_t maxTreePerCell = 1;
+u_int16_t maxPointsPerCell = 6;
 
 Grid2D generateGrid(u_int16_t subdivision, int seed){
 //TODO : fix this
     Grid2D grid;
-    std::vector<std::vector<float>> weight_map = density_map(5, subdivision);
-
+    std::vector<std::vector<float>> weight_map = density_map(1, subdivision);
     srand(seed);
 
     for(u_int16_t  j = 0; j < subdivision ; j++ ){
         std::vector<Cell> currentCellRow;
+        std::vector<int> currentCellPointsCount;
+
         for(u_int16_t  i = 0; i < subdivision ; i++ ){
 
             Cell currentCell;
-            // generate maxTreePerCell amount of points for each cell
-            for (u_int16_t c = 0; c < floor(maxTreePerCell * weight_map[j][i]); c++){
+            // generate at most maxTreePerCell amount of points for each cell
+            // and at least one points
+            // int pointCount = int(maxPointsPerCell * weight_map[j][i]);
+            // if (pointCount < 1) pointCount = 1; 
+
+            int pointCount = 3;
+            for (u_int16_t c = 0; c < pointCount; c++){
                 // std::cout << c << std::endl;
                 vec2f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
@@ -66,8 +83,10 @@ Grid2D generateGrid(u_int16_t subdivision, int seed){
                 currentCell.points.push_back(point);
             }
             currentCellRow.push_back(currentCell);
+            currentCellPointsCount.push_back(pointCount);
         }
         grid.cells.push_back(currentCellRow);
+        grid.pointsCount.push_back(currentCellPointsCount);
     }
 
     return grid;
