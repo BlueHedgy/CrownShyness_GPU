@@ -2,13 +2,13 @@
 #include <iostream>
 #include <fstream> 
 #include <math.h>      
-
+#include <numeric>
 
 #define BRANCHING 5
 
 using namespace LavaCake;
 
-// TODO: MODIFY THIS
+
 uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
     uint32_t index = 0;
     
@@ -53,16 +53,6 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
     return index;
 }
 
-// uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
-//     uint index = grids[0].cells.size() *  grids[0].cells[0].size();
-//     for(int i = 0; i <c.gridIndex; i++){
-//         index += grids[i].cells.size() *  grids[i].cells[0].size();
-//     }
-
-//     return index + c.coord[1] * grids[c.gridIndex].cells.size() +  c.coord[0];
-// }
-
-
 int main(){
     // grids: represent the layers of branch deviations (by height)
     std::vector<Grid2D> grids;
@@ -71,15 +61,17 @@ int main(){
     // i.e tile the space into 10x10 grid
     float subdiv = 2;
 
-    float init_subdiv = 5; // area of generation (e.g 20 means 20x20 m^2)
+    float init_subdiv = 2; // area of generation (e.g 20 means 20x20 m^2)
 
     float flatness = 2;
 
     int dense_region_count = 1; // Default number of dense clusters in the generation area
 
+    // std::vector<LavaCake::vec2f> randomCenters =  randomizeDenseCenter(dense_region_count, init_subdiv);
+
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445 ));
+        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445));
 
         // increase the subdivision at the next layer
         subdiv = subdiv * flatness;
@@ -137,7 +129,7 @@ int main(){
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (u_int16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
 
-                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(k)}));  
+                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(1)}));  
                 }
             }
         }
@@ -145,24 +137,24 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-    // for(int  i = edges.size() -1; i>= 0; i-- ){
-    //     auto e = edges[i];
-    //     auto i1 = coordToIndex(e.c1,grids) ;
-    //     auto i2 = coordToIndex(e.c2,grids) ;
+    for(int  i = edges.size() -1; i>= 0; i-- ){
+        auto e = edges[i];
+        auto i1 = coordToIndex(e.c1,grids) ;
+        auto i2 = coordToIndex(e.c2,grids) ;
 
-    //     vec3f p1 = points[i1];
-    //     vec3f& p2 = points[i2];
-    //     auto delta = p2-p1;
-    //     float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+        vec3f p1 = points[i1];
+        vec3f& p2 = points[i2];
+        auto delta = p2-p1;
+        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-    //     float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
+        float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
 
-    //     float deltasqrd = edgeLength*edgeLength - l2 ;
+        float deltasqrd = edgeLength*edgeLength - l2 ;
 
-    //     deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
-    //     p2[2] = p1[2] + sqrt(deltasqrd);
+        deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
+        p2[2] = p1[2] + sqrt(deltasqrd);
         
-    // }
+    }
 
 // Write to OBJ
     std::cout<<(edges.size())<<"\n";
@@ -181,8 +173,15 @@ int main(){
         ofs << "l " << i1 << " " << i2  << "\n";
     }
     
-    for (int k = 0; k < grids[0].cells.size() *  grids[0].cells[0].size(); k++) {
-        ofs << "l " << k+1 << " " << k+1 + grids[0].cells.size() *  grids[0].cells[0].size() << "\n";
+    // connecting the root layer to the zeroth layer
+    int gridZeroPointscount = 0;
+    for (int i = 0; i < grids[0].cells.size(); i++){
+        gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
+    }
+
+    for (int k = 0; k < gridZeroPointscount; k++) {
+
+        ofs << "l " << k+1 << " " << k+1 + gridZeroPointscount << "\n"; // why k+1 ?
     }
 
     ofs.close();
