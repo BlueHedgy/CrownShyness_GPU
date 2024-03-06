@@ -71,12 +71,7 @@ Grid2D generateGrid(u_int16_t subdivision, int seed){
 
             int pointCount = int(float(maxPointsPerCell) * sin(float(j)/float(subdivision) *2.0*3.14159265 * 10.0));
             if (pointCount < 1) pointCount = 1;
-            // for (auto c: randomCenters){
-            //     vec2i center;
-            //     center[0] = ceil((c[0]/ init_subdiv) * subdivision);
-            //     center[0] = ceil((c[0]/ init_subdiv) * subdivision);
-            //     center[1] = 
-            // }
+
 
             // int pointCount = 3;
             Cell currentCell;

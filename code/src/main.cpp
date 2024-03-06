@@ -71,7 +71,7 @@ int main(){
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445, randomCenters));
+        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445));
 
         // increase the subdivision at the next layer
         subdiv = subdiv * flatness;
@@ -167,11 +167,11 @@ int main(){
         ofs << "v " << points[k][0] << " " << points[k][1] << " "  <<  points[k][2]  << "\n";
     }
 
-    // for (auto e: edges) {
-    //     auto i1 = coordToIndex(e.c1,grids) + 1;
-    //     auto i2 = coordToIndex(e.c2,grids) + 1;
-    //     ofs << "l " << i1 << " " << i2  << "\n";
-    // }
+    for (auto e: edges) {
+        auto i1 = coordToIndex(e.c1,grids);
+        auto i2 = coordToIndex(e.c2,grids);
+        ofs << "l " << i1 << " " << i2  << "\n";
+    }
     
     // connecting the root layer to the zeroth layer
     int gridZeroPointscount = 0;
@@ -179,10 +179,10 @@ int main(){
         gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
 
-    // for (int k = 0; k < gridZeroPointscount; k++) {
+    for (int k = 0; k < gridZeroPointscount; k++) {
 
-    //     ofs << "l " << k+1 << " " << k+1 + gridZeroPointscount << "\n"; // why k+1 ?
-    // }
+        ofs << "l " << k << " " << k + gridZeroPointscount << "\n"; // why k+1 ?
+    }
 
     ofs.close();
 
