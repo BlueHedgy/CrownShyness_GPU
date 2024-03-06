@@ -67,11 +67,11 @@ int main(){
 
     int dense_region_count = 1; // Default number of dense clusters in the generation area
 
-    // std::vector<LavaCake::vec2f> randomCenters =  randomizeDenseCenter(dense_region_count, init_subdiv);
+    std::vector<LavaCake::vec2f> randomCenters =  randomizeDenseCenter(dense_region_count, init_subdiv);
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445));
+        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445, randomCenters));
 
         // increase the subdivision at the next layer
         subdiv = subdiv * flatness;
@@ -129,7 +129,7 @@ int main(){
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (u_int16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
 
-                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(1)}));  
+                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(k+1)}));  
                 }
             }
         }
@@ -137,24 +137,24 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-    for(int  i = edges.size() -1; i>= 0; i-- ){
-        auto e = edges[i];
-        auto i1 = coordToIndex(e.c1,grids) ;
-        auto i2 = coordToIndex(e.c2,grids) ;
+    // for(int  i = edges.size() -1; i>= 0; i-- ){
+    //     auto e = edges[i];
+    //     auto i1 = coordToIndex(e.c1,grids) ;
+    //     auto i2 = coordToIndex(e.c2,grids) ;
 
-        vec3f p1 = points[i1];
-        vec3f& p2 = points[i2];
-        auto delta = p2-p1;
-        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+    //     vec3f p1 = points[i1];
+    //     vec3f& p2 = points[i2];
+    //     auto delta = p2-p1;
+    //     float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-        float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
+    //     float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
 
-        float deltasqrd = edgeLength*edgeLength - l2 ;
+    //     float deltasqrd = edgeLength*edgeLength - l2 ;
 
-        deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
-        p2[2] = p1[2] + sqrt(deltasqrd);
+    //     deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
+    //     p2[2] = p1[2] + sqrt(deltasqrd);
         
-    }
+    // }
 
 // Write to OBJ
     std::cout<<(edges.size())<<"\n";
@@ -167,11 +167,11 @@ int main(){
         ofs << "v " << points[k][0] << " " << points[k][1] << " "  <<  points[k][2]  << "\n";
     }
 
-    for (auto e: edges) {
-        auto i1 = coordToIndex(e.c1,grids) + 1;
-        auto i2 = coordToIndex(e.c2,grids) + 1;
-        ofs << "l " << i1 << " " << i2  << "\n";
-    }
+    // for (auto e: edges) {
+    //     auto i1 = coordToIndex(e.c1,grids) + 1;
+    //     auto i2 = coordToIndex(e.c2,grids) + 1;
+    //     ofs << "l " << i1 << " " << i2  << "\n";
+    // }
     
     // connecting the root layer to the zeroth layer
     int gridZeroPointscount = 0;
@@ -179,10 +179,10 @@ int main(){
         gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
 
-    for (int k = 0; k < gridZeroPointscount; k++) {
+    // for (int k = 0; k < gridZeroPointscount; k++) {
 
-        ofs << "l " << k+1 << " " << k+1 + gridZeroPointscount << "\n"; // why k+1 ?
-    }
+    //     ofs << "l " << k+1 << " " << k+1 + gridZeroPointscount << "\n"; // why k+1 ?
+    // }
 
     ofs.close();
 

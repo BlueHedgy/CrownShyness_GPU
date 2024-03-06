@@ -26,7 +26,6 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
         dense_centers.push_back(vec2i({x,y}));
     }
 
-
     // generate a weighted map to be used with generate grid
 
     for (int j = 0; j < subdiv; j++){
@@ -40,7 +39,7 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
                     minDistSqr = distSqr;
                 }
             }
-            currentRow.push_back(sqrt(minDistSqr)/(subdiv * sqrt(2)));
+            currentRow.push_back(1.0 - sqrt(minDistSqr)/(subdiv * sqrt(2)));
         }
         map.push_back(currentRow);
     }
@@ -59,24 +58,30 @@ u_int16_t maxPointsPerCell = 6;
 Grid2D generateGrid(u_int16_t subdivision, int seed){
 //TODO : fix this
     Grid2D grid;
-    std::vector<std::vector<float>> weight_map = density_map(1, subdivision);
     srand(seed);
+    std::vector<std::vector<float>> weight_map = density_map(1, subdivision);
 
+
+    float init_subdiv = 2;
     for(u_int16_t  j = 0; j < subdivision ; j++ ){
         std::vector<Cell> currentCellRow;
         std::vector<int> currentCellPointsCount;
 
         for(u_int16_t  i = 0; i < subdivision ; i++ ){
 
-            Cell currentCell;
-            // generate at most maxTreePerCell amount of points for each cell
-            // and at least one points
-            // int pointCount = int(maxPointsPerCell * weight_map[j][i]);
-            // if (pointCount < 1) pointCount = 1; 
+            int pointCount = int(float(maxPointsPerCell) * sin(float(j)/float(subdivision) *2.0*3.14159265 * 10.0));
+            if (pointCount < 1) pointCount = 1;
+            // for (auto c: randomCenters){
+            //     vec2i center;
+            //     center[0] = ceil((c[0]/ init_subdiv) * subdivision);
+            //     center[0] = ceil((c[0]/ init_subdiv) * subdivision);
+            //     center[1] = 
+            // }
 
-            int pointCount = 3;
+            // int pointCount = 3;
+            Cell currentCell;
+            std::cout<<pointCount<<std::endl;
             for (u_int16_t c = 0; c < pointCount; c++){
-                // std::cout << c << std::endl;
                 vec2f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
                 point [1] =  ((float)rand() / RAND_MAX + float(j)) / float(subdivision);
