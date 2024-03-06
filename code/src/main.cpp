@@ -4,7 +4,7 @@
 #include <math.h>      
 #include <numeric>
 
-#define BRANCHING 5
+#define BRANCHING 6
 
 using namespace LavaCake;
 
@@ -35,6 +35,7 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
     for (int i = 0; i < int(c.coord[1]); i++){
         for (int j = 0; j < grids[c.gridIndex].cells[i].size(); j++){
             for (int p = 0; p < grids[c.gridIndex].cells[i][j].points.size(); p++){
+
                 index ++;
             }
         }
@@ -43,7 +44,7 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
     int rowStart = index;
 
     for (int j = 0; j < int(c.coord[0]); j++){
-        for (int p = 0; p < grids[c.gridIndex].cells[c.coord[0]][j].points.size(); p++){
+        for (int p = 0; p < grids[c.gridIndex].cells[c.coord[1]][j].points.size(); p++){
             index ++;
         }
     }
@@ -59,9 +60,9 @@ int main(){
     
     // Indicate the subdivision size of the current space
     // i.e tile the space into 10x10 grid
-    float subdiv = 2;
+    float subdiv = 3;
 
-    float init_subdiv = 2; // area of generation (e.g 20 means 20x20 m^2)
+    float init_subdiv = 3; // area of generation (e.g 20 means 20x20 m^2)
 
     float flatness = 2;
 
@@ -84,13 +85,10 @@ int main(){
     Start from the top layer, for each point of each layer, find and connect to the closest point of the layer below
     */
     for(int k = BRANCHING-1; k >= 1; k--){
-        // iterating through the cell Rows of the current grid layer
         for(u_int16_t  j = 0; j < grids[k].cells.size() ; j++ ){
-            // iterating through the cells in a row
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){   
 
                 Cell currentCell = grids[k].cells[j][i];
-                // iterating through the points in the current cells
                 for (u_int16_t p = 0; p < currentCell.points.size(); p++){
 
                     // closest point in the lower level
@@ -119,8 +117,6 @@ int main(){
             }
         }
     }
-    std::cout << points[0][0] << " " << points[0][1] << " " << points[0][2]<< std::endl;
-
 
     // Generate the 3D points for each layer at height of "float(h)" above the initial points in root layer
     
@@ -164,12 +160,12 @@ int main(){
     
 
     for (int k = 0; k < points.size(); k++) {
-        ofs << "v " << points[k][0] << " " << points[k][1] << " "  <<  points[k][2]  << "\n";
+        ofs << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
     }
 
     for (auto e: edges) {
-        auto i1 = coordToIndex(e.c1,grids);
-        auto i2 = coordToIndex(e.c2,grids);
+        auto i1 = coordToIndex(e.c1,grids) + 1;
+        auto i2 = coordToIndex(e.c2,grids) + 1;
         ofs << "l " << i1 << " " << i2  << "\n";
     }
     
@@ -181,7 +177,7 @@ int main(){
 
     for (int k = 0; k < gridZeroPointscount; k++) {
 
-        ofs << "l " << k << " " << k + gridZeroPointscount << "\n"; // why k+1 ?
+        ofs << "l " << k+1 << " " << k+1 + gridZeroPointscount << "\n";
     }
 
     ofs.close();
