@@ -20,6 +20,10 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
     std::vector<std::vector<float>> map;
 
     // Pick randomly dense_region_count cells in the current grid as density center
+    if (dense_region_count > subdiv* subdiv){
+        dense_region_count = subdiv * subdiv;
+    }
+
     for (int i = 0; i < dense_region_count; i++){
         int x = rand() % subdiv;
         int y = rand() % subdiv;
@@ -27,7 +31,6 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
     }
 
     // generate a weighted map to be used with generate grid
-
     for (int j = 0; j < subdiv; j++){
         std::vector<float> currentRow;
 
@@ -39,7 +42,10 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
                     minDistSqr = distSqr;
                 }
             }
-            currentRow.push_back(1.0 - sqrt(minDistSqr)/(subdiv * sqrt(2)));
+            float coeff = 1.0 - 4.0 * sqrt(minDistSqr)/(subdiv * sqrt(2));
+
+            if (coeff < 0) coeff = 0;
+            currentRow.push_back(coeff);
         }
         map.push_back(currentRow);
     }
@@ -53,13 +59,13 @@ std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv)
                     abstractly subdivided grid
                     Currently: 1 point per cell per grid
 */
-u_int16_t maxPointsPerCell = 6;
+u_int16_t maxPointsPerCell = 8;
 
 Grid2D generateGrid(u_int16_t subdivision, int seed){
-//TODO : fix this
+
     Grid2D grid;
-    srand(seed);
-    std::vector<std::vector<float>> weight_map = density_map(1, subdivision);
+    srand(seed + 124534);
+    std::vector<std::vector<float>> weight_map = density_map(4, subdivision);
 
 
     float init_subdiv = 2;
@@ -69,13 +75,13 @@ Grid2D generateGrid(u_int16_t subdivision, int seed){
 
         for(u_int16_t  i = 0; i < subdivision ; i++ ){
 
-            int pointCount = int(float(maxPointsPerCell) * sin(float(j)/float(subdivision) *2.0*3.14159265 * 10.0));
+            // int pointCount = int(float(maxPointsPerCell) * sin(float(j)/float(subdivision) *2.0*3.14159265 * 10.0));
+
+            int pointCount = int(float(maxPointsPerCell) * weight_map[j][i]);
             if (pointCount < 1) pointCount = 1;
 
-
-            // int pointCount = 3;
             Cell currentCell;
-            std::cout<<pointCount<<std::endl;
+
             for (u_int16_t c = 0; c < pointCount; c++){
                 vec2f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
@@ -105,7 +111,7 @@ Coord getClosestPoint(const Grid2D& grid, const vec2f& point, const  uint32_t gr
         for(int i = cell[0]-1; i <=cell[0]+1 ; i++){
             // make sure the cells that are being checked is within the boundary of the grids
             if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
-                // iterating through the points in the cell
+
                 for (int p = 0; p < grid.cells[j][i].points.size(); p++){
 
                     float distsqrd  = dot(point - grid.cells[j][i].points[p],  point - grid.cells[j][i].points[p]);
