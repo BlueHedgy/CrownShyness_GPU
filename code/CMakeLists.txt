@@ -17,10 +17,12 @@ add_subdirectory(LavaCake)
 set(HEADERS 
 src/jitteredGrid.h
 src/graph.h
+src/ultils.h
 )
 
 set(SOURCES 
 src/jitteredGrid.cpp
+src/ultils.cpp
 )
 
 

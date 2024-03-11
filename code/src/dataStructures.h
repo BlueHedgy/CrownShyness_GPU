@@ -7,6 +7,9 @@
 
 using namespace LavaCake;
 
+#ifndef DATA_STRUCTURES
+#define DATA_STRUCTURES
+
 struct Coord{
     uint32_t gridIndex;     // the layer which the point belong to
     vec2u coord;            // the cell of said layer
@@ -30,4 +33,6 @@ struct Grid2D{
     std::vector<std::vector<int>> pointsCount; // keep track of number of points in grids and their cells
 
 };
+
+#endif
 
