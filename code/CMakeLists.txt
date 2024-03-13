@@ -23,6 +23,7 @@ src/ultils.h
 set(SOURCES 
 src/jitteredGrid.cpp
 src/ultils.cpp
+src/include_stb.cpp
 )
 
 
