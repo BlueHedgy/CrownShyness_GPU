@@ -2,3 +2,6 @@
 	path = code/LavaCake
 	url = https://github.com/ThibaultTricard/LavaCake.git
 	ignore = dirty
+[submodule "code/stb"]
+	path = code/stb
+	url = https://github.com/nothings/stb.git
