@@ -20,12 +20,13 @@ struct Edge{
     Coord c1, c2;
 };
 
-struct points{
-    LavaCake::vec3f points;
-};
+// struct points{
+//     LavaCake::vec3f points;
+// };
 
 struct Cell{
     std::vector<LavaCake::vec2f> points;
+    std::vector<float> points_weight;
 };
 
 struct Grid2D{

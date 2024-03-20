@@ -25,7 +25,10 @@ int main(){
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(subdiv),(i * 1562434) % 3445, "/home/local/canopy_forest/crownshyness/code/testing" + std::to_string(i) + ".png"));
+
+        // grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, "/home/local/canopy_forest/crownshyness/code/testing" + std::to_string(i) + ".png"));
+
+        grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, ""));
 
         // increase the subdivision at the next layer
         subdiv = subdiv * flatness;
@@ -86,24 +89,24 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-    for(int  i = edges.size() -1; i>= 0; i-- ){
-        auto e = edges[i];
-        auto i1 = coordToIndex(e.c1,grids) ;
-        auto i2 = coordToIndex(e.c2,grids) ;
+    // for(int  i = edges.size() -1; i>= 0; i-- ){
+    //     auto e = edges[i];
+    //     auto i1 = coordToIndex(e.c1,grids) ;
+    //     auto i2 = coordToIndex(e.c2,grids) ;
 
-        vec3f p1 = points[i1];
-        vec3f& p2 = points[i2];
-        auto delta = p2-p1;
-        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+    //     vec3f p1 = points[i1];
+    //     vec3f& p2 = points[i2];
+    //     auto delta = p2-p1;
+    //     float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-        float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
+    //     float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
 
-        float deltasqrd = edgeLength*edgeLength - l2 ;
+    //     float deltasqrd = edgeLength*edgeLength - l2 ;
 
-        deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
-        p2[2] = p1[2] + sqrt(deltasqrd);
+    //     deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
+    //     p2[2] = p1[2] + sqrt(deltasqrd);
         
-    }
+    // }
     write_to_OBJ(grids, edges, points);
 
     return 0;
