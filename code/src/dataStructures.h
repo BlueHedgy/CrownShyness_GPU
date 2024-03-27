@@ -13,7 +13,8 @@ using namespace LavaCake;
 struct Coord{
     uint32_t gridIndex;     // the layer which the point belong to
     vec2u coord;            // the cell of said layer
-    u_int16_t pointIndex;   // the index of the point in the cell 
+    u_int16_t pointIndex;   // the index of the point in the cell
+    float weight; 
 };
 
 struct Edge{
