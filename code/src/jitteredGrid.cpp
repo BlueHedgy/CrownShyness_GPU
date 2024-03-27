@@ -80,7 +80,7 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
 */
 u_int16_t maxPointsPerCell = 8;
 
-Grid2D generateGrid(u_int16_t subdivision, int seed, std::string filename){
+Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string filename){
 
     Grid2D grid;
     srand(seed + 124534);
@@ -123,9 +123,15 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, std::string filename){
             
                 currentCell.points.push_back(point);
 
+                float weight;
                 // Randomized weight for testing
-                float weight = (float)rand() / (RAND_MAX+ 1.0);
- 
+                if (gridLayer == 0){
+                    weight = (float)rand() / (RAND_MAX+ 1.0);
+                }
+                else{
+                    weight = 1.0f;
+                }    
+  
                 currentCell.points_weight.push_back(weight);
             }
             currentCellRow.push_back(currentCell);
@@ -166,7 +172,7 @@ Coord getClosestPoint(const Grid2D& grid, const vec2f& point, const  uint32_t gr
                         closestPoint.coord[0] = i;
                         closestPoint.coord[1] = j;
                         closestPoint.pointIndex = p;
-
+                        closestPoint.weight = grid.cells[j][i].points_weight[p];
                     }
                 }
             }

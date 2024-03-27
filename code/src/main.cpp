@@ -15,7 +15,7 @@ int main(){
     
     // Indicate the subdivision size of the current space
     // i.e tile the space into 10x10 grid
-    float subdiv = 2;
+    float subdiv = 5;
 
     float init_subdiv = 2; // area of generation (e.g 20 means 20x20 m^2)
 
@@ -24,11 +24,12 @@ int main(){
     int dense_region_count = 1; // Default number of dense clusters in the generation area
 
     // Generate grids and their corresponding points
+    std::string filename = "/home/local/canopy_forest/crownshyness/code/testing";
     for(int i = 0; i < BRANCHING; i++){
 
-        // grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, "/home/local/canopy_forest/crownshyness/code/testing" + std::to_string(i) + ".png"));
+        // grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i , filename+ std::to_string(i) + ".png"));
 
-        grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, ""));
+        grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i, ""));
 
         // increase the subdivision at the next layer
         subdiv = subdiv * flatness;
@@ -38,26 +39,30 @@ int main(){
     std::vector<Edge> edges;
 
     /*
-    Start from the top layer, for each point of each layer, find and connect to the closest point of the layer below
+    Start from the bottom layer, for each point of the nextlayer, find and connect to the closest point of the current layer
     */
-    for(int k = BRANCHING-1; k >= 1; k--){
-    // for (int k = 0; k < BRANCHING -1; k++){
-        for(u_int16_t  j = 0; j < grids[k].cells.size() ; j++ ){
-            for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){   
 
-                Cell currentCell = grids[k].cells[j][i];
+    for (int k = 0; k < BRANCHING-1; k++){
+
+        for(u_int16_t  j = 0; j < grids[k+1].cells.size() ; j++ ){
+            for(u_int16_t  i = 0; i <  grids[k+1].cells[j].size() ; i++ ){   
+
+                Cell currentCell = grids[k+1].cells[j][i];
                 for (u_int16_t p = 0; p < currentCell.points.size(); p++){
 
                     // closest point in the lower level
-                    Coord c1 = getClosestPoint(grids[k-1], currentCell.points[p], k-1);
+                    Coord c2 = getClosestPoint(grids[k], currentCell.points[p], k);
 
                     // current point
-                    Coord c2;
-                    c2.coord = vec2u({u_int32_t(i),u_int32_t(j)});
-                    c2.gridIndex = k;
-                    c2.pointIndex = p;
+                    Coord c1;
+                    c1.coord = vec2u({u_int32_t(i),u_int32_t(j)});
+                    c1.gridIndex = k+1;
+                    c1.pointIndex = p;
+                    // c2.weight = c1.weight;
 
-                    edges.push_back({c1,c2});
+                    currentCell.points_weight[p] = c2.weight;
+
+                    edges.push_back({c2,c1});
                 }
             }
         }
