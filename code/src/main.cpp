@@ -4,7 +4,6 @@
 #include <math.h>      
 
 #include "ultils.h"
-#define BRANCHING 5
 
 using namespace LavaCake;
 
@@ -13,13 +12,8 @@ int main(){
     // grids: represent the layers of branch deviations (by height)
     std::vector<Grid2D> grids;
     
-    // Indicate the subdivision size of the current space
-    // i.e tile the space into 10x10 grid
-    float subdiv = 5;
-
-    float init_subdiv = 2; // area of generation (e.g 20 means 20x20 m^2)
-
-    float flatness = 2;
+    float init_subdiv = INIT_SUBDIV;
+    float gen_area = GEN_AREA; 
 
     int dense_region_count = 1; // Default number of dense clusters in the generation area
 
@@ -29,19 +23,19 @@ int main(){
 
         // grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i , filename+ std::to_string(i) + ".png"));
 
-        grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i, ""));
+        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, ""));
 
         // increase the subdivision at the next layer
-        subdiv = subdiv * flatness;
+        init_subdiv *= FLATNESS;
     }
     
     // edges: representing the branches of the trees
     std::vector<Edge> edges;
 
-    /*
-    Start from the bottom layer, for each point of the nextlayer, find and connect to the closest point of the current layer
-    */
 
+    /*
+    Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
+    */
     for (int k = 0; k < BRANCHING-1; k++){
 
         for(u_int16_t  j = 0; j < grids[k+1].cells.size() ; j++ ){
@@ -68,6 +62,7 @@ int main(){
         }
     }
 
+
 // Flattening the data structure--------------------------------------------------------
     std::vector<vec3f> points;
 
@@ -75,7 +70,7 @@ int main(){
     for(u_int16_t  j = 0; j < grids[0].cells.size(); j++ ){
         for(u_int16_t  i = 0; i <  grids[0].cells[j].size(); i++ ){
             for (u_int16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
-                points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *init_subdiv, grids[0].cells[j][i].points[p][1] * init_subdiv, float(0)}));
+                points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *gen_area, grids[0].cells[j][i].points[p][1] * gen_area, float(0)}));
             }
         }
     }
@@ -87,7 +82,7 @@ int main(){
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (u_int16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
 
-                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *init_subdiv, grids[k].cells[j][i].points[p][1] * init_subdiv, float(k+1)}));  
+                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
                 }
             }
         }

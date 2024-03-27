@@ -106,10 +106,10 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
             int pointCount;
 
             if (!filename.empty()){
-                pointCount = int(float(maxPointsPerCell) * weight_map[j][i]);
+                pointCount = int(float(MAX_POINT_PER_CELL) * weight_map[j][i]);
             }
             else{
-                pointCount = maxPointsPerCell;
+                pointCount = MAX_POINT_PER_CELL;
             }
 
             // if (pointCount < 1) pointCount = 1;
@@ -126,7 +126,7 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
                 float weight;
                 // Randomized weight for testing
                 if (gridLayer == 0){
-                    weight = (float)rand() / (RAND_MAX+ 1.0);
+                    weight = (float)rand() / (RAND_MAX+1.0) *0.5;
                 }
                 else{
                     weight = 1.0f;
