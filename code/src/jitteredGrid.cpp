@@ -3,7 +3,8 @@
 
 using namespace LavaCake;
 
-std::vector<std::vector<float>> density_map (int dense_region_count, int subdiv){
+// DENSITY --------------------------------------------------------------
+std::vector<std::vector<float>> random_density_map (int dense_region_count, int subdiv){
 
     std::vector<LavaCake::vec2i> dense_centers;
     std::vector<std::vector<float>> map;
@@ -67,6 +68,10 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
 
     return map;
 }
+
+// ----------------------------------------------------------------------------
+
+
 
 /*
     GenerateGrid:   randomize points line by line through an

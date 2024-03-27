@@ -46,6 +46,30 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
 }
 
 
+void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points){
+    float flatness = 2.0;
+
+    for(int  i = (*edges).size() -1; i>= 0; i-- ){
+        auto e = (*edges)[i];
+        auto i1 = coordToIndex(e.c1,*grids) ;
+        auto i2 = coordToIndex(e.c2,*grids) ;
+
+        vec3f p1 = (*points)[i1];
+        vec3f& p2 = (*points)[i2];
+        auto delta = p2-p1;
+        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+
+        float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
+
+        float deltasqrd = edgeLength*edgeLength - l2 ;
+
+        deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
+        p2[2] = p1[2] + sqrt(deltasqrd);
+        
+    }
+}
+
+
 void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points){
     // Write to OBJ
     std::cout<<(edges.size())<<"\n";

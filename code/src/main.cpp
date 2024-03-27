@@ -41,6 +41,7 @@ int main(){
     Start from the top layer, for each point of each layer, find and connect to the closest point of the layer below
     */
     for(int k = BRANCHING-1; k >= 1; k--){
+    // for (int k = 0; k < BRANCHING -1; k++){
         for(u_int16_t  j = 0; j < grids[k].cells.size() ; j++ ){
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){   
 
@@ -89,24 +90,7 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-    // for(int  i = edges.size() -1; i>= 0; i-- ){
-    //     auto e = edges[i];
-    //     auto i1 = coordToIndex(e.c1,grids) ;
-    //     auto i2 = coordToIndex(e.c2,grids) ;
-
-    //     vec3f p1 = points[i1];
-    //     vec3f& p2 = points[i2];
-    //     auto delta = p2-p1;
-    //     float l2 = delta[0]*delta[0] + delta[1]*delta[1];
-
-    //     float edgeLength = 1.0f/pow(flatness,e.c2.gridIndex) ;
-
-    //     float deltasqrd = edgeLength*edgeLength - l2 ;
-
-    //     deltasqrd = deltasqrd < 0.0f ?  0.0f : deltasqrd;
-    //     p2[2] = p1[2] + sqrt(deltasqrd);
-        
-    // }
+    branch_styling(&grids, &edges, &points);
     write_to_OBJ(grids, edges, points);
 
     return 0;
