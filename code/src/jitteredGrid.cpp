@@ -55,12 +55,15 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
         exit(1);
     }
 
+    unsigned char * resized_im; 
+    stbir_resize_uint8_linear(image, width, height, 1, resized_im, subdiv, subdiv, 1, STBIR_1CHANNEL);
+
     std::vector<std::vector<float>> map;
 
-    for (int j = 0; j < width; j++){
+    for (int j = 0; j < subdiv; j++){
         std::vector<float> currentRow;
-        for (int i = 0; i < height; i++){
-            currentRow.push_back(1.0 - int(image[j * height + i])/255.0);
+        for (int i = 0; i < subdiv; i++){
+            currentRow.push_back(1.0 - float(int(resized_im[j * subdiv + i])/255.0));
         }
         map.push_back(currentRow);
         
@@ -87,6 +90,7 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
 
     std::vector<std::vector<float>> weight_map;
 
+    std::cout << filename << std::endl;
     if (!filename.empty()){
         weight_map = user_density_map(filename, subdivision);
     }

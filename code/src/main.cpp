@@ -18,14 +18,10 @@ int main(){
     int dense_region_count = 1; // Default number of dense clusters in the generation area
 
     // Generate grids and their corresponding points
-    std::string filename = "/home/local/canopy_forest/crownshyness/code/testing";
     for(int i = 0; i < BRANCHING; i++){
-
-        // grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i , filename+ std::to_string(i) + ".png"));
-
-        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, ""));
-
-        // increase the subdivision at the next layer
+        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE));
+        
+        // grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, ""));
         init_subdiv *= FLATNESS;
     }
     
