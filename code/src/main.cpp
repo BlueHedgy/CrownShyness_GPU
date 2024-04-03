@@ -20,7 +20,7 @@ int main(){
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
         grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE));
-        
+
         // grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, ""));
         init_subdiv *= FLATNESS;
     }

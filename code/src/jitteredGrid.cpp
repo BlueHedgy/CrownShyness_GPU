@@ -55,8 +55,7 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
         exit(1);
     }
 
-    unsigned char * resized_im; 
-    stbir_resize_uint8_linear(image, width, height, 1, resized_im, subdiv, subdiv, 1, STBIR_1CHANNEL);
+    unsigned char * resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
 
     std::vector<std::vector<float>> map;
 
@@ -90,14 +89,9 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
 
     std::vector<std::vector<float>> weight_map;
 
-    std::cout << filename << std::endl;
     if (!filename.empty()){
         weight_map = user_density_map(filename, subdivision);
     }
-    // else{
-    //     // weight_map = density_map(4, subdivision);
-    // }
-    
     
     float init_subdiv = 2;
     for(u_int16_t  j = 0; j < subdivision ; j++ ){
@@ -116,7 +110,6 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
                 pointCount = MAX_POINT_PER_CELL;
             }
 
-            // if (pointCount < 1) pointCount = 1;
 
             Cell currentCell;
 
