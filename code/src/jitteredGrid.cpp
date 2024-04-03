@@ -114,22 +114,31 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
             Cell currentCell;
 
             for (u_int16_t c = 0; c < pointCount; c++){
-                vec2f point;
+                vec3f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
                 point [1] =  ((float)rand() / RAND_MAX + float(j)) / float(subdivision);
+                point [2] = float(gridLayer);
             
                 currentCell.points.push_back(point);
 
                 float weight;
+                int tree_index;
                 // Randomized weight for testing
                 if (gridLayer == 0){
                     weight = (float)rand() / (RAND_MAX+1.0) *0.5;
+                    tree_index = c;
                 }
                 else{
                     weight = 1.0f;
+                    tree_index = -1;
                 }    
-  
-                currentCell.points_weight.push_back(weight);
+
+                point_Info newPoint;
+                newPoint.points_weight = weight;
+                newPoint.tree_index = tree_index;
+
+                currentCell.pointsInfo.push_back(newPoint);
+                // currentCell.pointsInfo.push_back(weight);
             }
             currentCellRow.push_back(currentCell);
             currentCellPointsCount.push_back(pointCount);
@@ -143,7 +152,7 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
 }
 
 
-Coord getClosestPoint(const Grid2D& grid, const vec2f& point, const  uint32_t gridLayer){
+Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gridLayer){
 
     // get the corresponding cell in the lower level projected from the current point
     vec2i cell({int(point[0] * grid.cells[0].size() ),int(point[1] * grid.cells.size())});
@@ -160,7 +169,7 @@ Coord getClosestPoint(const Grid2D& grid, const vec2f& point, const  uint32_t gr
                     // d² 
                     float distsqrd  = dot(point - grid.cells[j][i].points[p],  point - grid.cells[j][i].points[p]);
 
-                    float power = distsqrd - pow(grid.cells[j][i].points_weight[p], 2.0);
+                    float power = distsqrd - pow(grid.cells[j][i].pointsInfo[p].points_weight, 2.0);
 
                     if(power < mindistsqrd){
                         mindistsqrd = power;
@@ -169,7 +178,7 @@ Coord getClosestPoint(const Grid2D& grid, const vec2f& point, const  uint32_t gr
                         closestPoint.coord[0] = i;
                         closestPoint.coord[1] = j;
                         closestPoint.pointIndex = p;
-                        closestPoint.weight = grid.cells[j][i].points_weight[p];
+                        closestPoint.weight = grid.cells[j][i].pointsInfo[p].points_weight;
                     }
                 }
             }

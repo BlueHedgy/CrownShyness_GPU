@@ -15,19 +15,21 @@ struct Coord{
     vec2u coord;            // the cell of said layer
     u_int16_t pointIndex;   // the index of the point in the cell
     float weight; 
+    int tree_index;
 };
 
 struct Edge{
     Coord c1, c2;
 };
 
-// struct points{
-//     LavaCake::vec3f points;
-// };
+struct point_Info{
+    float points_weight;
+    int tree_index;
+};
 
 struct Cell{
-    std::vector<LavaCake::vec2f> points;
-    std::vector<float> points_weight;
+    std::vector<LavaCake::vec3f> points;
+    std::vector<point_Info> pointsInfo;
 };
 
 struct Grid2D{

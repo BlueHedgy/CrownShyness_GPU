@@ -50,7 +50,8 @@ int main(){
                     c1.pointIndex = p;
                     // c2.weight = c1.weight;
 
-                    currentCell.points_weight[p] = c2.weight;
+                    currentCell.pointsInfo[p].points_weight = c2.weight;
+                    currentCell.pointsInfo[p].tree_index = c2.tree_index;
 
                     edges.push_back({c2,c1});
                 }
@@ -78,7 +79,7 @@ int main(){
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (u_int16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
 
-                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] *gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
+                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] * gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
                 }
             }
         }
