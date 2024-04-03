@@ -12,13 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 add_subdirectory(LavaCake)
-
-
-set(HEADERS 
-src/jitteredGrid.h
-src/graph.h
-src/ultils.h
-)
+include_directories(headers)
 
 set(SOURCES 
 src/jitteredGrid.cpp
@@ -27,9 +21,7 @@ src/include_stb.cpp
 )
 
 
-# Link each target with other targets or add options, etc.
-
 # Adding something we can run - Output name matches target name
-add_executable(CrownShyness src/main.cpp ${HEADERS} ${SOURCES})
+add_executable(CrownShyness src/main.cpp ${SOURCES})
 target_link_libraries(CrownShyness LavaCake)
 
