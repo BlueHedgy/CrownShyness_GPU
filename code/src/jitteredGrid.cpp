@@ -125,7 +125,7 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
                 int tree_index;
                 // Randomized weight for testing
                 if (gridLayer == 0){
-                    weight = (float)rand() / (RAND_MAX+1.0) *0.5;
+                    weight = (float)rand() / (RAND_MAX+1.0) *0.15;
                     tree_index = c;
                 }
                 else{

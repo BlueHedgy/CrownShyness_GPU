@@ -37,11 +37,11 @@ int main(){
         for(u_int16_t  j = 0; j < grids[k+1].cells.size() ; j++ ){
             for(u_int16_t  i = 0; i <  grids[k+1].cells[j].size() ; i++ ){   
 
-                Cell currentCell = grids[k+1].cells[j][i];
-                for (u_int16_t p = 0; p < currentCell.points.size(); p++){
+                Cell *currentCell = &grids[k+1].cells[j][i];
+                for (u_int16_t p = 0; p < currentCell->points.size(); p++){
 
                     // closest point in the lower level
-                    Coord c2 = getClosestPoint(grids[k], currentCell.points[p], k);
+                    Coord c2 = getClosestPoint(grids[k], currentCell->points[p], k);
 
                     // current point
                     Coord c1;
@@ -50,8 +50,8 @@ int main(){
                     c1.pointIndex = p;
                     // c2.weight = c1.weight;
 
-                    currentCell.pointsInfo[p].points_weight = c2.weight;
-                    currentCell.pointsInfo[p].tree_index = c2.tree_index;
+                    currentCell->pointsInfo[p].points_weight = c2.weight;
+                    currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
                     edges.push_back({c2,c1});
                 }
