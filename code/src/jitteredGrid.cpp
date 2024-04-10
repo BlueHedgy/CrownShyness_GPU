@@ -81,6 +81,7 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
                     Currently: 1 point per cell per grid
 */
 u_int16_t maxPointsPerCell = 8;
+int tree_index = -1;
 
 Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string filename){
 
@@ -112,7 +113,8 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
 
 
             Cell currentCell;
-
+            point_Info newPoint;
+            
             for (u_int16_t c = 0; c < pointCount; c++){
                 vec3f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
@@ -122,20 +124,18 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
                 currentCell.points.push_back(point);
 
                 float weight;
-                int tree_index;
                 // Randomized weight for testing
                 if (gridLayer == 0){
-                    weight = (float)rand() / (RAND_MAX+1.0) *0.15;
-                    tree_index = c;
+                    newPoint.points_weight  = (float)rand() / (RAND_MAX+1.0) *0.15 + 0.1;
+                    tree_index++;
+                    newPoint.tree_index = tree_index;
                 }
                 else{
                     weight = 1.0f;
-                    tree_index = -1;
+                    newPoint.tree_index = -1;
+
                 }    
 
-                point_Info newPoint;
-                newPoint.points_weight = weight;
-                newPoint.tree_index = tree_index;
 
                 currentCell.pointsInfo.push_back(newPoint);
                 // currentCell.pointsInfo.push_back(weight);
@@ -179,11 +179,14 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
                         closestPoint.coord[1] = j;
                         closestPoint.pointIndex = p;
                         closestPoint.weight = grid.cells[j][i].pointsInfo[p].points_weight;
+                        closestPoint.tree_index = grid.cells[j][i].pointsInfo[p].tree_index;
                     }
                 }
             }
         }
     }
+
+    // std::cout << closestPoint.weight << " " << closestPoint.tree_index << std::endl;
 
     return closestPoint;
 

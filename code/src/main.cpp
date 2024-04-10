@@ -21,13 +21,18 @@ int main(){
     for(int i = 0; i < BRANCHING; i++){
         grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE));
 
-        // grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, ""));
         init_subdiv *= FLATNESS;
     }
     
     // edges: representing the branches of the trees
     std::vector<Edge> edges;
 
+    int gridZeroPointscount = 0;
+    for (int i = 0; i < grids[0].cells.size(); i++){
+        gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
+    }
+    
+    std::vector<int> trees(gridZeroPointscount);
 
     /*
     Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
@@ -54,11 +59,20 @@ int main(){
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
                     edges.push_back({c2,c1});
+                    trees[c2.tree_index]++;
                 }
             }
         }
     }
 
+// Filtering useless "trees"
+std::vector<int> filtered_trees;
+
+for (int i = 0; i < trees.size(); i++){
+    if (trees[i] > 100){
+        filtered_trees.push_back(i);
+    }
+}
 
 // Flattening the data structure--------------------------------------------------------
     std::vector<vec3f> points;
