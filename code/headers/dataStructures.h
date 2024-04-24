@@ -14,6 +14,7 @@ struct Coord{
     uint32_t gridIndex;     // the layer which the point belong to
     vec2u coord;            // the cell of said layer
     u_int16_t pointIndex;   // the index of the point in the cell
+    int global_index;
     float weight; 
     int tree_index;
 };
@@ -25,6 +26,7 @@ struct Edge{
 struct point_Info{
     float points_weight;
     int tree_index;
+    int global_point_index;
 };
 
 struct Cell{

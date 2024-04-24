@@ -10,5 +10,6 @@
     #define FLATNESS 2.0            // flat constant for certain scaling operations
     #define MAX_POINT_PER_CELL 3.0  // Self-explanatory
 
-    #define DENSITY_IMAGE "../testing5.png"
+    // #define DENSITY_IMAGE "../testing5.png"
+    #define DENSITY_IMAGE ""
 #endif

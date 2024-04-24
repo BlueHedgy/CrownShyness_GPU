@@ -83,7 +83,7 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
 u_int16_t maxPointsPerCell = 8;
 int tree_index = -1;
 
-Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string filename){
+Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
 
     Grid2D grid;
     srand(seed + 124534);
@@ -101,7 +101,6 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
 
         for(u_int16_t  i = 0; i < subdivision ; i++ ){
 
-            // int pointCount = int(float(maxPointsPerCell) * sin(float(j)/float(subdivision) *2.0*3.14159265 * 10.0));
             int pointCount;
 
             if (!filename.empty()){
@@ -116,13 +115,14 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
             point_Info newPoint;
             
             for (u_int16_t c = 0; c < pointCount; c++){
+                point_index++;
                 vec3f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);
                 point [1] =  ((float)rand() / RAND_MAX + float(j)) / float(subdivision);
                 point [2] = float(gridLayer);
             
                 currentCell.points.push_back(point);
-
+           
                 float weight;
                 // Randomized weight for testing
                 if (gridLayer == 0){
@@ -134,8 +134,9 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
                     weight = 1.0f;
                     newPoint.tree_index = -1;
 
-                }    
+                }
 
+                newPoint.global_point_index = point_index;    
 
                 currentCell.pointsInfo.push_back(newPoint);
                 // currentCell.pointsInfo.push_back(weight);
@@ -164,12 +165,13 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
             // make sure the cells that are being checked is within the boundary of the grids
             if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
 
+                const Cell *currentCell = &(grid.cells[j][i]);
                 for (int p = 0; p < grid.cells[j][i].points.size(); p++){
                     
                     // d² 
-                    float distsqrd  = dot(point - grid.cells[j][i].points[p],  point - grid.cells[j][i].points[p]);
+                    float distsqrd  = dot(point - currentCell->points[p],  point - currentCell->points[p]);
 
-                    float power = distsqrd - pow(grid.cells[j][i].pointsInfo[p].points_weight, 2.0);
+                    float power = distsqrd - pow(currentCell->pointsInfo[p].points_weight, 2.0);
 
                     if(power < mindistsqrd){
                         mindistsqrd = power;
@@ -178,8 +180,9 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
                         closestPoint.coord[0] = i;
                         closestPoint.coord[1] = j;
                         closestPoint.pointIndex = p;
-                        closestPoint.weight = grid.cells[j][i].pointsInfo[p].points_weight;
-                        closestPoint.tree_index = grid.cells[j][i].pointsInfo[p].tree_index;
+                        closestPoint.global_index = currentCell->pointsInfo[p].global_point_index;
+                        closestPoint.weight = currentCell->pointsInfo[p].points_weight;
+                        closestPoint.tree_index = currentCell->pointsInfo[p].tree_index;
                     }
                 }
             }

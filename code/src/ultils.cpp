@@ -46,12 +46,14 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
 }
 
 
-void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points){
+void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points, int point_index_reduction, int gridZeroPointsCount){
 
     for(int  i = 0 ; i<(*edges).size(); i++ ){
         auto e = (*edges)[i];
-        auto i1 = coordToIndex(e.c1,*grids) ;
-        auto i2 = coordToIndex(e.c2,*grids) ;
+        // auto i1 = coordToIndex(e.c1,*grids) ;
+        // auto i2 = coordToIndex(e.c2,*grids) ;
+        int i1 = e.c1.global_index + gridZeroPointsCount + point_index_reduction;
+        int i2 = e.c2.global_index + gridZeroPointsCount + point_index_reduction;
 
         vec3f p1 = (*points)[i1];
         vec3f& p2 = (*points)[i2];
@@ -69,33 +71,35 @@ void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::v
 }
 
 
-void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points){
+void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, int point_index_reduction, int gridZeroPointsCount){
     // Write to OBJ
     std::cout<<(edges.size())<<"\n";
     std::ofstream ofs;
     ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
 
-    
+    // int gridZeroPointscount = 0;
+    // for (int i = 0; i < grids[0].cells.size(); i++){
+    //     gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
+    // }
 
     for (int k = 0; k < points.size(); k++) {
         ofs << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
     }
 
     for (auto e: edges) {
-        auto i1 = coordToIndex(e.c1,grids) + 1;
-        auto i2 = coordToIndex(e.c2,grids) + 1;
-        ofs << "l " << i1 << " " << i2  << "\n";
+        // auto i1 = coordToIndex(e.c1,grids) + 1;
+        // auto i2 = coordToIndex(e.c2,grids) + 1;
+        // std::cout << e.c1.global_index << " " << e.c2.global_index << std::endl;
+        int i1 = e.c1.global_index + gridZeroPointsCount + point_index_reduction;
+        int i2 = e.c2.global_index + gridZeroPointsCount + point_index_reduction;
+        ofs << "l " << i1+1 << " " << i2+1  << "\n";
     }
     
     // connecting the root layer to the zeroth layer
-    int gridZeroPointscount = 0;
-    for (int i = 0; i < grids[0].cells.size(); i++){
-        gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
-    }
 
-    for (int k = 0; k < gridZeroPointscount; k++) {
+    for (int k = 0; k < gridZeroPointsCount; k++) {
 
-        ofs << "l " << k+1 << " " << k+1 + gridZeroPointscount << "\n";
+        ofs << "l " << k+1 << " " << k+1 + gridZeroPointsCount << "\n";
     }
 
     ofs.close();

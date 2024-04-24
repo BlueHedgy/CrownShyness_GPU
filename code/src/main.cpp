@@ -14,12 +14,15 @@ int main(){
     
     float init_subdiv = INIT_SUBDIV;
     float gen_area = GEN_AREA; 
-
+    int point_index = -1;
     int dense_region_count = 1; // Default number of dense clusters in the generation area
+
+    int gridZeroPointsCount = 0;
+    int point_index_reduction = 0;
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE));
+        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE, point_index));
 
         init_subdiv *= FLATNESS;
     }
@@ -27,12 +30,12 @@ int main(){
     // edges: representing the branches of the trees
     std::vector<Edge> edges;
 
-    int gridZeroPointscount = 0;
+    
     for (int i = 0; i < grids[0].cells.size(); i++){
-        gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
+        gridZeroPointsCount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
     
-    std::vector<int> trees(gridZeroPointscount);
+    std::vector<int> trees(gridZeroPointsCount);
 
     /*
     Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
@@ -54,6 +57,7 @@ int main(){
                     c1.gridIndex = k+1;
                     c1.pointIndex = p;
                     // c2.weight = c1.weight;
+                    c1.global_index = currentCell->pointsInfo[p].global_point_index;
 
                     currentCell->pointsInfo[p].points_weight = c2.weight;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
@@ -68,20 +72,28 @@ int main(){
 // Filtering useless "trees"
 std::vector<int> filtered_trees;
 
-for (int i = 0; i < trees.size(); i++){
-    if (trees[i] > 100){
-        filtered_trees.push_back(i);
-    }
-}
+// for (int i = 0; i < trees.size(); i++){
+//     if (trees[i] < 100){
+//         // filtered_trees.push_back(i);
+//         trees[i] = -1;
+//     }
+// }
 
 // Flattening the data structure--------------------------------------------------------
     std::vector<vec3f> points;
-
+    gridZeroPointsCount = 0;    //reset after the trees are filtered
     // Generating 3D points for the root layer
     for(u_int16_t  j = 0; j < grids[0].cells.size(); j++ ){
         for(u_int16_t  i = 0; i <  grids[0].cells[j].size(); i++ ){
             for (u_int16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
-                points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *gen_area, grids[0].cells[j][i].points[p][1] * gen_area, float(0)}));
+                int curr_tree_index = grids[0].cells[j][i].pointsInfo[p].tree_index;
+                if ( trees[curr_tree_index] != -1){
+                    gridZeroPointsCount++;
+                    points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *gen_area, grids[0].cells[j][i].points[p][1] * gen_area, float(0)}));
+                }
+                else{
+                    point_index_reduction--;
+                }
             }
         }
     }
@@ -92,17 +104,29 @@ for (int i = 0; i < trees.size(); i++){
         for(u_int16_t  j = 0; j< grids[k].cells.size(); j++ ){   
             for(u_int16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (u_int16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
-
-                    points.push_back(vec3f({grids[k].cells[j][i].points[p][0] * gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
+                    int curr_tree_index = grids[k].cells[j][i].pointsInfo[p].tree_index;
+                    if ( trees[curr_tree_index] != -1){
+                        points.push_back(vec3f({grids[k].cells[j][i].points[p][0] * gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
+                    }
+                    else{
+                        point_index_reduction--;
+                    }
                 }
             }
         }
     }
 
+for (auto i:trees) std::cout << i << " ";
+std::cout << std::endl;
+
+for (auto i:filtered_trees) std::cout << i << " ";
+std::cout << std::endl;
+std::cout << gridZeroPointsCount << " "<< point_index << " " << point_index_reduction << std::endl;
+
 //----------------------------------------------------------------------------------------
 
-    branch_styling(&grids, &edges, &points);
-    write_to_OBJ(grids, edges, points);
+    branch_styling(&grids, &edges, &points, point_index_reduction, gridZeroPointsCount);
+    write_to_OBJ(grids, edges, points, point_index_reduction, gridZeroPointsCount);
 
     return 0;
 }
