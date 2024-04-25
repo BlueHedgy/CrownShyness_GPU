@@ -1,5 +1,8 @@
 #include "ultils.h"
 
+int gridZeroPointsCount = 0;
+int point_index_reduction = 0;
+
 uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
     uint32_t index = 0;
     
@@ -46,7 +49,7 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
 }
 
 
-void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points, int point_index_reduction, int gridZeroPointsCount){
+void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points){
 
     for(int  i = 0 ; i<(*edges).size(); i++ ){
         auto e = (*edges)[i];
@@ -71,7 +74,7 @@ void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::v
 }
 
 
-void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, int point_index_reduction, int gridZeroPointsCount){
+void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points){
     // Write to OBJ
     std::cout<<(edges.size())<<"\n";
     std::ofstream ofs;

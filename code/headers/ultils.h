@@ -11,7 +11,9 @@
 
 uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids);
 
-void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points, int point_index_reduction, int gridZeroPointsCount);
+void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points);
 
-void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, int point_index_reduction, int gridZeroPointsCount);
+void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points);
 
+extern int gridZeroPointsCount;
+extern int point_index_reduction;

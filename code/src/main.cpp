@@ -17,9 +17,6 @@ int main(){
     int point_index = -1;
     int dense_region_count = 1; // Default number of dense clusters in the generation area
 
-    int gridZeroPointsCount = 0;
-    int point_index_reduction = 0;
-
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
         grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE, point_index));
@@ -30,7 +27,7 @@ int main(){
     // edges: representing the branches of the trees
     std::vector<Edge> edges;
 
-    
+    // Initial trees indicated by root grid layer
     for (int i = 0; i < grids[0].cells.size(); i++){
         gridZeroPointsCount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
@@ -59,7 +56,7 @@ int main(){
                     // c2.weight = c1.weight;
                     c1.global_index = currentCell->pointsInfo[p].global_point_index;
 
-                    currentCell->pointsInfo[p].points_weight = c2.weight;
+                    currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
                     edges.push_back({c2,c1});
@@ -125,8 +122,11 @@ std::cout << gridZeroPointsCount << " "<< point_index << " " << point_index_redu
 
 //----------------------------------------------------------------------------------------
 
-    branch_styling(&grids, &edges, &points, point_index_reduction, gridZeroPointsCount);
-    write_to_OBJ(grids, edges, points, point_index_reduction, gridZeroPointsCount);
+    // branch_styling(&grids, &edges, &points, point_index_reduction, gridZeroPointsCount);
+    // write_to_OBJ(grids, edges, points, point_index_reduction, gridZeroPointsCount);
+
+    branch_styling(&grids, &edges, &points);
+    write_to_OBJ(grids, edges, points);
 
     return 0;
 }
