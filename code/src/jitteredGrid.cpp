@@ -80,10 +80,10 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
                     abstractly subdivided grid
                     Currently: 1 point per cell per grid
 */
-u_int16_t maxPointsPerCell = 8;
+uint16_t maxPointsPerCell = 8;
 int tree_index = -1;
 
-Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
+Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
 
     Grid2D grid;
     srand(seed + 124534);
@@ -95,11 +95,11 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
     }
     
     float init_subdiv = 2;
-    for(u_int16_t  j = 0; j < subdivision ; j++ ){
+    for(uint16_t  j = 0; j < subdivision ; j++ ){
         std::vector<Cell> currentCellRow;
         std::vector<int> currentCellPointsCount;
 
-        for(u_int16_t  i = 0; i < subdivision ; i++ ){
+        for(uint16_t  i = 0; i < subdivision ; i++ ){
 
             int pointCount;
 
@@ -114,7 +114,7 @@ Grid2D generateGrid(u_int16_t subdivision, int seed, int gridLayer, std::string 
             Cell currentCell;
             point_Info newPoint;
             
-            for (u_int16_t c = 0; c < pointCount; c++){
+            for (uint16_t c = 0; c < pointCount; c++){
                 point_index++;
                 vec3f point;
                 point [0] =  ((float)rand() / RAND_MAX + float(i)) / float(subdivision);

@@ -49,53 +49,76 @@ uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids){
 }
 
 
-void branch_styling(std::vector<Grid2D> *grids, std::vector<Edge> *edges, std::vector<vec3f> *points){
+void branch_styling(std::vector<Grid2D> &grids, std::vector<Edge> &edges, std::vector<vec3f> &points, std::vector<int> &trees){
 
-    for(int  i = 0 ; i<(*edges).size(); i++ ){
-        auto e = (*edges)[i];
+    for(int  i = 0 ; i < edges.size(); i++ ){
+        auto e = edges[i];
         // auto i1 = coordToIndex(e.c1,*grids) ;
         // auto i2 = coordToIndex(e.c2,*grids) ;
-        int i1 = e.c1.global_index + gridZeroPointsCount + point_index_reduction;
-        int i2 = e.c2.global_index + gridZeroPointsCount + point_index_reduction;
 
-        vec3f p1 = (*points)[i1];
-        vec3f& p2 = (*points)[i2];
-        auto delta = p2-p1;
-        float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+        // int i1 = e.c1.global_index + gridZeroPointsCount;
+        // int i2= e.c2.global_index + gridZeroPointsCount;
 
-        float edgeLength = 1.0f/pow(FLATNESS,e.c2.gridIndex) ;
+        if (trees[e.c1.tree_index] != -1){
+            int grid1 = e.c1.gridIndex;
+            int x1 = e.c1.coord[0];
+            int y1 = e.c1.coord[1];
+            int p1 = e.c1.pointIndex;
 
-        float deltasqrd = edgeLength*edgeLength - l2 ;
+            int grid2 = e.c2.gridIndex;
+            int x2 = e.c2.coord[0];
+            int y2 = e.c2.coord[1];
+            int p2 = e.c2.pointIndex;
 
-        deltasqrd = deltasqrd < 0.0f ?  0.01f : deltasqrd;
-        p2[2] = p1[2] + sqrt(deltasqrd);
+            int i1 = grids[grid1].cells[y1][x1].pointsInfo[p1].global_point_index + gridZeroPointsCount;
+            int i2 = grids[grid2].cells[y2][x2].pointsInfo[p2].global_point_index + gridZeroPointsCount;
+        
+
+            vec3f point1 = points[i1];
+            vec3f& point2 = points[i2];
+
+            auto delta = point2-point1;
+            float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+
+            float edgeLength = 1.0f/pow(FLATNESS,e.c2.gridIndex) ;
+
+            float deltasqrd = edgeLength*edgeLength - l2 ;
+
+            deltasqrd = deltasqrd < 0.0f ?  0.01f : deltasqrd;
+            point2[2] = point1[2] + sqrt(deltasqrd);
+        }
         
     }
 }
 
 
-void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points){
+void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, std::vector<int> &trees){
     // Write to OBJ
     std::cout<<(edges.size())<<"\n";
     std::ofstream ofs;
     ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
-
-    // int gridZeroPointscount = 0;
-    // for (int i = 0; i < grids[0].cells.size(); i++){
-    //     gridZeroPointscount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
-    // }
 
     for (int k = 0; k < points.size(); k++) {
         ofs << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
     }
 
     for (auto e: edges) {
-        // auto i1 = coordToIndex(e.c1,grids) + 1;
-        // auto i2 = coordToIndex(e.c2,grids) + 1;
-        // std::cout << e.c1.global_index << " " << e.c2.global_index << std::endl;
-        int i1 = e.c1.global_index + gridZeroPointsCount + point_index_reduction;
-        int i2 = e.c2.global_index + gridZeroPointsCount + point_index_reduction;
-        ofs << "l " << i1+1 << " " << i2+1  << "\n";
+        if (trees[e.c1.tree_index] != -1){
+            int grid1 = e.c1.gridIndex;
+            int x1 = e.c1.coord[0];
+            int y1 = e.c1.coord[1];
+            int p1 = e.c1.pointIndex;
+
+            int grid2 = e.c2.gridIndex;
+            int x2 = e.c2.coord[0];
+            int y2 = e.c2.coord[1];
+            int p2 = e.c2.pointIndex;
+
+            int i1 = grids[grid1].cells[y1][x1].pointsInfo[p1].global_point_index + gridZeroPointsCount;
+            int i2 = grids[grid2].cells[y2][x2].pointsInfo[p2].global_point_index + gridZeroPointsCount;
+            ofs << "l " << i1+1 << " " << i2+1 << "\n";
+        }
+        
     }
     
     // connecting the root layer to the zeroth layer
