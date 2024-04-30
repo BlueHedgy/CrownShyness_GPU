@@ -180,7 +180,6 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
                         closestPoint.coord[0] = i;
                         closestPoint.coord[1] = j;
                         closestPoint.pointIndex = p;
-                        closestPoint.global_index = currentCell->pointsInfo[p].global_point_index;
                         closestPoint.weight = currentCell->pointsInfo[p].points_weight;
                         closestPoint.tree_index = currentCell->pointsInfo[p].tree_index;
                     }

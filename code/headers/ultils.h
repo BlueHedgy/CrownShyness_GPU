@@ -16,4 +16,3 @@ void branch_styling(std::vector<Grid2D> &grids, std::vector<Edge> &edges, std::v
 void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, std::vector<int> &trees);
 
 extern int gridZeroPointsCount;
-extern int point_index_reduction;

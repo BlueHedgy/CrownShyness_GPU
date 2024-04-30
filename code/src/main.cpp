@@ -16,6 +16,8 @@ int main(){
     float gen_area = GEN_AREA; 
     int point_index = -1;
     int dense_region_count = 1; // Default number of dense clusters in the generation area
+    
+    std::cout << "Generating forest..." << std::endl;
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
@@ -54,8 +56,6 @@ int main(){
                     c1.gridIndex = k+1;
                     c1.pointIndex = p;
                     // c2.weight = c1.weight;
-                    c1.global_index = currentCell->pointsInfo[p].global_point_index;
-
                     currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
@@ -110,22 +110,14 @@ for (int i = 0; i < trees.size(); i++){
         }
     }
 
-for (auto i:trees) std::cout << i << " ";
-std::cout << std::endl;
-
-// for (auto i:filtered_trees) std::cout << i << " ";
-// std::cout << std::endl;
-std::cout << gridZeroPointsCount << " "<< point_index << " " << point_index_reduction << std::endl;
-
-std::cout << points.size() << std::endl;
 
 //----------------------------------------------------------------------------------------
-
-    // branch_styling(&grids, &edges, &points, point_index_reduction, gridZeroPointsCount);
-    // write_to_OBJ(grids, edges, points, point_index_reduction, gridZeroPointsCount);
-
     branch_styling(grids, edges, points, trees);
+
+    std::cout << "Writing to OBJ..." << std::endl;
     write_to_OBJ(grids, edges, points, trees);
+
+    std::cout << "All done !!" << std::endl;
 
     return 0;
 }
