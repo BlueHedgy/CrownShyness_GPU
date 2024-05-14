@@ -1,5 +1,15 @@
 #include "ultils.h"
 
+
+void filter_trees(std::vector<int> &trees){
+    for (int i = 0; i < trees.size(); i++){
+        if (trees[i] < 100){
+            trees[i] = -1;
+        }
+    }
+}
+
+
 int gridZeroPointsCount = 0;
 
 uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){

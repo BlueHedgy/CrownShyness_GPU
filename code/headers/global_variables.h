@@ -11,6 +11,8 @@
     #define MAX_POINT_PER_CELL 8.0  // Self-explanatory
 
     #define WEIGHT_ATTENUATION 1.0/1.5
-    // #define DENSITY_IMAGE "../testing5.png"
-    #define DENSITY_IMAGE ""
+    #define DENSITY_IMAGE "../testing4.png"
+    // #define DENSITY_IMAGE ""
+
+    #define FILTER_TREES true
 #endif

@@ -35,6 +35,7 @@ int main(){
     }
     
     std::vector<int> trees(gridZeroPointsCount);
+    std::vector<int> trees_type(gridZeroPointsCount);
 
     /*
     Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
@@ -67,12 +68,9 @@ int main(){
     }
 
 // Filtering useless "trees"
-std::vector<int> filtered_trees;
 
-for (int i = 0; i < trees.size(); i++){
-    if (trees[i] < 100){
-        trees[i] = -1;
-    }
+if (FILTER_TREES == true){
+    filter_trees(trees);
 }
 
 // Flattening the data structure--------------------------------------------------------
