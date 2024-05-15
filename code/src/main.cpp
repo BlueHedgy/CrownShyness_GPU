@@ -34,8 +34,12 @@ int main(){
         gridZeroPointsCount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
     
-    std::vector<int> trees(gridZeroPointsCount);
-    std::vector<int> trees_type(gridZeroPointsCount);
+    // std::vector<int> trees(gridZeroPointsCount);
+    std::vector<Tree> trees(gridZeroPointsCount);
+
+    for (int i = 0; i < gridZeroPointsCount; i++){
+        trees[i].ID = i;
+    }
 
     /*
     Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
@@ -61,7 +65,10 @@ int main(){
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
                     edges.push_back({c2,c1});
-                    trees[c2.tree_index]++;
+
+                    // trees[c2.tree_index]++;
+                    trees[c2.tree_index].numEdges++;
+                    trees[c2.tree_index].branches.push_back(&edges.back());
                 }
             }
         }
@@ -81,7 +88,7 @@ if (FILTER_TREES == true){
         for(uint16_t  i = 0; i <  grids[0].cells[j].size(); i++ ){
             for (uint16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
                 int curr_tree_index = grids[0].cells[j][i].pointsInfo[p].tree_index;
-                if ( trees[curr_tree_index] != -1){
+                if ( trees[curr_tree_index].numEdges != -1){
                     gridZeroPointsCount++;
                     points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *gen_area, grids[0].cells[j][i].points[p][1] * gen_area, float(0)}));
                 }
@@ -97,7 +104,7 @@ if (FILTER_TREES == true){
             for(uint16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (uint16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
                     int curr_tree_index = grids[k].cells[j][i].pointsInfo[p].tree_index;
-                    if ( trees[curr_tree_index] != -1){
+                    if ( trees[curr_tree_index].numEdges != -1){
                         point_index++;
                         points.push_back(vec3f({grids[k].cells[j][i].points[p][0] * gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
 
@@ -110,7 +117,7 @@ if (FILTER_TREES == true){
 
 
 //----------------------------------------------------------------------------------------
-    branch_styling(grids, edges, points, trees);
+    // branch_styling(grids, edges, points, trees);
 
     std::cout << "Writing to OBJ..." << std::endl;
     write_to_OBJ(grids, edges, points, trees);

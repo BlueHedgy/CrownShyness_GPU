@@ -1,10 +1,10 @@
 #include "ultils.h"
 
 
-void filter_trees(std::vector<int> &trees){
+void filter_trees(std::vector<Tree> &trees){
     for (int i = 0; i < trees.size(); i++){
-        if (trees[i] < 100){
-            trees[i] = -1;
+        if (trees[i].numEdges< 100){
+            trees[i].numEdges = -1;
         }
     }
 }
@@ -49,32 +49,49 @@ void branch_styling(std::vector<Grid2D> &grids, std::vector<Edge> &edges, std::v
 }
 
 
-void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, std::vector<int> &trees){
+void write_to_OBJ(std::vector<Grid2D> grids, std::vector<Edge> edges, std::vector<vec3f> points, std::vector<Tree> &trees){
     // Write to OBJ
     std::cout<<(edges.size())<<"\n";
     std::ofstream ofs;
     ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
 
-    for (int k = 0; k < points.size(); k++) {
-        ofs << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
-    }
+    // for (int k = 0; k < points.size(); k++) {
+    //     ofs << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
+    // }
 
-    for (auto e: edges) {
-        if (trees[e.c1.tree_index] != -1){
-            int i1 = coordToIndex(e.c1, grids);
-            int i2 = coordToIndex(e.c2, grids);
+    // for (auto e: edges) {
+    //     if (trees[e.c1.tree_index].numEdges != -1){
+    //         int i1 = coordToIndex(e.c1, grids);
+    //         int i2 = coordToIndex(e.c2, grids);
     
-            ofs << "l " << i1+1 << " " << i2+1 << "\n";
-        }
+    //         ofs << "l " << i1+1 << " " << i2+1 << "\n";
+    //     }
         
-    }
+    // }
     
-    // connecting the root layer to the zeroth layer
+    // // connecting the root layer to the zeroth layer
 
-    for (int k = 0; k < gridZeroPointsCount; k++) {
+    // for (int k = 0; k < gridZeroPointsCount; k++) {
 
-        ofs << "l " << k+1 << " " << k+1 + gridZeroPointsCount << "\n";
+    //     ofs << "l " << k+1 << " " << k+1 + gridZeroPointsCount << "\n";
+    // }
+
+    for (int i = 0; i < trees.size(); i++){
+        Tree *current_tree = &trees[i];
+
+        if (current_tree->numEdges != -1){
+            ofs << "g " << "Tree_"<< std::to_string(trees[i].ID ) << std::endl;
+
+            for (int e = 0; e < current_tree->numEdges; e++){
+                Edge *current_edge = current_tree->branches[e];
+
+                int i1 = coordToIndex(current_edge->c1, grids);
+                int i2 = coordToIndex(current_edge->c2, grids);
+
+                ofs << "l " << i1+1 << " " << i2+1 << "\n";
+            }
+
+        }
     }
-
     ofs.close();
 }

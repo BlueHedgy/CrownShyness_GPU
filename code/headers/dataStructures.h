@@ -39,5 +39,13 @@ struct Grid2D{
 
 };
 
+struct Tree{
+    int ID;
+    std::vector<vec3f *> points;
+    std::vector<Edge *> branches;
+    int numEdges;
+};
+
+
 #endif
 
