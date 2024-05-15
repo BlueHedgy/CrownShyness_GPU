@@ -1,5 +1,7 @@
 #ifndef GLOBAL_VARIABLES
 #define GLOBAL_VARIABLES
+    #define STRING(x) #x            // Don't touch this
+    #define XSTRING(x) STRING(x)    // Nor this
 
     #define BRANCHING 5             // Number of grid layers
     #define INIT_SUBDIV 4.0         // Indicate the subdivision size of the current space
@@ -11,7 +13,8 @@
     #define MAX_POINT_PER_CELL 8.0  // Self-explanatory
 
     #define WEIGHT_ATTENUATION 1.0/1.5
-    #define DENSITY_IMAGE "../testing4.png"
+
+    #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
     // #define DENSITY_IMAGE ""
 
     #define FILTER_TREES true
