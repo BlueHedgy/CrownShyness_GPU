@@ -14,8 +14,9 @@
 
     #define WEIGHT_ATTENUATION 1.0/1.5
 
-    #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
-    // #define DENSITY_IMAGE ""
+    // #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
+    #define DENSITY_IMAGE ""
 
+    #define BRANCH_STYLING true
     #define FILTER_TREES true
 #endif

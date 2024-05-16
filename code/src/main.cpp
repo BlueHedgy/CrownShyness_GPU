@@ -26,15 +26,13 @@ int main(){
         init_subdiv *= FLATNESS;
     }
     
-    // edges: representing the branches of the trees
-    std::vector<Edge> edges;
 
     // Initial trees indicated by root grid layer
     for (int i = 0; i < grids[0].cells.size(); i++){
         gridZeroPointsCount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
     
-    // std::vector<int> trees(gridZeroPointsCount);
+    // Allocate a list for the generated trees
     std::vector<Tree> trees(gridZeroPointsCount);
 
     for (int i = 0; i < gridZeroPointsCount; i++){
@@ -64,11 +62,8 @@ int main(){
                     currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
-                    edges.push_back({c2,c1});
-
-                    // trees[c2.tree_index]++;
                     trees[c2.tree_index].numEdges++;
-                    trees[c2.tree_index].branches.push_back(&edges.back());
+                    trees[c2.tree_index].branches.push_back({c2,c1});
                 }
             }
         }
@@ -117,10 +112,12 @@ if (FILTER_TREES == true){
 
 
 //----------------------------------------------------------------------------------------
-    // branch_styling(grids, edges, points, trees);
+    if (BRANCH_STYLING == true){
+        branch_styling(grids, points, trees);
+    }
 
     std::cout << "Writing to OBJ..." << std::endl;
-    write_to_OBJ(grids, edges, points, trees);
+    write_to_OBJ(grids, points, trees);
 
     std::cout << "All done !!" << std::endl;
 
