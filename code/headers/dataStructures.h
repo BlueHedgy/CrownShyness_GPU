@@ -1,6 +1,11 @@
 #include <iostream>
 #include <fstream> 
-#include <math.h>      
+#include <math.h>
+
+#include <numeric>
+#include <string>
+#include <set>
+
 
 #include <LavaCake/Math/basics.h>
 #include <vector>
@@ -50,11 +55,22 @@ struct Grid2D{
 
 };
 
+
+struct Point {
+    vec3f position;
+    Point *parent = NULL;
+    std::vector<Point *> children;
+    int index;
+};
+
 struct Tree{
     int ID;
-    std::vector<vec3f> points;
-    std::vector<Edge> branches;
-    int numEdges;
+
+    std::set<Point> points;
+    std::vector<Edge> edges;
+    std::vector<std::pair<Point, Point>> branches;
+
+    int numBranches;
     TREE_TYPE type;
     vec3f center = vec3f({0.0f, 0.0f, 0.0f});
 };

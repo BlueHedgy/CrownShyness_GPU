@@ -44,6 +44,7 @@ int main(){
     /*
     Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
     */
+   int counter = -1;
     for (int k = 0; k < BRANCHING-1; k++){
 
         for(uint16_t  j = 0; j < grids[k+1].cells.size() ; j++){
@@ -64,8 +65,17 @@ int main(){
                     currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
-                    trees[c2.tree_index].numEdges++;
-                    trees[c2.tree_index].branches.push_back({c2,c1});
+                    trees[c2.tree_index].numBranches++;
+                    trees[c2.tree_index].edges.push_back({c2,c1});
+                    
+                    Point point1 = pointFromCoord(c1, grids);
+                    Point point2 = pointFromCoord(c2, grids);
+
+                    trees[c2.tree_index].points.insert(point1);
+                    trees[c2.tree_index].points.insert(point2);
+
+                    trees[c2.tree_index].branches.push_back(std::make_pair(point1, point2));
+
                 }
             }
         }
@@ -85,7 +95,7 @@ if (FILTER_TREES == true){
         for(uint16_t  i = 0; i <  grids[0].cells[j].size(); i++ ){
             for (uint16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
                 int curr_tree_index = grids[0].cells[j][i].pointsInfo[p].tree_index;
-                if ( trees[curr_tree_index].numEdges != -1){
+                if ( trees[curr_tree_index].numBranches != -1){
                     gridZeroPointsCount++;
                     points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *gen_area, grids[0].cells[j][i].points[p][1] * gen_area, float(0)}));
                 }
@@ -101,7 +111,7 @@ if (FILTER_TREES == true){
             for(uint16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
                 for (uint16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
                     int curr_tree_index = grids[k].cells[j][i].pointsInfo[p].tree_index;
-                    if ( trees[curr_tree_index].numEdges != -1){
+                    if ( trees[curr_tree_index].numBranches != -1){
                         point_index++;
                         points.push_back(vec3f({grids[k].cells[j][i].points[p][0] * gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
 

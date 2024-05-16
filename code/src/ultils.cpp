@@ -3,8 +3,8 @@
 
 void filter_trees(std::vector<Tree> &trees){
     for (int i = 0; i < trees.size(); i++){
-        if (trees[i].numEdges< 100){
-            trees[i].numEdges = -1;
+        if (trees[i].numBranches< 100){
+            trees[i].numBranches = -1;
         }
     }
 }
@@ -12,22 +12,42 @@ void filter_trees(std::vector<Tree> &trees){
 
 int gridZeroPointsCount = 0;
 
+Point pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids){
+    int gridIndex = c.gridIndex;
+    int x = c.coord[0];
+    int y = c.coord[1];
+    int p = c.pointIndex;
+    
+    Point newPoint;
+
+    vec3f position = grids[gridIndex].cells[y][x].points[p];
+
+    int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
+
+    newPoint.position = position;
+    newPoint.index = returnIndex;
+
+    return newPoint;
+}
+
 uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){
     int gridIndex = c.gridIndex;
     int x = c.coord[0];
     int y = c.coord[1];
     int p = c.pointIndex;
 
-    return grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
+    int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
+
+    return returnIndex;
 }
 
 void branch_styling(std::vector<Grid2D> &grids, std::vector<vec3f> &points, std::vector<Tree> &trees){
 
     for (int i = 0; i < trees.size(); i++){
         Tree *current_tree = &trees[i];
-        if (current_tree->numEdges != -1){
-            for (int e = 0; e < current_tree->numEdges; e++){
-                Edge *current_edge = &current_tree->branches[e];
+        if (current_tree->numBranches != -1){
+            for (int e = 0; e < current_tree->numBranches; e++){
+                Edge *current_edge = &current_tree->edges[e];
 
                 int i1 = coordToIndex(current_edge->c1, grids);
                 int i2 = coordToIndex(current_edge->c2, grids);
@@ -63,13 +83,13 @@ void write_to_OBJ(std::vector<Grid2D> grids, std::vector<vec3f> points, std::vec
     for (int i = 0; i < trees.size(); i++){
         Tree *current_tree = &trees[i];
 
-        if (current_tree->numEdges != -1){
+        if (current_tree->numBranches != -1){
             count++;
             
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
 
-            for (int e = 0; e < current_tree->numEdges; e++){
-                Edge *current_edge = &current_tree->branches[e];
+            for (int e = 0; e < current_tree->numBranches; e++){
+                Edge *current_edge = &current_tree->edges[e];
 
                 int i1 = coordToIndex(current_edge->c1, grids);
                 int i2 = coordToIndex(current_edge->c2, grids);
