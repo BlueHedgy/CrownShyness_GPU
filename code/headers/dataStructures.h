@@ -10,6 +10,17 @@ using namespace LavaCake;
 #ifndef DATA_STRUCTURES
 #define DATA_STRUCTURES
 
+enum TREE_TYPE{
+    Columnar,
+    Pyramidal,
+    Oval,
+    Rounded,
+    Spreading,
+    Vase,
+    Weeping,
+    SIZE=7
+};
+
 struct Coord{
     uint32_t gridIndex;     // the layer which the point belong to
     vec2u coord;            // the cell of said layer
@@ -41,9 +52,11 @@ struct Grid2D{
 
 struct Tree{
     int ID;
+    std::vector<vec3f> points;
     std::vector<Edge> branches;
     int numEdges;
-    
+    TREE_TYPE type;
+    vec3f center = vec3f({0.0f, 0.0f, 0.0f});
 };
 
 

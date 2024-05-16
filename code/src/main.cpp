@@ -37,6 +37,8 @@ int main(){
 
     for (int i = 0; i < gridZeroPointsCount; i++){
         trees[i].ID = i;
+        TREE_TYPE randomType = static_cast<TREE_TYPE>(rand()%TREE_TYPE::SIZE);
+        trees[i].type = randomType;
     }
 
     /*
@@ -44,8 +46,8 @@ int main(){
     */
     for (int k = 0; k < BRANCHING-1; k++){
 
-        for(uint16_t  j = 0; j < grids[k+1].cells.size() ; j++ ){
-            for(uint16_t  i = 0; i <  grids[k+1].cells[j].size() ; i++ ){   
+        for(uint16_t  j = 0; j < grids[k+1].cells.size() ; j++){
+            for(uint16_t  i = 0; i <  grids[k+1].cells[j].size() ; i++){   
 
                 Cell *currentCell = &grids[k+1].cells[j][i];
                 for (uint16_t p = 0; p < currentCell->points.size(); p++){
@@ -58,7 +60,7 @@ int main(){
                     c1.coord = vec2u({uint32_t(i),uint32_t(j)});
                     c1.gridIndex = k+1;
                     c1.pointIndex = p;
-                    // c2.weight = c1.weight;
+
                     currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
