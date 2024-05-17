@@ -5,6 +5,7 @@
 #include <numeric>
 #include <string>
 #include <set>
+#include <map>
 
 
 #include <LavaCake/Math/basics.h>
@@ -38,6 +39,14 @@ struct Edge{
     Coord c1, c2;
 };
 
+struct Branch{
+    int i2, i1;
+    Branch(int I2, int I1){
+        i2 = I2;
+        i1 = I1;
+    };
+};
+
 struct point_Info{
     float points_weight;
     int tree_index;
@@ -58,17 +67,21 @@ struct Grid2D{
 
 struct Point {
     vec3f position;
-    Point *parent = NULL;
-    std::vector<Point *> children;
+    const Point *parent = NULL;
+    std::vector< Point *> children;
     int index;
 };
 
+inline bool operator<(const Point &a, const Point &b){
+    return a.index < b.index && a.position != b.position;
+}
+
 struct Tree{
     int ID;
-
-    std::set<Point> points;
     std::vector<Edge> edges;
-    std::vector<std::pair<Point, Point>> branches;
+
+    std::map<int, Point> points;
+    std::vector<Branch> branches;
 
     int numBranches;
     TREE_TYPE type;

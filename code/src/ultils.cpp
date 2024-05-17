@@ -12,7 +12,7 @@ void filter_trees(std::vector<Tree> &trees){
 
 int gridZeroPointsCount = 0;
 
-Point pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids){
+std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids){
     int gridIndex = c.gridIndex;
     int x = c.coord[0];
     int y = c.coord[1];
@@ -21,13 +21,15 @@ Point pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids){
     Point newPoint;
 
     vec3f position = grids[gridIndex].cells[y][x].points[p];
+    position[0] *= GEN_AREA;
+    position[1] *= GEN_AREA;
 
     int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
 
     newPoint.position = position;
-    newPoint.index = returnIndex;
+  
 
-    return newPoint;
+    return std::make_pair(returnIndex, newPoint);
 }
 
 uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){
@@ -82,19 +84,23 @@ void write_to_OBJ(std::vector<Grid2D> grids, std::vector<vec3f> points, std::vec
     int count = -1;
     for (int i = 0; i < trees.size(); i++){
         Tree *current_tree = &trees[i];
-
+    
         if (current_tree->numBranches != -1){
             count++;
             
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
 
+            // // Writing the vertices
+            // for (auto p = current_tree->points.begin(); p != current_tree->points.end(); p++){
+            //     ofs << "v " << (*p).second.position[0] << " " << (*p).second.position[1] << " " << (*p).second.position[2] << "\n";
+            // }
+
+            // Writing the edges
             for (int e = 0; e < current_tree->numBranches; e++){
-                Edge *current_edge = &current_tree->edges[e];
 
-                int i1 = coordToIndex(current_edge->c1, grids);
-                int i2 = coordToIndex(current_edge->c2, grids);
+                Branch *current_branch = &current_tree->branches[e];
 
-                ofs << "l " << i1+1 << " " << i2+1 << "\n";
+                ofs << "l " << (current_branch->i1)+1 << " " << (current_branch->i2)+1 << "\n"; 
             }
 
             ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";

@@ -66,15 +66,25 @@ int main(){
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
                     trees[c2.tree_index].numBranches++;
-                    trees[c2.tree_index].edges.push_back({c2,c1});
+                    // trees[c2.tree_index].edges.push_back({c2,c1});
                     
-                    Point point1 = pointFromCoord(c1, grids);
-                    Point point2 = pointFromCoord(c2, grids);
+                    //---------------------------------------------------------
 
-                    trees[c2.tree_index].points.insert(point1);
-                    trees[c2.tree_index].points.insert(point2);
+                    auto indexAndPoint1 = pointFromCoord(c1, grids);
+                    auto indexAndPoint2 = pointFromCoord(c2, grids);
 
-                    trees[c2.tree_index].branches.push_back(std::make_pair(point1, point2));
+                    trees[c2.tree_index].points.insert(indexAndPoint1);
+                    trees[c2.tree_index].points.insert(indexAndPoint2);
+
+                    auto p1 = trees[c2.tree_index].points.at(indexAndPoint1.first);
+                    auto p2 = trees[c2.tree_index].points.at(indexAndPoint2.first);
+
+                    std::cout << indexAndPoint1.first << " " << indexAndPoint2.first << std::endl;
+
+                    p1.children.push_back(&p2);
+                    p2.parent = &p1;
+
+                    trees[c2.tree_index].branches.push_back(Branch(indexAndPoint2.first, indexAndPoint1.first));
 
                 }
             }
@@ -85,6 +95,14 @@ int main(){
 
 if (FILTER_TREES == true){
     filter_trees(trees);
+}
+
+for (int i = 0; i < trees.size(); i++){
+    for (auto it = trees[i].points.begin(); it != trees[i].points.end(); it++){
+        // std::cout << (*it).position[0] << " " << (*it).position[1] << " " << (*it).position[2] <<std::endl;
+
+        // std::cout << (*it).first << std::endl;
+    }
 }
 
 // Flattening the data structure--------------------------------------------------------

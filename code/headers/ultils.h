@@ -8,7 +8,7 @@
 
 #include "global_variables.h"
 
-Point pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids);
+std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids);
 uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids);
 
 void branch_styling(std::vector<Grid2D> &grids, std::vector<vec3f> &points, std::vector<Tree> &trees);
