@@ -43,24 +43,22 @@ uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){
     return returnIndex;
 }
 
-void branch_styling(std::vector<Grid2D> &grids, std::vector<vec3f> &points, std::vector<Tree> &trees){
+void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
     for (int i = 0; i < trees.size(); i++){
         Tree *current_tree = &trees[i];
         if (current_tree->numBranches != -1){
             for (int e = 0; e < current_tree->numBranches; e++){
-                Edge *current_edge = &current_tree->edges[e];
+                Branch *current_branch = &current_tree->branches[e];
 
-                int i1 = coordToIndex(current_edge->c1, grids);
-                int i2 = coordToIndex(current_edge->c2, grids);
                 
-                vec3f point1 = points[i1];
-                vec3f &point2 = points[i2];
+                vec3f point1 = points[current_branch->i1];
+                vec3f &point2 = points[current_branch->i2];
 
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-                float edgeLength = 1.0f/pow(FLATNESS,current_edge->c2.gridIndex) ;
+                float edgeLength = 1.0f/pow(FLATNESS, point2[2]-1) ;
 
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
@@ -72,7 +70,7 @@ void branch_styling(std::vector<Grid2D> &grids, std::vector<vec3f> &points, std:
 }
 
 
-void write_to_OBJ(std::vector<Grid2D> grids, std::vector<vec3f> points, std::vector<Tree> &trees){
+void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     // Write to OBJ
     std::ofstream ofs;
     ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
@@ -90,14 +88,14 @@ void write_to_OBJ(std::vector<Grid2D> grids, std::vector<vec3f> points, std::vec
             
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
 
-            // // Writing the vertices
+            // Writing the vertices
             // for (auto p = current_tree->points.begin(); p != current_tree->points.end(); p++){
-            //     ofs << "v " << (*p).second.position[0] << " " << (*p).second.position[1] << " " << (*p).second.position[2] << "\n";
+            //     ofs << "v " << points[(*p)][0] << " " << points[(*p)][1] << " " << points[(*p)][2]<< "\n";
             // }
 
             // Writing the edges
             for (int e = 0; e < current_tree->numBranches; e++){
-
+                
                 Branch *current_branch = &current_tree->branches[e];
 
                 ofs << "l " << (current_branch->i1)+1 << " " << (current_branch->i2)+1 << "\n"; 

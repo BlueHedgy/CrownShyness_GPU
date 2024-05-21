@@ -39,14 +39,6 @@ struct Edge{
     Coord c1, c2;
 };
 
-struct Branch{
-    int i2, i1;
-    Branch(int I2, int I1){
-        i2 = I2;
-        i1 = I1;
-    };
-};
-
 struct point_Info{
     float points_weight;
     int tree_index;
@@ -76,15 +68,24 @@ inline bool operator<(const Point &a, const Point &b){
     return a.index < b.index && a.position != b.position;
 }
 
+struct Branch{
+    int i2, i1;
+    Branch(int I2, int I1){
+        i2 = I2;
+        i1 = I1;
+    };
+};
+
 struct Tree{
     int ID;
-    std::vector<Edge> edges;
 
-    std::map<int, Point> points;
+    std::set<int> points; // ? Not sure if this is useful
+
     std::vector<Branch> branches;
 
     int numBranches;
     TREE_TYPE type;
+
     vec3f center = vec3f({0.0f, 0.0f, 0.0f});
 };
 

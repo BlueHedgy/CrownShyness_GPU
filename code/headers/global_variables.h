@@ -17,6 +17,6 @@
     // #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
     #define DENSITY_IMAGE ""
 
-    #define BRANCH_STYLING false
+    #define BRANCH_STYLING true
     #define FILTER_TREES true
 #endif

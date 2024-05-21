@@ -25,9 +25,11 @@ int main(){
 
         init_subdiv *= FLATNESS;
     }
-    
 
-    // Initial trees indicated by root grid layer
+    // Temporary form for the branches of the trees    
+    std::vector<Edge> edges;
+
+    // Initial number of trees indicated by root grid layer
     for (int i = 0; i < grids[0].cells.size(); i++){
         gridZeroPointsCount += std::accumulate(grids[0].pointsCount[i].begin(), grids[0].pointsCount[i].end(), 0);
     }
@@ -44,7 +46,6 @@ int main(){
     /*
     Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
     */
-   int counter = -1;
     for (int k = 0; k < BRANCHING-1; k++){
 
         for(uint16_t  j = 0; j < grids[k+1].cells.size() ; j++){
@@ -61,49 +62,25 @@ int main(){
                     c1.coord = vec2u({uint32_t(i),uint32_t(j)});
                     c1.gridIndex = k+1;
                     c1.pointIndex = p;
+                    c1.tree_index = c2.tree_index;
 
                     currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
 
                     trees[c2.tree_index].numBranches++;
-                    // trees[c2.tree_index].edges.push_back({c2,c1});
+                    edges.push_back({c2,c1});
                     
-                    //---------------------------------------------------------
-
-                    auto indexAndPoint1 = pointFromCoord(c1, grids);
-                    auto indexAndPoint2 = pointFromCoord(c2, grids);
-
-                    trees[c2.tree_index].points.insert(indexAndPoint1);
-                    trees[c2.tree_index].points.insert(indexAndPoint2);
-
-                    auto p1 = trees[c2.tree_index].points.at(indexAndPoint1.first);
-                    auto p2 = trees[c2.tree_index].points.at(indexAndPoint2.first);
-
-                    std::cout << indexAndPoint1.first << " " << indexAndPoint2.first << std::endl;
-
-                    p1.children.push_back(&p2);
-                    p2.parent = &p1;
-
-                    trees[c2.tree_index].branches.push_back(Branch(indexAndPoint2.first, indexAndPoint1.first));
-
                 }
             }
         }
     }
 
-// Filtering useless "trees"
+    // Filtering useless "trees"
 
-if (FILTER_TREES == true){
-    filter_trees(trees);
-}
-
-for (int i = 0; i < trees.size(); i++){
-    for (auto it = trees[i].points.begin(); it != trees[i].points.end(); it++){
-        // std::cout << (*it).position[0] << " " << (*it).position[1] << " " << (*it).position[2] <<std::endl;
-
-        // std::cout << (*it).first << std::endl;
+    if (FILTER_TREES == true){
+        filter_trees(trees);
     }
-}
+
 
 // Flattening the data structure--------------------------------------------------------
     std::vector<vec3f> points;
@@ -140,14 +117,26 @@ for (int i = 0; i < trees.size(); i++){
         }
     }
 
+// Process the edges into branches for the trees
+    for (int i = 0; i < edges.size(); i++){
+        Edge *e = &edges[i];
+        int i1 = coordToIndex(e->c1, grids);
+        int i2 = coordToIndex(e->c2, grids);
+        
+        trees[e->c2.tree_index].points.insert(i1);
+        trees[e->c2.tree_index].points.insert(i2);
+
+        trees[e->c2.tree_index].branches.push_back(Branch(i2, i1));
+        
+    }
 
 //----------------------------------------------------------------------------------------
     if (BRANCH_STYLING == true){
-        branch_styling(grids, points, trees);
+        branch_styling(points, trees);
     }
 
     std::cout << "Writing to OBJ..." << std::endl;
-    write_to_OBJ(grids, points, trees);
+    write_to_OBJ(points, trees);
 
     std::cout << "All done !!" << std::endl;
 
