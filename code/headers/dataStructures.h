@@ -59,13 +59,13 @@ struct Grid2D{
 
 struct Point {
     vec3f position;
-    const Point *parent = NULL;
-    std::vector< Point *> children;
+    int parent;
+    std::vector<int> children;
     int index;
 };
 
 inline bool operator<(const Point &a, const Point &b){
-    return a.index < b.index && a.position != b.position;
+    return a.index < b.index;
 }
 
 struct Branch{
@@ -79,7 +79,7 @@ struct Branch{
 struct Tree{
     int ID;
 
-    std::set<int> points; // ? Not sure if this is useful
+    std::map<int, Point> points; // ? Not sure if this is useful
 
     std::vector<Branch> branches;
 

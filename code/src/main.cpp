@@ -120,13 +120,16 @@ int main(){
 // Process the edges into branches for the trees
     for (int i = 0; i < edges.size(); i++){
         Edge *e = &edges[i];
-        int i1 = coordToIndex(e->c1, grids);
-        int i2 = coordToIndex(e->c2, grids);
-        
-        trees[e->c2.tree_index].points.insert(i1);
-        trees[e->c2.tree_index].points.insert(i2);
+        std::pair<int, Point> iP1 = pointFromCoord(e->c1, grids);
+        std::pair<int, Point> iP2 = pointFromCoord(e->c2, grids);
 
-        trees[e->c2.tree_index].branches.push_back(Branch(i2, i1));
+        trees[e->c2.tree_index].points.insert(iP1);
+        trees[e->c2.tree_index].points.insert(iP2);
+
+        trees[e->c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
+        trees[e->c2.tree_index].points.at(iP2.first).parent = iP1.first;
+
+        trees[e->c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first));
         
     }
 
