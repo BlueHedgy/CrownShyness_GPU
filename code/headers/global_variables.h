@@ -13,13 +13,17 @@
     #define FLATNESS 2.0            // flat constant for certain scaling operations
     #define MAX_POINT_PER_CELL 8.0  // Self-explanatory
 
-    #define WEIGHT_ATTENUATION 1.0/1.5
+    #define WEIGHT_ATTENUATION 1.0/2.0
 
     #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
     // #define DENSITY_IMAGE ""
 
     #define BRANCH_STYLING true     // Set this to false for debugging, not recommended
 
-    #define FILTER_TREES true
+    #define FILTER_TREES true       
+
     #define BRANCHES_COUNT_THRESHOLD 100
+
+    #define TREE_SHRINK_FACTOR 0.95
+
 #endif

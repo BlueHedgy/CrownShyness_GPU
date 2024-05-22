@@ -123,14 +123,35 @@ int main(){
         std::pair<int, Point> iP1 = pointFromCoord(e->c1, grids);
         std::pair<int, Point> iP2 = pointFromCoord(e->c2, grids);
 
-        trees[e->c2.tree_index].points.insert(iP1);
-        trees[e->c2.tree_index].points.insert(iP2);
+        if (trees[e->c2.tree_index].points.insert(iP1).second == true){
+            trees[e->c2.tree_index].center = trees[e->c2.tree_index].center + points[iP1.first];
+        }
+
+        if (trees[e->c2.tree_index].points.insert(iP2).second == true){
+            trees[e->c2.tree_index].center = trees[e->c2.tree_index].center + points[iP2.first];
+        }
 
         trees[e->c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
         trees[e->c2.tree_index].points.at(iP2.first).parent = iP1.first;
 
         trees[e->c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first));
         
+    }
+
+    // Scaling the trees for the crownshyness effect
+    for (auto t: trees){
+        if (t.numBranches != -1){
+
+            t.center[0] /= t.points.size();
+            t.center[1] /= t.points.size();
+            t.center[2] /= t.points.size();
+
+
+            for (auto it = t.points.begin(); it != t.points.end(); it++){
+                points[(*it).first][0] = (points[(*it).first][0] - t.center[0]) * TREE_SHRINK_FACTOR + t.center[0];
+                points[(*it).first][1] = (points[(*it).first][1] - t.center[1]) * TREE_SHRINK_FACTOR + t.center[1];
+            }
+        }
     }
 
 //----------------------------------------------------------------------------------------

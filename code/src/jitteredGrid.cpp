@@ -161,8 +161,8 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
     Coord closestPoint;
     float mindistsqrd = 10.0f;
 
-    for(int j = cell[1]-5; j <= cell[1] +5 ; j++){
-        for(int i = cell[0]-5; i <=cell[0]+5 ; i++){
+    for(int j = cell[1]-1; j <= cell[1] +1 ; j++){
+        for(int i = cell[0]-1; i <=cell[0]+1 ; i++){
             // make sure the cells that are being checked is within the boundary of the grids
             if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
 
