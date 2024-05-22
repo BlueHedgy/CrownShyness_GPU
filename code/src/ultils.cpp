@@ -3,7 +3,7 @@
 
 void filter_trees(std::vector<Tree> &trees){
     for (int i = 0; i < trees.size(); i++){
-        if (trees[i].numBranches< 100){
+        if (trees[i].numBranches < BRANCHES_COUNT_THRESHOLD){
             trees[i].numBranches = -1;
         }
     }
@@ -32,6 +32,8 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     return std::make_pair(returnIndex, newPoint);
 }
 
+
+// ? Currently not sure if this is to be kept
 uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){
     int gridIndex = c.gridIndex;
     int x = c.coord[0];
@@ -42,6 +44,8 @@ uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){
 
     return returnIndex;
 }
+//? ---------------------------------------------------------
+
 
 void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
