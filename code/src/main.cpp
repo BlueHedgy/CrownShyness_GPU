@@ -120,12 +120,22 @@ int main(){
                     int curr_tree_index = current_cell->pointsInfo[p].tree_index;
                     if ( trees[curr_tree_index].numBranches != -1){
                         point_index++;
-						points.push_back(
-							vec3f({
-                            current_cell->points[p][0] * gen_area,
-                            current_cell->points[p][1] * gen_area,
-                            float(k + 1)})
-                            );
+                        if (k != 0){
+                            points.push_back(
+                                vec3f({
+                                current_cell->points[p][0] * gen_area,
+                                current_cell->points[p][1] * gen_area,
+                                float(k + 1)})
+                                );
+                        }
+                        else{
+                            points.push_back(
+                                vec3f({
+                                current_cell->points[p][0] * gen_area,
+                                current_cell->points[p][1] * gen_area,
+                                float(k + (0.3 * (float)rand() / RAND_MAX + 0.7))})
+                                );    
+                        }
 
 						current_cell->pointsInfo[p].global_point_index = point_index; // update point index after filtering
                     }

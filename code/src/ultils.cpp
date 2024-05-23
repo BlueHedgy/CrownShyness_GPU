@@ -78,11 +78,10 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
             t.center[1] /= t.points.size();
             t.center[2] /= t.points.size();
 
-            float shrink_factor = shrink_map[y][x];
-            if (!shrink_factor){
-                shrink_factor = DEFAULT_TREE_SHRINK_FACTOR;
+            float shrink_factor = DEFAULT_TREE_SHRINK_FACTOR;
+            if (!shrink_factor_image.empty()){
+                shrink_factor = shrink_map[y][x];
             }
-            // else if(shrink_factor < 0.8) shrink_factor = 0.8;
 
             for (auto it = t.points.begin(); it != t.points.end(); it++){
                 points[(*it).first][0] = (points[(*it).first][0] - t.center[0]) * shrink_factor + t.center[0];
@@ -101,7 +100,6 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
             for (int e = 0; e < current_tree->numBranches; e++){
                 Branch *current_branch = &current_tree->branches[e];
 
-                
                 vec3f point1 = points[current_branch->i1];
                 vec3f &point2 = points[current_branch->i2];
 
@@ -113,7 +111,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
                 deltasqrd = deltasqrd < 0.0f ?  0.01f : deltasqrd;
-                point2[2] = point1[2] + sqrt(deltasqrd);
+                point2[2] = point1[2] + sqrt(deltasqrd) * (0.5 * (float)rand() /RAND_MAX + 1.0);
             }
         }
     }
