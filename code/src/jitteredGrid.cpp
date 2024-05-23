@@ -24,11 +24,11 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
     }
     
     float init_subdiv = 2;
-    for(uint16_t  j = 0; j < subdivision ; j++ ){
+    for(uint16_t j = 0; j < subdivision ; j++){
         std::vector<Cell> currentCellRow;
         std::vector<int> currentCellPointsCount;
 
-        for(uint16_t  i = 0; i < subdivision ; i++ ){
+        for(uint16_t  i = 0; i < subdivision ; i++){
 
             int pointCount;
 

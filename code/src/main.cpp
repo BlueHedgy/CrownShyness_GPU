@@ -21,7 +21,7 @@ int main(){
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i , DENSITY_IMAGE, point_index));
+        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
 
         init_subdiv *= FLATNESS;
     }
@@ -48,8 +48,8 @@ int main(){
     */
     for (int k = 0; k < BRANCHING-1; k++){
 
-        for(uint16_t  j = 0; j < grids[k+1].cells.size() ; j++){
-            for(uint16_t  i = 0; i <  grids[k+1].cells[j].size() ; i++){   
+        for(uint16_t  j = 0; j < grids[k+1].cells.size(); j++){
+            for(uint16_t  i = 0; i <  grids[k+1].cells[j].size(); i++){   
 
                 Cell *currentCell = &grids[k+1].cells[j][i];
                 for (uint16_t p = 0; p < currentCell->points.size(); p++){
@@ -85,15 +85,24 @@ int main(){
 // Flattening the data structure--------------------------------------------------------
     std::vector<vec3f> points;
     gridZeroPointsCount = 0;    //reset after the trees are filtered
+    
     // Generating 3D points for the root layer
-    for(uint16_t  j = 0; j < grids[0].cells.size(); j++ ){
-        for(uint16_t  i = 0; i <  grids[0].cells[j].size(); i++ ){
-            for (uint16_t p = 0; p < grids[0].cells[j][i].points.size(); p ++){
-                int curr_tree_index = grids[0].cells[j][i].pointsInfo[p].tree_index;
+    for(uint16_t j = 0; j < grids[0].cells.size(); j++){
+        for(uint16_t i = 0; i < grids[0].cells[j].size(); i++){
+
+            Cell *current_cell = &grids[0].cells[j][i];
+            for (uint16_t p = 0; p < current_cell->points.size(); p++){
+
+                int curr_tree_index = current_cell->pointsInfo[p].tree_index;
                 if ( trees[curr_tree_index].numBranches != -1){
                     gridZeroPointsCount++;
-                    points.push_back(vec3f({grids[0].cells[j][i].points[p][0] *gen_area, grids[0].cells[j][i].points[p][1] * gen_area, float(0)}));
-                }
+					points.push_back(
+                        vec3f({
+                        current_cell->points[p][0] * gen_area,
+						current_cell->points[p][1] * gen_area,
+                        float(0)})
+                        );
+				}
             }
         }
     }
@@ -102,15 +111,23 @@ int main(){
     
     point_index = -1; // reset point index for filtering trees
     for (uint16_t k = 0; k < BRANCHING; k++){
-        for(uint16_t  j = 0; j< grids[k].cells.size(); j++ ){   
-            for(uint16_t  i = 0; i <  grids[k].cells[j].size() ; i++ ){
-                for (uint16_t p = 0; p < grids[k].cells[j][i].points.size(); p ++){
-                    int curr_tree_index = grids[k].cells[j][i].pointsInfo[p].tree_index;
+        for(uint16_t j = 0; j< grids[k].cells.size(); j++){   
+            for(uint16_t  i = 0; i < grids[k].cells[j].size(); i++){
+
+                Cell *current_cell = &grids[k].cells[j][i];
+                for (uint16_t p = 0; p < current_cell->points.size(); p++){
+
+                    int curr_tree_index = current_cell->pointsInfo[p].tree_index;
                     if ( trees[curr_tree_index].numBranches != -1){
                         point_index++;
-                        points.push_back(vec3f({grids[k].cells[j][i].points[p][0] * gen_area, grids[k].cells[j][i].points[p][1] * gen_area, float(k+1)}));  
+						points.push_back(
+							vec3f({
+                            current_cell->points[p][0] * gen_area,
+                            current_cell->points[p][1] * gen_area,
+                            float(k + 1)})
+                            );
 
-                        grids[k].cells[j][i].pointsInfo[p].global_point_index = point_index; // update point index after filtering
+						current_cell->pointsInfo[p].global_point_index = point_index; // update point index after filtering
                     }
                 }
             }
