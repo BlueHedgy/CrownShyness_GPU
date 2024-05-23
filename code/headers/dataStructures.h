@@ -87,6 +87,7 @@ struct Tree{
     TREE_TYPE type;
 
     vec3f center = vec3f({0.0f, 0.0f, 0.0f});
+    float SHRINK_FACTOR = 0.0f;
 };
 
 

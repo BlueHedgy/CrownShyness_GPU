@@ -11,7 +11,6 @@ void filter_trees(std::vector<Tree> &trees){
 
 
 int gridZeroPointsCount = 0;
-
 std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids){
     int gridIndex = c.gridIndex;
     int x = c.coord[0];
@@ -33,18 +32,65 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
 }
 
 
-// ? Currently not sure if this is to be kept
-uint32_t coordToIndex(const Coord &c, const std::vector<Grid2D> &grids){
-    int gridIndex = c.gridIndex;
-    int x = c.coord[0];
-    int y = c.coord[1];
-    int p = c.pointIndex;
+// DENSITY --------------------------------------------------------------
 
-    int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
+std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv){
+    int width, height, channelsNum;
+    int desiredChannels = 1; // grayscale
 
-    return returnIndex;
+    unsigned char * image = stbi_load(filename.c_str(), &width, &height, &channelsNum, desiredChannels);
+
+    if (image == NULL){
+        std::cout << "Failed to load density map\n" << std::endl;
+        exit(1);
+    }
+
+    unsigned char * resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
+
+    std::vector<std::vector<float>> map;
+
+    for (int j = 0; j < subdiv; j++){
+        std::vector<float> currentRow;
+        for (int i = 0; i < subdiv; i++){
+            currentRow.push_back(1.0 - float(int(resized_im[j * subdiv + i])/255.0));
+        }
+        map.push_back(currentRow);
+        
+    }
+
+    return map;
 }
-//? ---------------------------------------------------------
+
+// CROWNSHYNESS EFFECT ------------------------------------------------
+void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
+    std::vector<std::vector<float>> shrink_map;
+    std::string shrink_factor_image = SHRINK_FACTOR_IMAGE;
+    if (!shrink_factor_image.empty()){
+        shrink_map = user_density_map(shrink_factor_image, INIT_SUBDIV);
+    }
+    
+    for (auto t: trees){
+        if (t.numBranches != -1){
+            int x = points[(*t.points.begin()).first][0];
+            int y = points[(*t.points.begin()).first][1];
+
+            t.center[0] /= t.points.size();
+            t.center[1] /= t.points.size();
+            t.center[2] /= t.points.size();
+
+            float shrink_factor = shrink_map[y][x];
+            if (!shrink_factor){
+                shrink_factor = DEFAULT_TREE_SHRINK_FACTOR;
+            }
+            // else if(shrink_factor < 0.8) shrink_factor = 0.8;
+
+            for (auto it = t.points.begin(); it != t.points.end(); it++){
+                points[(*it).first][0] = (points[(*it).first][0] - t.center[0]) * shrink_factor + t.center[0];
+                points[(*it).first][1] = (points[(*it).first][1] - t.center[1]) * shrink_factor + t.center[1];
+            }
+        }
+    }
+}
 
 
 void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
@@ -91,11 +137,6 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
             count++;
             
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
-
-            // Writing the vertices
-            // for (auto p = current_tree->points.begin(); p != current_tree->points.end(); p++){
-            //     ofs << "v " << points[(*p)][0] << " " << points[(*p)][1] << " " << points[(*p)][2]<< "\n";
-            // }
 
             // Writing the edges
             for (int e = 0; e < current_tree->numBranches; e++){

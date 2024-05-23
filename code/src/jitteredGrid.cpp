@@ -3,77 +3,6 @@
 
 using namespace LavaCake;
 
-// DENSITY --------------------------------------------------------------
-std::vector<std::vector<float>> random_density_map (int dense_region_count, int subdiv){
-
-    std::vector<LavaCake::vec2i> dense_centers;
-    std::vector<std::vector<float>> map;
-
-    // Pick randomly dense_region_count cells in the current grid as density center
-    if (dense_region_count > subdiv* subdiv){
-        dense_region_count = subdiv * subdiv;
-    }
-
-    for (int i = 0; i < dense_region_count; i++){
-        int x = rand() % subdiv;
-        int y = rand() % subdiv;
-        dense_centers.push_back(vec2i({x,y}));
-    }
-
-    // generate a weighted map to be used with generate grid
-    for (int j = 0; j < subdiv; j++){
-        std::vector<float> currentRow;
-
-        for(int i = 0; i < subdiv; i++){ 
-            float minDistSqr = 10000.0f;
-            for (auto c: dense_centers){
-                float distSqr = dot(c - vec2i({i, j}), c - vec2i({i, j}));
-                if (distSqr < minDistSqr){
-                    minDistSqr = distSqr;
-                }
-            }
-            float coeff = 1.0 - 4.0 * sqrt(minDistSqr)/(subdiv * sqrt(2));
-
-            if (coeff < 0) coeff = 0;
-            currentRow.push_back(coeff);
-        }
-        map.push_back(currentRow);
-    }
-    
-    return map;
-    
-}
-
-std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv){
-    int width, height, channelsNum;
-    int desiredChannels = 1; // grayscale
-
-    unsigned char * image = stbi_load(filename.c_str(), &width, &height, &channelsNum, desiredChannels);
-
-    if (image == NULL){
-        std::cout << "Failed to load density map\n" << std::endl;
-        exit(1);
-    }
-
-    unsigned char * resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
-
-    std::vector<std::vector<float>> map;
-
-    for (int j = 0; j < subdiv; j++){
-        std::vector<float> currentRow;
-        for (int i = 0; i < subdiv; i++){
-            currentRow.push_back(1.0 - float(int(resized_im[j * subdiv + i])/255.0));
-        }
-        map.push_back(currentRow);
-        
-    }
-
-    return map;
-}
-
-// ----------------------------------------------------------------------------
-
-
 
 /*
     GenerateGrid:   randomize points line by line through an
@@ -188,8 +117,6 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
             }
         }
     }
-
-    // std::cout << closestPoint.weight << " " << closestPoint.tree_index << std::endl;
 
     return closestPoint;
 

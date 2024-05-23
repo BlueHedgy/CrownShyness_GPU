@@ -4,7 +4,7 @@
     #define XSTRING(x) STRING(x)    // Nor this
 
     #define BRANCHING 5             // Number of grid layers
-    #define INIT_SUBDIV 8.0         // Indicate the subdivision size of the current space
+    #define INIT_SUBDIV 12.0         // Indicate the subdivision size of the current space
                                     // i.e tile the space into 10x10 grid
 
     #define GEN_AREA 8.0            // area of generation (e.g 2 means 2 m^2)
@@ -20,10 +20,14 @@
 
     #define BRANCH_STYLING true     // Set this to false for debugging, not recommended
 
-    #define FILTER_TREES true       
+    #define FILTER_TREES true       // whether to remove the trees with less than 
+                                    // BRANCHES_COUNT_THRESHOLD brances
 
     #define BRANCHES_COUNT_THRESHOLD 100
 
-    #define TREE_SHRINK_FACTOR 0.95
+    #define SHRINK_FACTOR_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/shrink_map.png"
+    // #define SHRINK_FACTOR_IMAGE ""
+
+    #define DEFAULT_TREE_SHRINK_FACTOR 0.95
 
 #endif

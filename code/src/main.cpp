@@ -138,26 +138,14 @@ int main(){
         
     }
 
-    // Scaling the trees for the crownshyness effect
-    for (auto t: trees){
-        if (t.numBranches != -1){
-
-            t.center[0] /= t.points.size();
-            t.center[1] /= t.points.size();
-            t.center[2] /= t.points.size();
-
-
-            for (auto it = t.points.begin(); it != t.points.end(); it++){
-                points[(*it).first][0] = (points[(*it).first][0] - t.center[0]) * TREE_SHRINK_FACTOR + t.center[0];
-                points[(*it).first][1] = (points[(*it).first][1] - t.center[1]) * TREE_SHRINK_FACTOR + t.center[1];
-            }
-        }
-    }
 
 //----------------------------------------------------------------------------------------
     if (BRANCH_STYLING == true){
         branch_styling(points, trees);
     }
+
+    // Scaling the trees for the crownshyness effect
+    crownShyness(points, trees);
 
     std::cout << "Writing to OBJ..." << std::endl;
     write_to_OBJ(points, trees);
