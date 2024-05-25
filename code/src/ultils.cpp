@@ -38,6 +38,7 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
     int width, height, channelsNum;
     int desiredChannels = 1; // grayscale
 
+    stbi_set_flip_vertically_on_load(true);
     unsigned char * image = stbi_load(filename.c_str(), &width, &height, &channelsNum, desiredChannels);
 
     if (image == NULL){
@@ -45,18 +46,29 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
         exit(1);
     }
 
-    unsigned char * resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
+    unsigned char * resized_im;
+    if (subdiv != 0){
+        resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
+        height = subdiv;
+        width = subdiv;
+
+        stbi_image_free(image);
+    }
+    else{
+        resized_im = image;
+    }
 
     std::vector<std::vector<float>> map;
 
-    for (int j = 0; j < subdiv; j++){
+    for (int j = 0; j < height; j++){
         std::vector<float> currentRow;
-        for (int i = 0; i < subdiv; i++){
-            currentRow.push_back(1.0 - float(int(resized_im[j * subdiv + i])/255.0));
+        for (int i = 0; i < width; i++){
+            currentRow.push_back(1.0 - float(int(resized_im[j * width + i])/255.0));
         }
         map.push_back(currentRow);
         
     }
+    stbi_image_free(resized_im);
 
     return map;
 }
@@ -65,14 +77,21 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
 void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
     std::vector<std::vector<float>> shrink_map;
     std::string shrink_factor_image = SHRINK_FACTOR_IMAGE;
+
+    int width = 1; 
+    int height = 1;
+
     if (!shrink_factor_image.empty()){
-        shrink_map = user_density_map(shrink_factor_image, INIT_SUBDIV);
+        shrink_map = user_density_map(shrink_factor_image, 0);
+        width = shrink_map[0].size();
+        height = shrink_map.size();
     }
+
     
     for (auto t: trees){
         if (t.numBranches != -1){
-            int x = points[(*t.points.begin()).first][0];
-            int y = points[(*t.points.begin()).first][1];
+            float x = points[(*t.points.begin()).first][0];
+            float y = points[(*t.points.begin()).first][1];
 
             t.center[0] /= t.points.size();
             t.center[1] /= t.points.size();
@@ -80,7 +99,7 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
 
             float shrink_factor = DEFAULT_TREE_SHRINK_FACTOR;
             if (!shrink_factor_image.empty()){
-                shrink_factor = shrink_map[y][x];
+                shrink_factor = shrink_map[(int)(y * height / GEN_AREA)][(int)(x * width / GEN_AREA)];
             }
 
             for (auto it = t.points.begin(); it != t.points.end(); it++){
