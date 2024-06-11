@@ -58,8 +58,9 @@ struct Grid2D{
 
 
 struct Point {
-    vec3f position;
-    int parent;
+    int grid_index;
+    vec3f children_center;
+    int parent = -1;
     std::vector<int> children;
     int index;
 };

@@ -23,7 +23,6 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
         weight_map = user_density_map(filename, subdivision);
     }
     
-    float init_subdiv = 2;
     for(uint16_t j = 0; j < subdivision ; j++){
         std::vector<Cell> currentCellRow;
         std::vector<int> currentCellPointsCount;

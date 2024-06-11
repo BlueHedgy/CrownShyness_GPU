@@ -25,8 +25,8 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
 
     int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
 
-    newPoint.position = position;
-  
+    newPoint.children_center = position;
+    newPoint.grid_index = gridIndex;
 
     return std::make_pair(returnIndex, newPoint);
 }
@@ -105,6 +105,22 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
             for (auto it = t.points.begin(); it != t.points.end(); it++){
                 points[(*it).first][0] = (points[(*it).first][0] - t.center[0]) * shrink_factor + t.center[0];
                 points[(*it).first][1] = (points[(*it).first][1] - t.center[1]) * shrink_factor + t.center[1];
+            }
+
+            for (auto it = t.points.begin(); it != t.points.end(); it++){
+                if ((*it).second.parent != -1){
+                    vec3f shrink_center = t.points.at((*it).second.parent).children_center;
+
+                    shrink_center[0] /= t.points.at((*it).second.parent).children.size() +1;
+                    shrink_center[1] /= t.points.at((*it).second.parent).children.size()+1;
+                    shrink_center[2] /= t.points.at((*it).second.parent).children.size()+1;
+
+                    points[(*it).first][0] = (points[(*it).first][0] - shrink_center[0]) * shrink_factor * 0.8 + shrink_center[0];
+                    points[(*it).first][1] = (points[(*it).first][1] - shrink_center[1]) * shrink_factor *0.8 + shrink_center[1];
+
+                    // std::cout << shrink_center[0] << " " << shrink_center[1] << " " << shrink_center[2] << std::endl;
+
+                }
             }
         }
     }

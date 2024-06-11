@@ -3,7 +3,7 @@
     #define STRING(x) #x            // Don't touch this
     #define XSTRING(x) STRING(x)    // Nor this
 
-    #define BRANCHING 5             // Number of grid layers
+    #define BRANCHING 4             // Number of grid layers
     #define INIT_SUBDIV 12.0         // Indicate the subdivision size of the current space
                                     // i.e tile the space into 10x10 grid
 
@@ -11,12 +11,12 @@
                                     // recommended to be equal to INIT_SUBDIV
 
     #define FLATNESS 2.0            // flat constant for certain scaling operations
-    #define MAX_POINT_PER_CELL 8.0  // Self-explanatory
+    #define MAX_POINT_PER_CELL 6.0  // Self-explanatory
 
     #define WEIGHT_ATTENUATION 1.0/2.0
 
-    #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
-    // #define DENSITY_IMAGE ""
+    // #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
+    #define DENSITY_IMAGE ""
 
     #define BRANCH_STYLING true     // Set this to false for debugging, not recommended
 
@@ -25,8 +25,8 @@
 
     #define BRANCHES_COUNT_THRESHOLD 100
 
-    #define SHRINK_FACTOR_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/shrink_map.png"
-    // #define SHRINK_FACTOR_IMAGE ""
+    // #define SHRINK_FACTOR_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/shrink_map.png"
+    #define SHRINK_FACTOR_IMAGE ""
 
     #define DEFAULT_TREE_SHRINK_FACTOR 0.95
 

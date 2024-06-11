@@ -15,8 +15,7 @@ int main(){
     float init_subdiv = INIT_SUBDIV;
     float gen_area = GEN_AREA; 
     int point_index = -1;
-    int dense_region_count = 1; // Default number of dense clusters in the generation area
-    
+
     std::cout << "Generating forest..." << std::endl;
 
     // Generate grids and their corresponding points
@@ -160,6 +159,11 @@ int main(){
             }
 
             trees[e->c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
+            
+            vec3f *shrink_center = &trees[e->c2.tree_index].points.at(iP1.first).children_center;
+            
+            *shrink_center = *shrink_center + points[iP2.first];
+
             trees[e->c2.tree_index].points.at(iP2.first).parent = iP1.first;
 
             trees[e->c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first));
