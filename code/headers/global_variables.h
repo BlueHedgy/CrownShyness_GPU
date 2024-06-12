@@ -4,7 +4,7 @@
     #define XSTRING(x) STRING(x)    // Nor this
 
     #define BRANCHING 4             // Number of grid layers
-    #define INIT_SUBDIV 12.0         // Indicate the subdivision size of the current space
+    #define INIT_SUBDIV 18.0         // Indicate the subdivision size of the current space
                                     // i.e tile the space into 10x10 grid
 
     #define GEN_AREA 8.0            // area of generation (e.g 2 means 2 m^2)
@@ -17,7 +17,8 @@
 
     // #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
     #define DENSITY_IMAGE ""
-
+    
+    #define CROWN_SHYNESS_STEP 2
     #define BRANCH_STYLING true     // Set this to false for debugging, not recommended
 
     #define FILTER_TREES true       // whether to remove the trees with less than 

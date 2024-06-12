@@ -108,8 +108,23 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
             }
 
             for (auto it = t.points.begin(); it != t.points.end(); it++){
-                if ((*it).second.parent != -1){
-                    vec3f shrink_center = t.points.at((*it).second.parent).children_center;
+                int parent = (*it).second.parent;
+                
+
+                if (parent != -1){
+
+                    int shrink_searcher = parent;
+                    int shrink_target;
+                    // std::cout << shrink_searcher << std::endl;
+                    while (t.points.at(shrink_searcher).grid_index != CROWN_SHYNESS_STEP){
+                        std::cout << t.points.at(shrink_searcher).grid_index << std::endl;
+                        shrink_target = shrink_searcher;
+                        // if (shrink_target != 0) std::cout << "Not 0" << std::endl;
+                        shrink_searcher = t.points.at(shrink_searcher).parent;
+                        if (shrink_searcher == -1) break; 
+                    }
+                    // std::cout << shrink_target << std::endl;
+                    vec3f shrink_center = t.points.at(shrink_target).children_center;
 
                     shrink_center[0] /= t.points.at((*it).second.parent).children.size() +1;
                     shrink_center[1] /= t.points.at((*it).second.parent).children.size()+1;
@@ -146,7 +161,9 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
                 deltasqrd = deltasqrd < 0.0f ?  0.01f : deltasqrd;
-                point2[2] = point1[2] + sqrt(deltasqrd) * (0.5 * (float)rand() /RAND_MAX + 1.0);
+                // point2[2] = point1[2] + sqrt(deltasqrd) * (0.5 * (float)rand() /RAND_MAX + 1.0);
+                point2[2] = point1[2] + sqrt(deltasqrd);
+
             }
         }
     }
