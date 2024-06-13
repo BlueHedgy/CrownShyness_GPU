@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "json.hpp"
+using json = nlohmann::json;
 
 
 void filter_trees(std::vector<Tree> &trees){
@@ -174,7 +176,7 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
 
     for (int k = 0; k < points.size(); k++) {
-        ofs << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
+        ofs << std::fixed << std::setprecision(4) << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
     }
 
     int count = -1;
@@ -201,4 +203,8 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
 
     }
     ofs.close();
+}
+
+void read_Config(std::string &filename){
+    
 }

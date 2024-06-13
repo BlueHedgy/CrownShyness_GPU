@@ -80,7 +80,7 @@ struct Branch{
 struct Tree{
     int ID;
 
-    std::map<int, Point> points; // ? Not sure if this is useful
+    std::map<int, Point> points;
 
     std::vector<Branch> branches;
 

@@ -19,6 +19,7 @@ add_compile_definitions("CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
 
 add_subdirectory(LavaCake)
 include_directories(headers)
+include_directories(nlohmann)
 
 set(SOURCES 
 src/jitteredGrid.cpp
