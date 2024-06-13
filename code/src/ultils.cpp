@@ -25,6 +25,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
 
     int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
 
+    newPoint.position = position;
     newPoint.children_center = position;
     newPoint.grid_index = gridIndex;
 
@@ -101,39 +102,33 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
             if (!shrink_factor_image.empty()){
                 shrink_factor = shrink_map[(int)(y * height / GEN_AREA)][(int)(x * width / GEN_AREA)];
             }
-
+            
+            // Shrinking points toward tree center (x,y)
             for (auto it = t.points.begin(); it != t.points.end(); it++){
                 points[(*it).first][0] = (points[(*it).first][0] - t.center[0]) * shrink_factor + t.center[0];
                 points[(*it).first][1] = (points[(*it).first][1] - t.center[1]) * shrink_factor + t.center[1];
             }
 
+            // Further crown shyness in smaller foliage clumps
             for (auto it = t.points.begin(); it != t.points.end(); it++){
                 int parent = (*it).second.parent;
-                
+                vec3f current_position = (*it).second.position;
 
-                if (parent != -1){
-
+                if (parent > -1 && t.points.at(parent).grid_index >= CROWN_SHYNESS_STEP){
+                    // std::cout << parent << std::endl;
                     int shrink_searcher = parent;
                     int shrink_target;
-                    // std::cout << shrink_searcher << std::endl;
+
                     while (t.points.at(shrink_searcher).grid_index != CROWN_SHYNESS_STEP){
-                        std::cout << t.points.at(shrink_searcher).grid_index << std::endl;
-                        shrink_target = shrink_searcher;
-                        // if (shrink_target != 0) std::cout << "Not 0" << std::endl;
                         shrink_searcher = t.points.at(shrink_searcher).parent;
-                        if (shrink_searcher == -1) break; 
                     }
-                    // std::cout << shrink_target << std::endl;
-                    vec3f shrink_center = t.points.at(shrink_target).children_center;
 
-                    shrink_center[0] /= t.points.at((*it).second.parent).children.size() +1;
-                    shrink_center[1] /= t.points.at((*it).second.parent).children.size()+1;
-                    shrink_center[2] /= t.points.at((*it).second.parent).children.size()+1;
+                    shrink_target = shrink_searcher;
 
-                    points[(*it).first][0] = (points[(*it).first][0] - shrink_center[0]) * shrink_factor * 0.8 + shrink_center[0];
-                    points[(*it).first][1] = (points[(*it).first][1] - shrink_center[1]) * shrink_factor *0.8 + shrink_center[1];
+                    vec3f shrink_center = t.points.at(shrink_target).position;
 
-                    // std::cout << shrink_center[0] << " " << shrink_center[1] << " " << shrink_center[2] << std::endl;
+                    points[(*it).first][0] = (points[(*it).first][0] - shrink_center[0]) * shrink_factor * 0.9 + shrink_center[0];
+                    points[(*it).first][1] = (points[(*it).first][1] - shrink_center[1]) * shrink_factor * 0.9 + shrink_center[1];
 
                 }
             }
