@@ -22,7 +22,7 @@ include_directories(headers)
 
 set(SOURCES 
 src/jitteredGrid.cpp
-src/ultils.cpp
+src/utils.cpp
 src/include_stb.cpp
 )
 

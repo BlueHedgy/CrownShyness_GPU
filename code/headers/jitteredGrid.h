@@ -1,7 +1,7 @@
 #include <LavaCake/Math/basics.h>
 #include <vector>
 
-#include "ultils.h"
+#include "utils.h"
 
 Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer,std::string filename, int &point_index);
 

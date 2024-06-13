@@ -3,7 +3,7 @@
 #include <fstream> 
 #include <math.h>      
 
-#include "ultils.h"
+#include "utils.h"
 
 using namespace LavaCake;
 
@@ -160,9 +160,9 @@ int main(){
 
             trees[e->c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
             
-            vec3f *shrink_center = &trees[e->c2.tree_index].points.at(iP1.first).children_center;
+            // vec3f *shrink_center = &trees[e->c2.tree_index].points.at(iP1.first).children_center;
             
-            *shrink_center = *shrink_center + points[iP2.first];
+            // *shrink_center = *shrink_center + points[iP2.first];
 
             trees[e->c2.tree_index].points.at(iP2.first).parent = iP1.first;
 

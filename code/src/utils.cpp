@@ -1,4 +1,4 @@
-#include "ultils.h"
+#include "utils.h"
 
 
 void filter_trees(std::vector<Tree> &trees){
@@ -26,7 +26,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
 
     newPoint.position = position;
-    newPoint.children_center = position;
+    // newPoint.children_center = position;
     newPoint.grid_index = gridIndex;
 
     return std::make_pair(returnIndex, newPoint);
@@ -82,6 +82,7 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
     int width = 1; 
     int height = 1;
 
+    // Extracting shrink factor coeff from input texture
     if (!shrink_factor_image.empty()){
         shrink_map = user_density_map(shrink_factor_image, 0);
         width = shrink_map[0].size();
@@ -114,8 +115,9 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
                 int parent = (*it).second.parent;
                 vec3f current_position = (*it).second.position;
 
+                // Seeking back toward root until the designate layer that this effect 
+                // is indicated to occur
                 if (parent > -1 && t.points.at(parent).grid_index >= CROWN_SHYNESS_STEP){
-                    // std::cout << parent << std::endl;
                     int shrink_searcher = parent;
                     int shrink_target;
 
@@ -137,6 +139,7 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
 }
 
 
+// SIMULATING TREE SILHOUETTES ----------------------------------------------------
 void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
     for (int i = 0; i < trees.size(); i++){
@@ -155,7 +158,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
-                deltasqrd = deltasqrd < 0.0f ?  0.01f : deltasqrd;
+                deltasqrd = deltasqrd < 0.0f ?  0.00f : deltasqrd;
                 // point2[2] = point1[2] + sqrt(deltasqrd) * (0.5 * (float)rand() /RAND_MAX + 1.0);
                 point2[2] = point1[2] + sqrt(deltasqrd);
 

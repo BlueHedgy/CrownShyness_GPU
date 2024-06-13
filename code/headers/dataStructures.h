@@ -60,15 +60,14 @@ struct Grid2D{
 struct Point {
     int grid_index;
     vec3f position;
-    vec3f children_center;
+    // vec3f children_center;
     int parent = -1;
     std::vector<int> children;
-    int index;
 };
 
-inline bool operator<(const Point &a, const Point &b){
-    return a.index < b.index;
-}
+// inline bool operator<(const Point &a, const Point &b){
+//     return a.index < b.index;
+// }
 
 struct Branch{
     int i2, i1;

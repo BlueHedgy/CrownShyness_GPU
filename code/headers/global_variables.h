@@ -15,8 +15,8 @@
 
     #define WEIGHT_ATTENUATION 1.0/2.0
 
-    // #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/testing4.png"
-    #define DENSITY_IMAGE ""
+    #define DENSITY_IMAGE XSTRING(CMAKE_SOURCE_DIR)"/test_images/Density1.png"
+    // #define DENSITY_IMAGE ""
     
     #define CROWN_SHYNESS_STEP 1.0
     #define BRANCH_STYLING true     // Set this to false for debugging, not recommended
