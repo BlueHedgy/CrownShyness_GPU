@@ -12,7 +12,7 @@
 
     #include "global_variables.h"
 
-    void load_Config(std::string filename);
+    void load_Config_Profile(std::string filename);
 
     std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids);
     uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids);

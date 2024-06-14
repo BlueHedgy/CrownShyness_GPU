@@ -1,15 +1,36 @@
 {
-    "BRANCHING"                 : 5,
-    "INIT_SUBDIV"               : 18,
-    "GEN_AREA"                  : 10.0,
-    "SCALE"                     : 2.0,
-    "MAX_POINT_PER_CELL"        : 6.0,
-    "WEIGHT_ATTENUATION"        : 0.5,
-    "DENSITY_IMAGE"             : "",
-    "SHRINK_FACTOR_IMAGE"       : "",
-    "CROWN_SHYNESS_STEP"        : 1.0,
-    "BRANCH_STYLING"            : true,
-    "FILTER_TREES"              : true,
-    "BRANCHES_COUNT_THRESHOLD"  : 100,
-    "DEFAULT_SHRINK_FACTOR"     : 0.8
-}
+    "default":
+    {
+        "BRANCHING"                 : 5,
+        "INIT_SUBDIV"               : 12,
+        "GEN_AREA"                  : 10.0,
+        "SCALE"                     : 2.0,
+        "MAX_POINT_PER_CELL"        : 8,
+        "WEIGHT_ATTENUATION"        : 0.3,
+        "DENSITY_IMAGE"             : "",
+        "SHRINK_FACTOR_IMAGE"       : "",
+        "CROWN_SHYNESS_STEP"        : 1.0,
+        "BRANCH_STYLING"            : true,
+        "FILTER_TREES"              : true,
+        "BRANCHES_COUNT_THRESHOLD"  : 100,
+        "DEFAULT_SHRINK_FACTOR"     : 0.95
+    },
+
+    "test1":
+    {
+        "BRANCHING"                 : 5,
+        "INIT_SUBDIV"               : 12,
+        "GEN_AREA"                  : 10.0,
+        "SCALE"                     : 2.0,
+        "MAX_POINT_PER_CELL"        : 8,
+        "WEIGHT_ATTENUATION"        : 0.5,
+        "DENSITY_IMAGE"             : "../../test_images/Density2.png",
+        "SHRINK_FACTOR_IMAGE"       : "",
+        "CROWN_SHYNESS_STEP"        : 1.0,
+        "BRANCH_STYLING"            : true,
+        "FILTER_TREES"              : true,
+        "BRANCHES_COUNT_THRESHOLD"  : 100,
+        "DEFAULT_SHRINK_FACTOR"     : 0.95
+    }
+
+}   

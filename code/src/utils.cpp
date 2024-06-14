@@ -205,8 +205,17 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     ofs.close();
 }
 
-void load_Config(std::string filename){
-    
+void load_Config_Profile(std::string filename){
+    std::string profile_name;
+    std::cout << "Enter configuration profile: " << "\n" << "> ";
+    std::getline(std::cin, profile_name);
+    std::cout << "\n";
+
+    if (profile_name.empty()){
+        std::cout << "Using default configurations" << std::endl;
+        profile_name = "default";
+    }
+
     if (filename != ""){
         std::ifstream configFile(filename);
         if (!configFile.is_open()){
@@ -218,21 +227,20 @@ void load_Config(std::string filename){
 
         configFile.close();
 
-        BRANCHING                       = config.at("BRANCHING");
-        INIT_SUBDIV                     = config.at("INIT_SUBDIV");
-        GEN_AREA                        = config.at("GEN_AREA");
-        SCALE                           = config.at("SCALE");
-        MAX_POINT_PER_CELL              = config.at("MAX_POINT_PER_CELL");
-        WEIGHT_ATTENUATION              = config.at("WEIGHT_ATTENUATION");
-        DENSITY_IMAGE                   = config.at("DENSITY_IMAGE");
-        SHRINK_FACTOR_IMAGE             = config.at("SHRINK_FACTOR_IMAGE");
-        CROWN_SHYNESS_STEP              = config.at("CROWN_SHYNESS_STEP");
-        BRANCH_STYLING                  = config.at("BRANCH_STYLING");
-        FILTER_TREES                    = config.at("FILTER_TREES");
-        BRANCHES_COUNT_THRESHOLD        = config.at("BRANCHES_COUNT_THRESHOLD");
-        DEFAULT_SHRINK_FACTOR           = config.at("DEFAULT_SHRINK_FACTOR");
+        BRANCHING                       = config.at(profile_name).at("BRANCHING");
+        INIT_SUBDIV                     = config.at(profile_name).at("INIT_SUBDIV");
+        GEN_AREA                        = config.at(profile_name).at("GEN_AREA");
+        SCALE                           = config.at(profile_name).at("SCALE");
+        MAX_POINT_PER_CELL              = config.at(profile_name).at("MAX_POINT_PER_CELL");
+        WEIGHT_ATTENUATION              = config.at(profile_name).at("WEIGHT_ATTENUATION");
+        DENSITY_IMAGE                   = config.at(profile_name).at("DENSITY_IMAGE");
+        SHRINK_FACTOR_IMAGE             = config.at(profile_name).at("SHRINK_FACTOR_IMAGE");
+        CROWN_SHYNESS_STEP              = config.at(profile_name).at("CROWN_SHYNESS_STEP");
+        BRANCH_STYLING                  = config.at(profile_name).at("BRANCH_STYLING");
+        FILTER_TREES                    = config.at(profile_name).at("FILTER_TREES");
+        BRANCHES_COUNT_THRESHOLD        = config.at(profile_name).at("BRANCHES_COUNT_THRESHOLD");
+        DEFAULT_SHRINK_FACTOR           = config.at(profile_name).at("DEFAULT_SHRINK_FACTOR");
 
-        std::cout << "User configurations loaded" << std::endl;
     }
     else{
         std::cout << "No configuration files, using default parameters" << std::endl;
