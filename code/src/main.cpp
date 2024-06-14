@@ -7,8 +7,25 @@
 
 using namespace LavaCake;
 
+// DEFAULT CONFIG
+int BRANCHING                       = 5;
+int INIT_SUBDIV                     = 18;
+float GEN_AREA                      = 12.0;
+float SCALE                         = 2.0;
+int MAX_POINT_PER_CELL              = 8;
+float WEIGHT_ATTENUATION            = 0.5;
+std::string DENSITY_IMAGE           = "";
+std::string SHRINK_FACTOR_IMAGE     = "";
+int CROWN_SHYNESS_STEP              = 1;
+bool BRANCH_STYLING                 = true;
+bool FILTER_TREES                   = true;
+int BRANCHES_COUNT_THRESHOLD        = 100;
+float DEFAULT_SHRINK_FACTOR    = 0.95;
 
 int main(){
+    
+    load_Config(XSTRING(CMAKE_SOURCE_DIR)"/config/config.json");
+
     // grids: represent the layers of branch deviations (by height)
     std::vector<Grid2D> grids;
     
@@ -22,7 +39,7 @@ int main(){
     for(int i = 0; i < BRANCHING; i++){
         grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
 
-        init_subdiv *= FLATNESS;
+        init_subdiv *= SCALE;
     }
 
     // Temporary form for the branches of the trees    

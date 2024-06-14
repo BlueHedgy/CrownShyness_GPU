@@ -101,7 +101,7 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
             t.center[1] /= t.points.size();
             t.center[2] /= t.points.size();
 
-            float shrink_factor = DEFAULT_TREE_SHRINK_FACTOR;
+            float shrink_factor = DEFAULT_SHRINK_FACTOR;
             if (!shrink_factor_image.empty()){
                 shrink_factor = shrink_map[(int)(y * height / GEN_AREA)][(int)(x * width / GEN_AREA)];
             }
@@ -156,7 +156,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
 
-                float edgeLength = 1.0f/pow(FLATNESS, point2[2]-1) ;
+                float edgeLength = 1.0f/pow(SCALE, point2[2]-1) ;
 
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
@@ -205,6 +205,36 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     ofs.close();
 }
 
-void read_Config(std::string &filename){
+void load_Config(std::string filename){
     
+    if (filename != ""){
+        std::ifstream configFile(filename);
+        if (!configFile.is_open()){
+            std::cerr << "FAILED TO LOAD CONFIGURATION FILE" << std::endl;
+            return;
+        }
+
+        json config = json::parse(configFile);
+
+        configFile.close();
+
+        BRANCHING                       = config.at("BRANCHING");
+        INIT_SUBDIV                     = config.at("INIT_SUBDIV");
+        GEN_AREA                        = config.at("GEN_AREA");
+        SCALE                           = config.at("SCALE");
+        MAX_POINT_PER_CELL              = config.at("MAX_POINT_PER_CELL");
+        WEIGHT_ATTENUATION              = config.at("WEIGHT_ATTENUATION");
+        DENSITY_IMAGE                   = config.at("DENSITY_IMAGE");
+        SHRINK_FACTOR_IMAGE             = config.at("SHRINK_FACTOR_IMAGE");
+        CROWN_SHYNESS_STEP              = config.at("CROWN_SHYNESS_STEP");
+        BRANCH_STYLING                  = config.at("BRANCH_STYLING");
+        FILTER_TREES                    = config.at("FILTER_TREES");
+        BRANCHES_COUNT_THRESHOLD        = config.at("BRANCHES_COUNT_THRESHOLD");
+        DEFAULT_SHRINK_FACTOR           = config.at("DEFAULT_SHRINK_FACTOR");
+
+        std::cout << "User configurations loaded" << std::endl;
+    }
+    else{
+        std::cout << "No configuration files, using default parameters" << std::endl;
+    }
 }
