@@ -207,14 +207,6 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
 
 void load_Config_Profile(std::string filename){
     std::string profile_name;
-    std::cout << "Enter configuration profile: " << "\n" << "> ";
-    std::getline(std::cin, profile_name);
-    std::cout << "\n";
-
-    if (profile_name.empty()){
-        std::cout << "Using default configurations" << std::endl;
-        profile_name = "default";
-    }
 
     if (filename != ""){
         std::ifstream configFile(filename);
@@ -224,8 +216,25 @@ void load_Config_Profile(std::string filename){
         }
 
         json config = json::parse(configFile);
-
         configFile.close();
+
+        std::cout << "Enter configuration profile " << "\n";
+        std::cout << "Leave blank for default configs: \n"; 
+        do{
+            std::cout << "> ";
+            std::getline(std::cin, profile_name);
+            if (!config.contains(profile_name)){
+                std::cout << "Profile: " << profile_name << " does not exists !"<< "\n";
+            }
+
+            if (profile_name.empty()){
+                std::cout << "Using default configurations" << std::endl;
+                profile_name = "default";
+            }
+        }
+        while(!profile_name.empty() && !config.contains(profile_name));
+        std::cout << "\n";
+
 
         BRANCHING                       = config.at(profile_name).at("BRANCHING");
         INIT_SUBDIV                     = config.at(profile_name).at("INIT_SUBDIV");

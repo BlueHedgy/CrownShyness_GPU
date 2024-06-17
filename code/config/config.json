@@ -18,13 +18,13 @@
 
     "test1":
     {
-        "BRANCHING"                 : 5,
+        "BRANCHING"                 : 4,
         "INIT_SUBDIV"               : 12,
         "GEN_AREA"                  : 10.0,
         "SCALE"                     : 2.0,
-        "MAX_POINT_PER_CELL"        : 8,
+        "MAX_POINT_PER_CELL"        : 6,
         "WEIGHT_ATTENUATION"        : 0.5,
-        "DENSITY_IMAGE"             : "../../test_images/Density2.png",
+        "DENSITY_IMAGE"             : "",
         "SHRINK_FACTOR_IMAGE"       : "",
         "CROWN_SHYNESS_STEP"        : 1.0,
         "BRANCH_STYLING"            : true,
