@@ -8,19 +8,21 @@
 using namespace LavaCake;
 
 // DEFAULT CONFIG
-int BRANCHING                       = 5;
-int INIT_SUBDIV                     = 12;
-float GEN_AREA                      = 12.0;
-float SCALE                         = 2.0;
-int MAX_POINT_PER_CELL              = 8;
-float WEIGHT_ATTENUATION            = 0.5;
-std::string DENSITY_IMAGE           = "";
-std::string SHRINK_FACTOR_IMAGE     = "";
-int CROWN_SHYNESS_STEP              = 1;
-bool BRANCH_STYLING                 = true;
-bool FILTER_TREES                   = true;
-int BRANCHES_COUNT_THRESHOLD        = 100;
-float DEFAULT_SHRINK_FACTOR         = 0.95;
+int BRANCHING;
+int INIT_SUBDIV;
+float GEN_AREA;
+float SCALE;
+int MAX_POINT_PER_CELL;
+float WEIGHT_ATTENUATION;
+std::string DENSITY_IMAGE;
+std::string SHRINK_FACTOR_IMAGE;
+int CROWN_SHYNESS_STEP;
+bool BRANCH_STYLING;
+bool FILTER_TREES;
+int BRANCHES_COUNT_THRESHOLD;
+float DEFAULT_SHRINK_FACTOR;
+float MAX_FOREST_HEIGHT;
+std::string FOREST_HEIGHT_IMAGE;
 
 int main(){
 
@@ -142,7 +144,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float(k + 1)})
+                                float(MAX_FOREST_HEIGHT * k / (BRANCHING-1))})
                                 );
                         }
                         else{
@@ -150,7 +152,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float(k + (0.3 * (float)rand() / RAND_MAX + 0.7))})
+                                float(MAX_FOREST_HEIGHT * k / (BRANCHING-1) + (0.3 * (float)rand() / RAND_MAX + 0.7))})
                                 );    
                         }
 
@@ -160,6 +162,8 @@ int main(){
             }
         }
     }
+
+    forest_height(points, trees);
 
 // Process the edges into branches for the trees
     for (int i = 0; i < edges.size(); i++){

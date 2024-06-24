@@ -76,6 +76,43 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
     return map;
 }
 
+void forest_height (std::vector<vec3f> &points, std::vector<Tree> &trees){
+    std::vector<std::vector<float>> height_map;
+    std::string height_image = FOREST_HEIGHT_IMAGE;
+
+    int width = 1;
+    int height = 1;
+
+    float height_coeff;
+
+    if (!height_image.empty()){
+        std::cout << "Loaded forest height map" << std::endl;
+        height_map = user_density_map(height_image, 0);
+        width = height_map[0].size();
+        height = height_map.size();
+    }
+
+    for (auto t:trees){
+        std::cout << "I'm here" << std::endl;
+        if (t.numBranches != -1){
+
+            for (auto p:t.points){
+                std::cout << "I'm here also" << std::endl;
+                int x = points[p.first][0];
+                int y = points[p.first][1];
+                float *z = &points[p.first][2];
+                std::cout << z << " "; 
+                if (!height_image.empty()){
+                    height_coeff = height_map[(int)(y * height / GEN_AREA)][(int)(x * height / GEN_AREA)];
+                    (*z) *= (1.0 - height_coeff);
+                }
+                std::cout << z << std::endl;
+            }
+        }
+    }
+}
+
+
 // CROWNSHYNESS EFFECT ------------------------------------------------
 void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
     std::vector<std::vector<float>> shrink_map;
@@ -155,12 +192,13 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
+                // l2 /=  pow(GEN_AREA, 2);
 
                 float edgeLength = 1.0f/pow(SCALE, point2[2]-1) ;
 
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
-                deltasqrd = deltasqrd < 0.0f ?  0.00f : deltasqrd;
+                deltasqrd = deltasqrd < 0.01f ?  0.01f : deltasqrd;
                 // point2[2] = point1[2] + sqrt(deltasqrd) * (0.5 * (float)rand() /RAND_MAX + 1.0);
                 point2[2] = point1[2] + sqrt(deltasqrd);
 
@@ -223,14 +261,16 @@ void load_Config_Profile(std::string filename){
         do{
             std::cout << "> ";
             std::getline(std::cin, profile_name);
-            if (!config.contains(profile_name)){
-                std::cout << "Profile: " << profile_name << " does not exists !"<< "\n";
-            }
-
             if (profile_name.empty()){
                 std::cout << "Using default configurations" << std::endl;
                 profile_name = "default";
             }
+
+            else if (!config.contains(profile_name)){
+                std::cout << "Profile: " << profile_name << " does not exists !"<< "\n";
+            }
+
+
         }
         while(!profile_name.empty() && !config.contains(profile_name));
         std::cout << "\n";
@@ -249,6 +289,8 @@ void load_Config_Profile(std::string filename){
         FILTER_TREES                    = config.at(profile_name).at("FILTER_TREES");
         BRANCHES_COUNT_THRESHOLD        = config.at(profile_name).at("BRANCHES_COUNT_THRESHOLD");
         DEFAULT_SHRINK_FACTOR           = config.at(profile_name).at("DEFAULT_SHRINK_FACTOR");
+        MAX_FOREST_HEIGHT               = config.at(profile_name).at("MAX_FOREST_HEIGHT");
+        FOREST_HEIGHT_IMAGE             = config.at(profile_name).at("FOREST_HEIGHT_IMAGE");
 
     }
     else{

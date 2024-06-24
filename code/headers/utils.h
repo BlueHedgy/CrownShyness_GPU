@@ -27,6 +27,8 @@
 
     void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees); 
 
+    void forest_height(std::vector<vec3f> &points, std::vector<Tree>&trees);
+
     extern int gridZeroPointsCount;
 
 #endif
