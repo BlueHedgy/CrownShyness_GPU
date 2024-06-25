@@ -83,7 +83,7 @@ void forest_height (std::vector<vec3f> &points, std::vector<Tree> &trees){
     int width = 1;
     int height = 1;
 
-    float height_coeff;
+    float height_coeff = 0.0f;
 
     if (!height_image.empty()){
         std::cout << "Loaded forest height map" << std::endl;
@@ -93,20 +93,22 @@ void forest_height (std::vector<vec3f> &points, std::vector<Tree> &trees){
     }
 
     for (auto t:trees){
-        std::cout << "I'm here" << std::endl;
+        // std::cout << "I'm here" << std::endl;
         if (t.numBranches != -1){
+            float x = points[(*t.points.begin()).first][0];
+            float y = points[(*t.points.begin()).first][1];
+            float z = points[(*t.points.begin()).first][2];
+
+            if (!height_image.empty()){
+                height_coeff = height_map[(int)(y * height / GEN_AREA)][(int)(x * height / GEN_AREA)];
+            }
+
+            float delta_z = height_coeff * MAX_FOREST_HEIGHT - z;
+            std::cout << delta_z << std::endl;
 
             for (auto p:t.points){
-                std::cout << "I'm here also" << std::endl;
-                int x = points[p.first][0];
-                int y = points[p.first][1];
-                float *z = &points[p.first][2];
-                std::cout << z << " "; 
-                if (!height_image.empty()){
-                    height_coeff = height_map[(int)(y * height / GEN_AREA)][(int)(x * height / GEN_AREA)];
-                    (*z) *= (1.0 - height_coeff);
-                }
-                std::cout << z << std::endl;
+                float *curr_z = &points[p.first][2];
+                (*curr_z) += delta_z;
             }
         }
     }
@@ -195,7 +197,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 // l2 /=  pow(GEN_AREA, 2);
 
                 float edgeLength = 1.0f/pow(SCALE, point2[2]-1) ;
-
+                
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
                 deltasqrd = deltasqrd < 0.01f ?  0.01f : deltasqrd;
@@ -290,6 +292,7 @@ void load_Config_Profile(std::string filename){
         BRANCHES_COUNT_THRESHOLD        = config.at(profile_name).at("BRANCHES_COUNT_THRESHOLD");
         DEFAULT_SHRINK_FACTOR           = config.at(profile_name).at("DEFAULT_SHRINK_FACTOR");
         MAX_FOREST_HEIGHT               = config.at(profile_name).at("MAX_FOREST_HEIGHT");
+        MIN_FOREST_HEIGHT               = config.at(profile_name).at("MIN_FOREST_HEIGHT");
         FOREST_HEIGHT_IMAGE             = config.at(profile_name).at("FOREST_HEIGHT_IMAGE");
 
     }

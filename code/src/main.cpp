@@ -22,6 +22,7 @@ bool FILTER_TREES;
 int BRANCHES_COUNT_THRESHOLD;
 float DEFAULT_SHRINK_FACTOR;
 float MAX_FOREST_HEIGHT;
+float MIN_FOREST_HEIGHT;
 std::string FOREST_HEIGHT_IMAGE;
 
 int main(){
@@ -144,7 +145,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float(MAX_FOREST_HEIGHT * k / (BRANCHING-1))})
+                                float(k+1)})
                                 );
                         }
                         else{
@@ -152,7 +153,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float(MAX_FOREST_HEIGHT * k / (BRANCHING-1) + (0.3 * (float)rand() / RAND_MAX + 0.7))})
+                                float( MIN_FOREST_HEIGHT + (0.3 * (float)rand() / RAND_MAX + 0.7))})
                                 );    
                         }
 
@@ -163,7 +164,6 @@ int main(){
         }
     }
 
-    forest_height(points, trees);
 
 // Process the edges into branches for the trees
     for (int i = 0; i < edges.size(); i++){
@@ -197,6 +197,8 @@ int main(){
     if (BRANCH_STYLING == true){
         branch_styling(points, trees);
     }
+
+    forest_height(points, trees);
 
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);

@@ -1,28 +1,29 @@
 {
     "default":
     {
-        "BRANCHING"                 : 14,
+        "BRANCHING"                 : 6,
         "INIT_SUBDIV"               : 20,
-        "GEN_AREA"                  : 70,
-        "SCALE"                     : 1.2,
+        "GEN_AREA"                  : 30,
+        "SCALE"                     : 1.6,
         "MAX_POINT_PER_CELL"        : 8,
-        "WEIGHT_ATTENUATION"        : 0.2,
+        "WEIGHT_ATTENUATION"        : 0.6,
         "DENSITY_IMAGE"             : "",
         "SHRINK_FACTOR_IMAGE"       : "",
         "CROWN_SHYNESS_STEP"        : 1.0,
-        "BRANCH_STYLING"            : false,
+        "BRANCH_STYLING"            : true,
         "FILTER_TREES"              : true,
         "BRANCHES_COUNT_THRESHOLD"  : 100,
         "DEFAULT_SHRINK_FACTOR"     : 0.98,
-        "MAX_FOREST_HEIGHT"         : 25.0,
-        "FOREST_HEIGHT_IMAGE"         : "../test_images/height_image.png"
+        "MAX_FOREST_HEIGHT"         : 8.0,
+        "MIN_FOREST_HEIGHT"         : 3.0,
+        "FOREST_HEIGHT_IMAGE"       : "../test_images/height_image3.jpg"
     },
 
     "test1":
     {
         "BRANCHING"                 : 14,
         "INIT_SUBDIV"               : 20,
-        "GEN_AREA"                  : 70,
+        "GEN_AREA"                  : 25,
         "SCALE"                     : 1.2,
         "MAX_POINT_PER_CELL"        : 8,
         "WEIGHT_ATTENUATION"        : 0.5,

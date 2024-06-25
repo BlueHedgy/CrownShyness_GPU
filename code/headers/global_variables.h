@@ -17,6 +17,7 @@
     extern int BRANCHES_COUNT_THRESHOLD;
     extern float DEFAULT_SHRINK_FACTOR;
     extern float MAX_FOREST_HEIGHT;
+    extern float MIN_FOREST_HEIGHT;
     extern std::string FOREST_HEIGHT_IMAGE;
 
 #endif
