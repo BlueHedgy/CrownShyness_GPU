@@ -1,6 +1,5 @@
-Current issues: (sorted by importance)
-~~- Allow density management (randomized then user decision) ~~ 
-- Some trees don't get to branch out => remove them or try to let them branch
-~~- Horizontal branching => It's weird~~
-- Randomize a small amount of points to go higher (Emergent layer) and lower (Understory layer) than the Canopy layer
-- Vertical body
+Things to potentially look into:
+- Limit connections per point braching (to achieve e.g binary trees, alternate branching)
+- Edge connection should be angle aware with the above constraint (else the branches just go everywhere)
+- Change branch styling to angle dependent, not edge length dependent
+- Maybe affect by a pseudo gravitational function ?
