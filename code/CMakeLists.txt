@@ -21,7 +21,8 @@ add_subdirectory(LavaCake)
 include_directories(headers)
 include_directories(nlohmann)
 
-set(SOURCES 
+set(SOURCES
+src/forest_controls.cpp 
 src/jitteredGrid.cpp
 src/utils.cpp
 src/include_stb.cpp

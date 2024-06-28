@@ -33,7 +33,7 @@ int main(){
     // grids: represent the layers of branch deviations (by height)
     std::vector<Grid2D> grids;
     
-    float init_subdiv = INIT_SUBDIV;
+    float subdiv = INIT_SUBDIV;
     float gen_area = GEN_AREA; 
     int point_index = -1;
 
@@ -41,9 +41,9 @@ int main(){
 
     // Generate grids and their corresponding points
     for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(init_subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
+        grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
 
-        init_subdiv *= SCALE;
+        subdiv *= SCALE;
     }
 
     // Temporary form for the branches of the trees    
@@ -145,7 +145,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float(k+1)})
+                                float(1)})
                                 );
                         }
                         else{
@@ -153,7 +153,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float( MIN_FOREST_HEIGHT + (0.3 * (float)rand() / RAND_MAX + 0.7))})
+                                float(0.3 * (float)rand() / RAND_MAX + 0.7)})
                                 );    
                         }
 
@@ -188,7 +188,7 @@ int main(){
 
             trees[e->c2.tree_index].points.at(iP2.first).parent = iP1.first;
 
-            trees[e->c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first));
+            trees[e->c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first, iP2.second.grid_index, iP1.second.grid_index));
         }
     }
 

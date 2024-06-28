@@ -56,6 +56,7 @@ struct Grid2D{
 
 };
 
+// Data structures after trees have been fully determined
 
 struct Point {
     int grid_index;
@@ -71,10 +72,7 @@ struct Point {
 
 struct Branch{
     int i2, i1;
-    Branch(int I2, int I1){
-        i2 = I2;
-        i1 = I1;
-    };
+    int k2, k1;
 };
 
 struct Tree{
