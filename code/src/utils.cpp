@@ -14,19 +14,19 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
 
     int count = -1;
     for (int i = 0; i < trees.size(); i++){
-        Tree *current_tree = &trees[i];
+        Tree &current_tree = trees[i];
     
-        if (current_tree->numBranches != -1){
+        if (current_tree.numBranches != -1){
             count++;
             
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
 
             // Writing the edges
-            for (int e = 0; e < current_tree->numBranches; e++){
+            for (int e = 0; e < current_tree.numBranches; e++){
                 
-                Branch *current_branch = &current_tree->branches[e];
+                Branch &current_branch = current_tree.branches[e];
 
-                ofs << "l " << (current_branch->i1)+1 << " " << (current_branch->i2)+1 << "\n"; 
+                ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
             }
 
             ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";

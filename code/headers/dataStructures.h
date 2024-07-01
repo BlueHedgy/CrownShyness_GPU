@@ -64,6 +64,7 @@ struct Point {
     // vec3f children_center;
     int parent = -1;
     std::vector<int> children;
+    vec3f direction;
 };
 
 // inline bool operator<(const Point &a, const Point &b){

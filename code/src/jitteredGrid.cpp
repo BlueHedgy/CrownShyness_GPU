@@ -93,13 +93,13 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
             // make sure the cells that are being checked is within the boundary of the grids
             if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
 
-                const Cell *currentCell = &(grid.cells[j][i]);
+                const Cell &currentCell = (grid.cells[j][i]);
                 for (int p = 0; p < grid.cells[j][i].points.size(); p++){
                     
                     // d² 
-                    float distsqrd  = dot(point - currentCell->points[p],  point - currentCell->points[p]);
+                    float distsqrd  = dot(point - currentCell.points[p],  point - currentCell.points[p]);
 
-                    float power = distsqrd - pow(currentCell->pointsInfo[p].points_weight, 2.0);
+                    float power = distsqrd - pow(currentCell.pointsInfo[p].points_weight, 2.0);
 
                     if(power < mindistsqrd){
                         mindistsqrd = power;
@@ -108,8 +108,8 @@ Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gr
                         closestPoint.coord[0] = i;
                         closestPoint.coord[1] = j;
                         closestPoint.pointIndex = p;
-                        closestPoint.weight = currentCell->pointsInfo[p].points_weight;
-                        closestPoint.tree_index = currentCell->pointsInfo[p].tree_index;
+                        closestPoint.weight = currentCell.pointsInfo[p].points_weight;
+                        closestPoint.tree_index = currentCell.pointsInfo[p].tree_index;
                     }
                 }
             }

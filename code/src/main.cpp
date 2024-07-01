@@ -64,7 +64,7 @@ int main(){
     }
 
     /*
-    Start from the bottom layer, for each point of the next layer, find and connect to the closest point of the current layer
+    Start from the 2nd layer, find and connect to the closest point of the lower layer
     */
     for (int k = 0; k < BRANCHING-1; k++){
 
@@ -167,31 +167,27 @@ int main(){
 
 // Process the edges into branches for the trees
     for (int i = 0; i < edges.size(); i++){
-        Edge *e = &edges[i];
-        if (trees[e->c2.tree_index].numBranches != -1){
-            std::pair<int, Point> iP1 = pointFromCoord(e->c1, grids);
-            std::pair<int, Point> iP2 = pointFromCoord(e->c2, grids);
+        Edge &e = edges[i];
+        if (trees[e.c2.tree_index].numBranches != -1){
+            std::pair<int, Point> iP1 = pointFromCoord(e.c1, grids);
+            std::pair<int, Point> iP2 = pointFromCoord(e.c2, grids);
 
-            if (trees[e->c2.tree_index].points.insert(iP1).second == true){
-                trees[e->c2.tree_index].center = trees[e->c2.tree_index].center + points[iP1.first];
+            if (trees[e.c2.tree_index].points.insert(iP1).second == true){
+                trees[e.c2.tree_index].center = trees[e.c2.tree_index].center + points[iP1.first];
             }
 
-            if (trees[e->c2.tree_index].points.insert(iP2).second == true){
-                trees[e->c2.tree_index].center = trees[e->c2.tree_index].center + points[iP2.first];
+            if (trees[e.c2.tree_index].points.insert(iP2).second == true){
+                trees[e.c2.tree_index].center = trees[e.c2.tree_index].center + points[iP2.first];
             }
 
-            trees[e->c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
+            trees[e.c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
             
-            // vec3f *shrink_center = &trees[e->c2.tree_index].points.at(iP1.first).children_center;
-            
-            // *shrink_center = *shrink_center + points[iP2.first];
+            trees[e.c2.tree_index].points.at(iP2.first).parent = iP1.first;
+            trees[e.c2.tree_index].points.at(iP2.first).direction = iP2.second.position - iP1.second.position;
 
-            trees[e->c2.tree_index].points.at(iP2.first).parent = iP1.first;
-
-            trees[e->c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first, iP2.second.grid_index, iP1.second.grid_index));
+            trees[e.c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first, iP2.second.grid_index, iP1.second.grid_index));
         }
     }
-
 
 //----------------------------------------------------------------------------------------
     if (BRANCH_STYLING == true){

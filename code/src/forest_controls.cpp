@@ -101,7 +101,6 @@ void forest_height (std::vector<vec3f> &points, std::vector<Tree> &trees){
             }
 
             float delta_z = height_coeff * MAX_FOREST_HEIGHT - z;
-            std::cout << delta_z << std::endl;
             if (delta_z < 0) delta_z = 0;
 
             for (auto p:t.points){
