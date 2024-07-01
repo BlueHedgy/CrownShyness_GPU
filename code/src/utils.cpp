@@ -2,6 +2,22 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
+void edgeToSpline(std::vector<Tree> &trees){
+    int numControlPts = 2;
+    int numSegments = 6;
+
+    for (auto t: trees){
+        for (int i = 0; i < t.branches.size(); i++){
+            vec3f &p1 = t.points.at(t.branches[i].i1).position;
+            vec3f &p2 = t.points.at(t.branches[i].i2).position;
+            vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
+
+            
+
+
+        }
+    }    
+}
 
 void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     // Write to OBJ

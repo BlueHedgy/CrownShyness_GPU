@@ -183,7 +183,7 @@ int main(){
             trees[e.c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
             
             trees[e.c2.tree_index].points.at(iP2.first).parent = iP1.first;
-            trees[e.c2.tree_index].points.at(iP2.first).direction = iP2.second.position - iP1.second.position;
+            trees[e.c2.tree_index].points.at(iP2.first).direction = Normalize(iP2.second.position - iP1.second.position);
 
             trees[e.c2.tree_index].branches.push_back(Branch(iP2.first, iP1.first, iP2.second.grid_index, iP1.second.grid_index));
         }
