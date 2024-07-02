@@ -2,19 +2,74 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
-void edgeToSpline(std::vector<Tree> &trees){
-    int numControlPts = 2;
-    int numSegments = 6;
 
-    for (auto t: trees){
-        for (int i = 0; i < t.branches.size(); i++){
-            vec3f &p1 = t.points.at(t.branches[i].i1).position;
-            vec3f &p2 = t.points.at(t.branches[i].i2).position;
-            vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
+vec3f lerp (vec3f &p1, vec3f &p2, float t){
+    const int s = 1.0 - t;
+    return vec3f ({ p1[0] * s + p2[0] * t, 
+                    p1[1] * s + p2[1] * t, 
+                    p1[2] * s + p2[2] * t
+                  });
+}
 
-            
+vec3f De_Casteljau_Algo(std::vector<vec3f> cPoints, float segment_coeff){
+    // std::cout << segment_coeff << std::endl;
+    // std::cout << cPoints.size() << std::endl;
+    if (cPoints.size() > 1){
+        std::vector<vec3f> new_cPoints;
+        for (int p = 0; p < cPoints.size() - 1; p++){
+            vec3f new_cPoint = lerp(cPoints[p], cPoints[p+1], segment_coeff);
+            new_cPoints.push_back(new_cPoint);
+        }
 
+        return De_Casteljau_Algo(new_cPoints, segment_coeff);
+    }
 
+    // std::cout << "Finished one curve point ";
+    // std::cout << cPoints[0][0] << " " << cPoints[0][1] << " " << cPoints[0][2] << std::endl;
+    return cPoints[0];
+
+}
+
+void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
+    // std::vector<std::pair
+
+    int numSegments = 4;
+
+    for (auto &t: trees){
+        if (t.numBranches != -1){
+            for (int i = 0; i < t.numBranches; i++){
+                vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
+
+                std::cout << prevDirection[0] << " " << prevDirection[1] << std::endl;
+                vec3f p1 = t.points.at(t.branches[i].i1).position;
+                vec3f p2 = t.points.at(t.branches[i].i2).position;
+                vec3f cp1 = p1 + prevDirection;
+                vec3f cp2 = cp1 + Normalize(p2 - p1);
+
+                std::vector<vec3f> controlPoints = {p1, cp1, cp2, p2};
+
+                for (int s = 0; s < numSegments; s++){
+                    int index = points.size();
+                    
+                    float coeff = ((float)s)/numSegments;
+                    vec3f pt = De_Casteljau_Algo(controlPoints, coeff);
+
+                    points.push_back(pt);
+
+                    if (s == 0) {
+                        t.branches.push_back(Branch({t.branches[i].i1, index}));
+                    }
+                    else if (s == numSegments - 1){
+                        t.branches.push_back(Branch({index, t.branches[i].i2}));
+                    }
+                    else{
+                        t.branches.push_back(Branch({index-1, index}));
+                    }
+                    // t.numBranches++;
+                    index++;
+
+                }
+            }
         }
     }    
 }

@@ -31,5 +31,5 @@
 
     extern int gridZeroPointsCount;
 
-    void edgeToSpline(std::vector<Tree> &trees);
+    void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees);
 #endif

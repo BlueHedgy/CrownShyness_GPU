@@ -1,8 +1,8 @@
 {
     "default":
     {
-        "BRANCHING"                 : 10,
-        "INIT_SUBDIV"               : 8,
+        "BRANCHING"                 : 5,
+        "INIT_SUBDIV"               : 6,
         "GEN_AREA"                  : 20,
         "SCALE"                     : 1.5,
         "MAX_POINT_PER_CELL"        : 8,

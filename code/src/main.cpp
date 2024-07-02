@@ -194,10 +194,12 @@ int main(){
         branch_styling(points, trees);
     }
 
-    forest_height(points, trees);
+    // forest_height(points, trees);
 
     // Scaling the trees for the crownshyness effect
-    crownShyness(points, trees);
+    // crownShyness(points, trees);
+    edgeToSpline(points, trees);
+    std::cout << points.size() << std::endl;
 
     std::cout << "Writing to OBJ..." << std::endl;
     write_to_OBJ(points, trees);

@@ -27,6 +27,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     newPoint.position = position;
     // newPoint.children_center = position;
     newPoint.grid_index = gridIndex;
+    newPoint.direction = vec3f {0,0,0};
 
     return std::make_pair(returnIndex, newPoint);
 }
