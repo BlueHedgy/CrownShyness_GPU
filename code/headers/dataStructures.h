@@ -83,6 +83,8 @@ struct Tree{
 
     std::vector<Branch> branches;
 
+    std::vector<Branch> spline_Branches;
+
     int numBranches;
     TREE_TYPE type;
 

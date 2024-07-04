@@ -37,14 +37,15 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
     for (auto &t: trees){
         if (t.numBranches != -1){
+            int splineBranches = 0;
             for (int i = 0; i < t.numBranches; i++){
                 vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
 
-                std::cout << prevDirection[0] << " " << prevDirection[1] << std::endl;
-                vec3f p1 = t.points.at(t.branches[i].i1).position;
-                vec3f p2 = t.points.at(t.branches[i].i2).position;
+                // std::cout << prevDirection[0] << " " << prevDirection[1] << std::endl;
+                vec3f p1 = points[(t.branches[i].i1)];
+                vec3f p2 = points[(t.branches[i].i2)];
                 vec3f cp1 = p1 + prevDirection;
-                vec3f cp2 = cp1 + Normalize(p2 - p1);
+                vec3f cp2 = cp1 + Normalize(p1 - p2);
 
                 std::vector<vec3f> controlPoints = {p1, cp1, cp2, p2};
 
@@ -57,19 +58,20 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
                     points.push_back(pt);
 
                     if (s == 0) {
-                        t.branches.push_back(Branch({t.branches[i].i1, index}));
+                        t.spline_Branches.push_back(Branch({t.branches[i].i1, index}));
                     }
                     else if (s == numSegments - 1){
-                        t.branches.push_back(Branch({index, t.branches[i].i2}));
+                        t.spline_Branches.push_back(Branch({index, t.branches[i].i2}));
                     }
                     else{
-                        t.branches.push_back(Branch({index-1, index}));
+                        t.spline_Branches.push_back(Branch({index-1, index}));
                     }
-                    // t.numBranches++;
+                    splineBranches++;
                     index++;
 
                 }
             }
+            t.numBranches = splineBranches;
         }
     }    
 }
@@ -95,12 +97,12 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
             // Writing the edges
             for (int e = 0; e < current_tree.numBranches; e++){
                 
-                Branch &current_branch = current_tree.branches[e];
+                Branch &current_branch = current_tree.spline_Branches[e];
 
-                ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
+                // ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
             }
 
-            ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
+            // ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
 
             ofs << "\n";
         }

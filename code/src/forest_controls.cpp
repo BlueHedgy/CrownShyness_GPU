@@ -27,7 +27,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     newPoint.position = position;
     // newPoint.children_center = position;
     newPoint.grid_index = gridIndex;
-    newPoint.direction = vec3f {0,0,0};
+    newPoint.direction = vec3f {(float)(rand() * 2.0 / RAND_MAX - 1.0), (float) (rand() * 2.0 / RAND_MAX - 1.0), 0.5};
 
     return std::make_pair(returnIndex, newPoint);
 }
@@ -191,7 +191,6 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 vec3f point1 = points[current_branch->i1];
                 vec3f &point2 = points[current_branch->i2];
 
-                std::cout << point1[2] << " " << point2[2] << std::endl;
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
                 // l2 /=  pow(GEN_AREA, 2);
