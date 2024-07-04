@@ -4,7 +4,7 @@ using json = nlohmann::json;
 
 
 vec3f lerp (vec3f &p1, vec3f &p2, float t){
-    const int s = 1.0 - t;
+    const float s = 1.0 - t;
     return vec3f ({ p1[0] * s + p2[0] * t, 
                     p1[1] * s + p2[1] * t, 
                     p1[2] * s + p2[2] * t
@@ -12,19 +12,17 @@ vec3f lerp (vec3f &p1, vec3f &p2, float t){
 }
 
 vec3f De_Casteljau_Algo(std::vector<vec3f> cPoints, float segment_coeff){
-    // std::cout << segment_coeff << std::endl;
-    // std::cout << cPoints.size() << std::endl;
     if (cPoints.size() > 1){
         std::vector<vec3f> new_cPoints;
         for (int p = 0; p < cPoints.size() - 1; p++){
             vec3f new_cPoint = lerp(cPoints[p], cPoints[p+1], segment_coeff);
             new_cPoints.push_back(new_cPoint);
+
         }
 
         return De_Casteljau_Algo(new_cPoints, segment_coeff);
     }
 
-    // std::cout << "Finished one curve point ";
     // std::cout << cPoints[0][0] << " " << cPoints[0][1] << " " << cPoints[0][2] << std::endl;
     return cPoints[0];
 
@@ -45,37 +43,52 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 vec3f p1 = points[(t.branches[i].i1)];
                 vec3f p2 = points[(t.branches[i].i2)];
                 vec3f cp1 = p1 + prevDirection;
-                vec3f cp2 = cp1 + Normalize(p1 - p2);
+                vec3f cp2 = cp1 + Normalize(p2 - p1);
 
-                std::vector<vec3f> controlPoints = {p1, cp1, cp2, p2};
+                std::vector<vec3f> cPoints = {p1, cp1, cp2, p2};
+                std::cout << cPoints[0][0] << " " << cPoints[0][1] << " " << cPoints[0][2] << std::endl;
+                std::cout << cPoints[1][0] << " " << cPoints[1][1] << " " << cPoints[1][2] << std::endl;
+                std::cout << cPoints[2][0] << " " << cPoints[2][1] << " " << cPoints[2][2] << std::endl;
+                std::cout << cPoints[3][0] << " " << cPoints[3][1] << " " << cPoints[3][2] << std::endl;
+                std::cout << std::endl;
 
-                for (int s = 0; s < numSegments; s++){
-                    int index = points.size();
-                    
+
+                for (int s = 1; s < numSegments; s++){
                     float coeff = ((float)s)/numSegments;
-                    vec3f pt = De_Casteljau_Algo(controlPoints, coeff);
+                    vec3f pt = De_Casteljau_Algo(cPoints, coeff);
+                    std::cout << pt[0] << " " << pt[1] << " " << pt[2] << std::endl;
+                    // std::cout << std::endl;
 
                     points.push_back(pt);
 
+                }
+
+                int index = points.size() - numSegments + 1; 
+                for (int s = 0; s < numSegments; s++){
+
                     if (s == 0) {
                         t.spline_Branches.push_back(Branch({t.branches[i].i1, index}));
+                        std::cout << "Im s1" << std::endl;
                     }
-                    else if (s == numSegments - 1){
+                    else if (s == numSegments - 1 ){
                         t.spline_Branches.push_back(Branch({index, t.branches[i].i2}));
+                        std::cout << "Im s last" << std::endl;
+
                     }
                     else{
                         t.spline_Branches.push_back(Branch({index-1, index}));
-                    }
-                    splineBranches++;
-                    index++;
+                        std::cout << "Im s somewhere btw" << std::endl;
 
+                    }
+                    index++;
+                    splineBranches++;
                 }
             }
             t.numBranches = splineBranches;
         }
     }    
 }
-
+   
 void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     // Write to OBJ
     std::ofstream ofs;
@@ -97,12 +110,14 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
             // Writing the edges
             for (int e = 0; e < current_tree.numBranches; e++){
                 
+                // Branch &current_branch = current_tree.branches[e];
                 Branch &current_branch = current_tree.spline_Branches[e];
 
-                // ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
+
+                ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
             }
 
-            // ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
+            ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
 
             ofs << "\n";
         }

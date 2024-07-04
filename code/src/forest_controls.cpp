@@ -25,9 +25,9 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     int returnIndex = grids[gridIndex].cells[y][x].pointsInfo[p].global_point_index + gridZeroPointsCount;
 
     newPoint.position = position;
-    // newPoint.children_center = position;
     newPoint.grid_index = gridIndex;
-    newPoint.direction = vec3f {(float)(rand() * 2.0 / RAND_MAX - 1.0), (float) (rand() * 2.0 / RAND_MAX - 1.0), 0.5};
+    // newPoint.direction = vec3f {(float)(rand() * 2.0 / RAND_MAX - 1.0), (float) (rand() * 2.0 / RAND_MAX - 1.0), 0.5};
+    newPoint.direction = vec3f {0.0, 0.0, 0.0};
 
     return std::make_pair(returnIndex, newPoint);
 }

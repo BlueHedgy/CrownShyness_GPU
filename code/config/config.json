@@ -2,9 +2,9 @@
     "default":
     {
         "BRANCHING"                 : 5,
-        "INIT_SUBDIV"               : 6,
+        "INIT_SUBDIV"               : 8,
         "GEN_AREA"                  : 20,
-        "SCALE"                     : 1.5,
+        "SCALE"                     : 1.4,
         "MAX_POINT_PER_CELL"        : 8,
         "WEIGHT_ATTENUATION"        : 0.6,
         "DENSITY_IMAGE"             : "",
@@ -12,7 +12,7 @@
         "CROWN_SHYNESS_STEP"        : 1.0,
         "BRANCH_STYLING"            : true,
         "FILTER_TREES"              : true,
-        "BRANCHES_COUNT_THRESHOLD"  : 100,
+        "BRANCHES_COUNT_THRESHOLD"  : 15,
         "DEFAULT_SHRINK_FACTOR"     : 0.98,
         "MAX_FOREST_HEIGHT"         : 8.0,
         "MIN_FOREST_HEIGHT"         : 3.0,
