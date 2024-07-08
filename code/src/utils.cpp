@@ -31,23 +31,23 @@ vec3f De_Casteljau_Algo(std::vector<vec3f> cPoints, float segment_coeff){
 void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
     // std::vector<std::pair
 
-    int numSegments = 8;
+    int numSegments = 3;
 
     for (auto &t: trees){
         if (t.numBranches != -1){
             int splineBranches = 0;
+            int grid_index = 0;
             for (int i = 0; i < t.numBranches; i++){
-                vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
 
+                vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
 
                 vec3f p1 = points[(t.branches[i].i1)];
                 vec3f p2 = points[(t.branches[i].i2)];
-                vec3f cp1 = p1 + prevDirection;
-                vec3f cp2 = cp1 + Normalize(p2 - p1);
+                vec3f cp1 = p1 + prevDirection / vec3f({5.0, 5.0, 5.0});
+                vec3f cp2 = cp1 + Normalize(p2 - p1)/ vec3f({20.0, 20.0, 20.0});
 
                 std::vector<vec3f> cPoints = {p1, cp1, cp2, p2};
-
-
+                // std::vector<vec3f> cPoints = {p2, cp2, cp1, p1};
 
                 for (int s = 1; s < numSegments; s++){
                     float coeff = ((float)s)/numSegments;
