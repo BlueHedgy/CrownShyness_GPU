@@ -27,7 +27,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     newPoint.position = position;
     newPoint.grid_index = gridIndex;
     // newPoint.direction = vec3f {(float)(rand() * 2.0 / RAND_MAX - 1.0), (float) (rand() * 2.0 / RAND_MAX - 1.0), 0.5};
-    newPoint.direction = vec3f {0.0, 0.0, 0.0};
+    newPoint.direction = vec3f {0.0f, 0.0f, 4.0f* (float)rand()/RAND_MAX - 2.0f};
 
     return std::make_pair(returnIndex, newPoint);
 }
@@ -192,11 +192,6 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
                 vec3f point1 = points[current_branch.i1];
                 vec3f &point2 = points[current_branch.i2];
-                // vec3f p2 = points[current_branch.i2];
-                // p2[2] = 0.0f;
-
-                // float delta_v = sqrt(dot(p2 - root, p2 - root));
-                // point2[2] += log(delta_v)/5.0;
 
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
@@ -228,7 +223,6 @@ vec3f De_Casteljau_Algo(std::vector<vec3f> cPoints, float segment_coeff){
         for (int p = 0; p < cPoints.size() - 1; p++){
             vec3f new_cPoint = lerp(cPoints[p], cPoints[p+1], segment_coeff);
             new_cPoints.push_back(new_cPoint);
-
         }
 
         return De_Casteljau_Algo(new_cPoints, segment_coeff);
@@ -255,10 +249,13 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 vec3f p1 = points[(t.branches[i].i1)];
                 vec3f p2 = points[(t.branches[i].i2)];
                 vec3f cp1 = p1 + prevDirection / vec3f({5.0, 5.0, 5.0});
-                vec3f cp2 = cp1 + Normalize(p2 - p1)/ vec3f({20.0, 20.0, 20.0});
+
+                // vec3f displace = vec3f({})
+                vec3f cp2 = cp1 + Normalize(p2 - p1) / vec3f({GEN_AREA, GEN_AREA, GEN_AREA});
 
                 std::vector<vec3f> cPoints = {p1, cp1, cp2, p2};
-                // std::vector<vec3f> cPoints = {p2, cp2, cp1, p1};
+
+                t.points.at(t.branches[i].i2).direction = p2 - cp2;
 
                 for (int s = 1; s < numSegments; s++){
                     float coeff = ((float)s)/numSegments;
