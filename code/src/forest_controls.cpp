@@ -183,27 +183,106 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
     vec3f z_normal = vec3f({0.0f, 0.0f, 1.0f});
     
     for (int i = 0; i < trees.size(); i++){
-        Tree *current_tree = &trees[i];
-        if (current_tree->numBranches != -1){
-            for (int e = 0; e < current_tree->numBranches; e++){
-                Branch *current_branch = &current_tree->branches[e];
+        Tree &current_tree = trees[i];
+        vec3f root = (*current_tree.points.begin()).second.position;
 
-                vec3f point1 = points[current_branch->i1];
-                vec3f &point2 = points[current_branch->i2];
+        if (current_tree.numBranches != -1){
+            for (int e = 0; e < current_tree.numBranches; e++){
+                Branch &current_branch = current_tree.branches[e];
+
+                vec3f point1 = points[current_branch.i1];
+                vec3f &point2 = points[current_branch.i2];
+                // vec3f p2 = points[current_branch.i2];
+                // p2[2] = 0.0f;
+
+                // float delta_v = sqrt(dot(p2 - root, p2 - root));
+                // point2[2] += log(delta_v)/5.0;
 
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
-                // l2 /=  pow(GEN_AREA, 2);
 
-                float edgeLength = 1.0f/pow(SCALE, current_branch->k2 -1) ;
+                float edgeLength = 1.0f/pow(SCALE, current_branch.k2 -1) ;
                 
                 float deltasqrd = edgeLength*edgeLength - l2 ;
 
                 deltasqrd = deltasqrd < 0.01f ?  0.01f : deltasqrd;
-                // point2[2] = point1[2] + sqrt(deltasqrd) * (0.5 * (float)rand() /RAND_MAX + 1.0);
                 point2[2] = point1[2] + sqrt(deltasqrd);
 
             }
         }
     }
+}
+
+
+vec3f lerp (vec3f &p1, vec3f &p2, float t){
+    const float s = 1.0 - t;
+    return vec3f ({ p1[0] * s + p2[0] * t, 
+                    p1[1] * s + p2[1] * t, 
+                    p1[2] * s + p2[2] * t
+                  });
+}
+
+vec3f De_Casteljau_Algo(std::vector<vec3f> cPoints, float segment_coeff){
+    if (cPoints.size() > 1){
+        std::vector<vec3f> new_cPoints;
+        for (int p = 0; p < cPoints.size() - 1; p++){
+            vec3f new_cPoint = lerp(cPoints[p], cPoints[p+1], segment_coeff);
+            new_cPoints.push_back(new_cPoint);
+
+        }
+
+        return De_Casteljau_Algo(new_cPoints, segment_coeff);
+    }
+
+    // std::cout << cPoints[0][0] << " " << cPoints[0][1] << " " << cPoints[0][2] << std::endl;
+    return cPoints[0];
+
+}
+
+void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
+    // std::vector<std::pair
+
+    int numSegments = 6;
+
+    for (auto &t: trees){
+        if (t.numBranches != -1){
+            int splineBranches = 0;
+            int grid_index = 0;
+            for (int i = 0; i < t.numBranches; i++){
+
+                vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
+
+                vec3f p1 = points[(t.branches[i].i1)];
+                vec3f p2 = points[(t.branches[i].i2)];
+                vec3f cp1 = p1 + prevDirection / vec3f({5.0, 5.0, 5.0});
+                vec3f cp2 = cp1 + Normalize(p2 - p1)/ vec3f({20.0, 20.0, 20.0});
+
+                std::vector<vec3f> cPoints = {p1, cp1, cp2, p2};
+                // std::vector<vec3f> cPoints = {p2, cp2, cp1, p1};
+
+                for (int s = 1; s < numSegments; s++){
+                    float coeff = ((float)s)/numSegments;
+                    vec3f pt = De_Casteljau_Algo(cPoints, coeff);
+
+                    points.push_back(pt);
+                    int index = points.size() -1;
+                    if (s == 1) {
+                        t.spline_Branches.push_back(Branch({t.branches[i].i1, index}));
+                    }
+                    else if (s == numSegments-1){
+                        t.spline_Branches.push_back(Branch({index, t.branches[i].i2}));
+                        t.spline_Branches.push_back(Branch({index-1, index}));
+                        splineBranches++;
+                    }
+                    else{
+                        t.spline_Branches.push_back(Branch({index-1, index}));
+
+                    }
+                    splineBranches++;
+                }
+
+            }
+            t.numBranches = splineBranches;
+        }
+    }    
 }

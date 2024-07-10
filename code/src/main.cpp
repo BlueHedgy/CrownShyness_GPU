@@ -145,7 +145,7 @@ int main(){
                                 vec3f({
                                 current_cell->points[p][0] * gen_area,
                                 current_cell->points[p][1] * gen_area,
-                                float(1)})
+                                float(k+1)})
                                 );
                         }
                         else{
