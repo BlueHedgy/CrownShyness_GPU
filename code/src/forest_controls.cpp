@@ -27,7 +27,12 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
     newPoint.position = position;
     newPoint.grid_index = gridIndex;
     // newPoint.direction = vec3f {(float)(rand() * 2.0 / RAND_MAX - 1.0), (float) (rand() * 2.0 / RAND_MAX - 1.0), 0.5};
-    newPoint.direction = vec3f {0.0f, 0.0f, 4.0f* (float)rand()/RAND_MAX - 2.0f};
+    float rand_x = 2.0 * (float)rand()/RAND_MAX - 1.0f;
+    float rand_y = 2.0 * (float)rand()/RAND_MAX - 1.0f;
+    float rand_z = (float)rand()/RAND_MAX - 0.5f;
+    newPoint.direction = vec3f {rand_x, rand_y, rand_z};
+    // newPoint.direction = vec3f {0.0, 0.0, 0.0};
+
 
     return std::make_pair(returnIndex, newPoint);
 }
@@ -208,7 +213,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
     }
 }
 
-
+// Interpolate edges to curves
 vec3f lerp (vec3f &p1, vec3f &p2, float t){
     const float s = 1.0 - t;
     return vec3f ({ p1[0] * s + p2[0] * t, 
@@ -228,7 +233,6 @@ vec3f De_Casteljau_Algo(std::vector<vec3f> cPoints, float segment_coeff){
         return De_Casteljau_Algo(new_cPoints, segment_coeff);
     }
 
-    // std::cout << cPoints[0][0] << " " << cPoints[0][1] << " " << cPoints[0][2] << std::endl;
     return cPoints[0];
 
 }
@@ -244,14 +248,12 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
             int grid_index = 0;
             for (int i = 0; i < t.numBranches; i++){
 
-                vec3f &prevDirection = t.points.at(t.branches[i].i1).direction;
-
+                vec3f &prevDir = t.points.at(t.branches[i].i1).direction;
+                // prevDir = Normalize(prevDir);
                 vec3f p1 = points[(t.branches[i].i1)];
                 vec3f p2 = points[(t.branches[i].i2)];
-                vec3f cp1 = p1 + prevDirection / vec3f({5.0, 5.0, 5.0});
-
-                // vec3f displace = vec3f({})
-                vec3f cp2 = cp1 + Normalize(p2 - p1) / vec3f({GEN_AREA, GEN_AREA, GEN_AREA});
+                vec3f cp1 = p1 + prevDir/vec3f{2.0, 2.0, 2.0};
+                vec3f cp2 = cp1 + (p2 - p1)/vec3f{5.0, 5.0, 5.0};
 
                 std::vector<vec3f> cPoints = {p1, cp1, cp2, p2};
 
