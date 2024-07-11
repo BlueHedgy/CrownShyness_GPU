@@ -26,12 +26,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
 
     newPoint.position = position;
     newPoint.grid_index = gridIndex;
-    // newPoint.direction = vec3f {(float)(rand() * 2.0 / RAND_MAX - 1.0), (float) (rand() * 2.0 / RAND_MAX - 1.0), 0.5};
-    float rand_x = 2.0 * (float)rand()/RAND_MAX - 1.0f;
-    float rand_y = 2.0 * (float)rand()/RAND_MAX - 1.0f;
-    float rand_z = (float)rand()/RAND_MAX - 0.5f;
-    newPoint.direction = vec3f {rand_x, rand_y, rand_z};
-    // newPoint.direction = vec3f {0.0, 0.0, 0.0};
+    newPoint.direction = vec3f {0.0, 0.0, 0.0};
 
 
     return std::make_pair(returnIndex, newPoint);
@@ -247,12 +242,23 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
             int splineBranches = 0;
             int grid_index = 0;
             for (int i = 0; i < t.numBranches; i++){
-
-                vec3f &prevDir = t.points.at(t.branches[i].i1).direction;
+                    
+                vec3f prevDir;
                 // prevDir = Normalize(prevDir);
                 vec3f p1 = points[(t.branches[i].i1)];
                 vec3f p2 = points[(t.branches[i].i2)];
-                vec3f cp1 = p1 + prevDir/vec3f{2.0, 2.0, 2.0};
+
+                // std::cout << p1[2] << std::endl;
+
+                if (t.points.at(t.branches[i].i1).grid_index == 0) {
+                    prevDir = p2 - p1;
+                    prevDir[2] = 2.0 * (float)rand()/RAND_MAX - 1.0f;
+                }
+                else{
+                    prevDir  = t.points.at(t.branches[i].i1).direction;
+                }
+
+                vec3f cp1 = p1 + prevDir/vec3f{5.0, 5.0, 5.0};
                 vec3f cp2 = cp1 + (p2 - p1)/vec3f{5.0, 5.0, 5.0};
 
                 std::vector<vec3f> cPoints = {p1, cp1, cp2, p2};
