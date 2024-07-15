@@ -3,7 +3,8 @@
 
     #include <iostream>
     #include <iomanip>
-    #include <fstream> 
+    #include <fstream>
+    #include <numeric> 
     #include "dataStructures.h"
 
     #include "../stb/stb_image.h"

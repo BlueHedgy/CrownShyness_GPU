@@ -182,6 +182,8 @@ int main(){
 
             trees[e.c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
             
+            trees[e.c2.tree_index].points.at(iP1.first).avg_children_direction = trees[e.c2.tree_index].points.at(iP1.first).avg_children_direction + points[iP2.first];
+
             trees[e.c2.tree_index].points.at(iP2.first).parent = iP1.first;
             trees[e.c2.tree_index].points.at(iP2.first).direction = Normalize(points[iP2.first] - points[iP1.first]);
 
