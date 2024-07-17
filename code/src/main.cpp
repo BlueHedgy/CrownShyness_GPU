@@ -201,7 +201,8 @@ int main(){
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);
     
-    edgeToSpline(points, trees);
+    edgeToSpline_V1(points, trees);
+    // edgeToSpline_V2(points, trees);
     std::cout << points.size() << std::endl;
 
     std::cout << "Writing to OBJ..." << std::endl;
