@@ -22,7 +22,7 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
 
             // Writing the edges
-            for (int e = 0; e < current_tree.numBranches; e++){
+            for (int e = 0; e < current_tree.numSplineBranches; e++){
                 
                 // Branch &current_branch = current_tree.branches[e];
                 Branch &current_branch = current_tree.spline_Branches[e];
@@ -31,7 +31,7 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
                 ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
             }
 
-            ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
+            // ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
 
             ofs << "\n";
         }

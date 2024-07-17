@@ -118,8 +118,8 @@ int main(){
                     gridZeroPointsCount++;
 					points.push_back(
                         vec3f({
-                        current_cell->points[p][0] * gen_area,
-						current_cell->points[p][1] * gen_area,
+                        (current_cell->points[p][0] + (1.0f/ (MAX_POINT_PER_CELL * INIT_SUBDIV)) * (2.0f * (float) rand() / RAND_MAX - 1.0f)) * gen_area,
+						(current_cell->points[p][1] + (1.0f/ (MAX_POINT_PER_CELL * INIT_SUBDIV)) * (2.0f * (float) rand() / RAND_MAX - 1.0f)) * gen_area,
                         float(0)})
                         );
 				}

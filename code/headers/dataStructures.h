@@ -86,10 +86,12 @@ struct Tree{
 
     std::vector<Branch> spline_Branches;
 
-    int numBranches;
+    int numBranches = 0;
+    int numSplineBranches = 0;
     TREE_TYPE type;
 
-    vec3f center = vec3f({0.0f, 0.0f, 0.0f});
+    vec3f center = vec3f{0.0f, 0.0f, 0.0f};
+    vec3f rootDirection = vec3f{0.0f, 0.0f, 0.0f};
     float SHRINK_FACTOR = 0.0f;
 };
 
