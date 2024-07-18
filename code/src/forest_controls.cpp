@@ -208,6 +208,11 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
 }
 
 // Interpolate edges to curves
+
+vec3f randControlPoint(vec3f &p1, vec3f &p2, vec3f &cp1){
+
+}
+
 vec3f lerp (vec3f &p1, vec3f &p2, float t){
     const float s = 1.0 - t;
     return vec3f ({ p1[0] * s + p2[0] * t, 
@@ -259,15 +264,17 @@ void addSplineToTrees(std::vector<vec3f> &points, Tree &t, std::vector<vec3f> &c
 void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
     int numSegments = 6;
 
-    float x = 2.0f * rand() / RAND_MAX - 1.0f;
-    float y = 2.0f * rand() / RAND_MAX - 1.0f;
-    float z = rand() / RAND_MAX;
-    vec3f root_Dir = vec3f{x, y, z};
+    // float x = 2.0f * rand() / RAND_MAX - 1.0f;
+    // float y = 2.0f * rand() / RAND_MAX - 1.0f;
     
     vec3f p1, cp1, cp2, p2;
 
     p1 = points[tree_index];
     p2 = points[tree_index + gridZeroPointsCount];
+
+    vec3f root_Dir = Normalize(t.center - p1);
+    root_Dir[2] = 0.3f * rand() / RAND_MAX + 0.7f;
+
     cp1 = p1 + root_Dir * 0.4f;
     cp2 = cp1 + (p2 - p1) * 0.5f;
     std::vector <vec3f> cPoints = {p1, cp1, cp2, p2};
@@ -294,6 +301,8 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 vec3f prevDir;
                 vec3f p1 = points[(t.branches[i].i1)];
                 vec3f p2 = points[(t.branches[i].i2)];
+
+                float edgeLength = sqrt(dot(p1 - p2, p1 - p2));
 
                 prevDir  = t.points.at(t.branches[i].i1).direction;
 
