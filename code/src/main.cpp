@@ -86,6 +86,7 @@ int main(){
 
                     currentCell->pointsInfo[p].points_weight = c2.weight*WEIGHT_ATTENUATION;
                     currentCell->pointsInfo[p].tree_index = c2.tree_index;
+                    currentCell->pointsInfo[p].strength = c2.strength * 0.3f;
 
                     trees[c2.tree_index].numBranches++;
                     edges.push_back({c2,c1});
@@ -201,7 +202,7 @@ int main(){
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);
     
-    edgeToSpline_V1(points, trees);
+    // edgeToSpline_V1(points, trees);
     // edgeToSpline_V2(points, trees);
     std::cout << points.size() << std::endl;
 

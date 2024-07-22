@@ -28,10 +28,11 @@ enum TREE_TYPE{
 };
 
 struct Coord{
-    uint32_t gridIndex;     // the layer which the point belong to
-    vec2u coord;            // the cell of said layer
-    uint16_t pointIndex;   // the index of the point in the cell
-    float weight; 
+    uint32_t gridIndex;         // the layer which the point belong to
+    vec2u coord;                // the cell of said layer
+    uint16_t pointIndex;        // the index of the point in the cell
+    float weight;
+    float strength;
     int tree_index;
 };
 
@@ -41,6 +42,7 @@ struct Edge{
 
 struct point_Info{
     float points_weight;
+    float strength;             // to be compared against gravity
     int tree_index;
     int global_point_index;
 };
@@ -61,11 +63,11 @@ struct Grid2D{
 struct Point {
     int grid_index;
     vec3f position;
-    // vec3f children_center;
     int parent = -1;
     std::vector<int> children;
     vec3f avg_children_direction = vec3f{0.0f, 0.0f, 0.0f};
     vec3f direction;
+    float strength;
 };
 
 // inline bool operator<(const Point &a, const Point &b){

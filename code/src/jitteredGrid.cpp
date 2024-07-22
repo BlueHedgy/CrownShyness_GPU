@@ -57,6 +57,7 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
                     newPoint.points_weight  = (((float)rand() / (RAND_MAX)) + 0.01) * 1.0 / (1.4 * INIT_SUBDIV);
                     tree_index++;
                     newPoint.tree_index = tree_index;
+                    newPoint.strength = 1.0f;
                 }
                 else{
                     weight = 1.0f;
