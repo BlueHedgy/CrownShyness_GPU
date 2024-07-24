@@ -67,6 +67,8 @@ struct Point {
     std::vector<int> children;
     vec3f avg_children_direction = vec3f{0.0f, 0.0f, 0.0f};
     vec3f direction;
+    int prevNumSegmemts;
+    int lastSegmentIndex;
     float strength;
 };
 
