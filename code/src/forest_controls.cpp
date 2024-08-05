@@ -246,6 +246,7 @@ void addSplineToTrees(std::vector<vec3f> &points, Tree &t, std::vector<vec3f> &c
 
     int &splineBranches = t.numSplineBranches;
     int index;
+    // t.points.at(i2).prevIndices.push_back(i1);
     for (int s = 1; s < numSegments; s++){
         float coeff = ((float)s)/numSegments;
         vec3f pt = De_Casteljau_Algo(cPoints, coeff);
@@ -264,21 +265,24 @@ void addSplineToTrees(std::vector<vec3f> &points, Tree &t, std::vector<vec3f> &c
             t.spline_Branches.push_back(Branch({index-1, index}));
 
         }
+        t.points.at(i2).prevIndices.push_back(index);
         splineBranches++;
     }
+    t.points.at(i2).prevIndices.push_back(i2);
 
     t.points.at(i2).lastSegmentIndex = index;
     t.points.at(i2).prevNumSegmemts = numSegments ;
+    t.points.at(i2).prevLength = sqrt(dot(points[i2] - points[i1], points[i2] - points[i1]));
 }
 
 void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
-    int numSegments = 5;
+    int numSegments = 15;
     
     vec3f p1, cp1, cp2;
 
     p1 = points[tree_index];
     vec3f &p2 = points[tree_index + gridZeroPointsCount];
-    // p2[2] = BRANCHING * (0.5f * (float) rand() / RAND_MAX + 0.5f);
+    p2[2] = BRANCHING * (0.5f * (float) rand() / RAND_MAX + 0.5f);
 
     vec3f root_Dir = Normalize(t.center - p1);
     root_Dir[2] = 0.3f * rand() / RAND_MAX + 0.7f;
@@ -306,7 +310,7 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
             for (int i = 0; i < t.numBranches; i++){
                     
-                vec3f prevDir;
+                vec3f direction;
                 vec3f &p1 = points[(t.branches[i].i1)];
                 vec3f &p2 = points[(t.branches[i].i2)];
 
@@ -314,43 +318,52 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 int numSegments = ceil(default_numSegments * (BRANCHING- grid_index) / BRANCHING);
                 if (numSegments < 3) numSegments = 3;
 
-                float edgeLength = sqrt(dot(p1 - p2, p1 - p2));
-                prevDir  = t.points.at(t.branches[i].i1).direction;
+                // direction  = t.points.at(t.branches[i].i1).direction;
 
+                // std::cout << prevDir[0] << " " << prevDir[1] << " " << prevDir[2]  << std::endl ; 
 
-                std::cout << prevDir[0] << " " << prevDir[1] << " " << prevDir[2]  << std::endl ; 
-
-                float s = sin(rand()/ RAND_MAX);
-                float c = cos(rand()/ RAND_MAX);
-
-                vec3f tempPrevDir;
-                tempPrevDir[0] = prevDir[0] * c - prevDir[1] * s;
-                tempPrevDir[1] = prevDir[0] * s + prevDir[1] * c;
-
-                prevDir = tempPrevDir;
                 
                 int branchPointIndex;
                 vec3f *branchPoint;
+                float prevLength = t.points.at(t.branches[i].i1).prevLength;
+                // branchPoint = &p1;
+                // branchPointIndex = t.branches[i].i1;
 
                 int &prevNumSegments = t.points.at(t.branches[i].i1).prevNumSegmemts;
                 int &lastSegmentIndex = t.points.at(t.branches[i].i1).lastSegmentIndex;
+                std::vector<int> &prevIndices = t.points.at(t.branches[i].i1).prevIndices;
+                do {
+                    branchPointIndex = prevIndices[rand() % (prevNumSegments-1)];
+                }
+                while (points[branchPointIndex][2] - p2[2] >= 0);
 
-                // do {
-                //     branchPointIndex = lastSegmentIndex -  rand() % (prevNumSegments - 1);
-                // }
-                // while (points[branchPointIndex][2] - p2[2] >= 0.00f);
-                
-                branchPointIndex = lastSegmentIndex -  rand() % (prevNumSegments - 1);
                 branchPoint = &points[branchPointIndex];
 
-                vec3f cp1 = *branchPoint + (prevDir) * (1.0f / BRANCHING);
+                float edgeLength = prevLength/4.0f ;
+                // float edgeLength = prevLength/pow(2.0, t.points.at(t.branches[i].i2).grid_index -1) ;
+
+                std::cout << edgeLength << std::endl;
+                float l2 = sqrt(dot(p1 - p2, p1 - p2));
+                p2[2] = p1[2] + abs(edgeLength - l2);
+ 
+                direction = (p2 - *branchPoint);
+
+                float s = sin(rand()/ RAND_MAX);
+                float c = cos(rand()/ RAND_MAX);
+                vec3f tempPrevDir;
+                tempPrevDir[0] = direction[0] * c - direction[1] * s;
+                tempPrevDir[1] = direction[0] * s + direction[1] * c;
+
+                direction = tempPrevDir;
+
+                vec3f cp1 = *branchPoint + (direction) * (1.0f / BRANCHING);
                 vec3f cp2;
 
                 if (t.points.at(t.branches[i].i2).children.size() == 0){
                     cp2 = (p2 - p1) * 0.75f + p1;
                 }
                 else{
-                    cp2 = cp1 + (p2 - *branchPoint) * (1.0f / BRANCHING);
+                    cp2 = cp1 + (p2 - *branchPoint) * 0.5f;
 
                 }
 

@@ -3,8 +3,8 @@
     {
         "BRANCHING"                 : 4,
         "INIT_SUBDIV"               : 8,
-        "GEN_AREA"                  : 18,
-        "SCALE"                     : 1.4,
+        "GEN_AREA"                  : 40,
+        "SCALE"                     : 1.2,
         "MAX_POINT_PER_CELL"        : 8,
         "WEIGHT_ATTENUATION"        : 0.6,
         "DENSITY_IMAGE"             : "",

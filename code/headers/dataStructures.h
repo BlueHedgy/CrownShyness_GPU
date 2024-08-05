@@ -69,7 +69,9 @@ struct Point {
     vec3f direction;
     int prevNumSegmemts;
     int lastSegmentIndex;
+    std::vector <int> prevIndices;
     float strength;
+    float prevLength;
 };
 
 // inline bool operator<(const Point &a, const Point &b){
