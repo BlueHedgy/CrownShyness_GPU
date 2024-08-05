@@ -194,7 +194,7 @@ int main(){
 
 //----------------------------------------------------------------------------------------
     if (BRANCH_STYLING == true){
-        branch_styling(points, trees);
+        // branch_styling(points, trees);
     }
 
     // forest_height(points, trees);
@@ -202,7 +202,7 @@ int main(){
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);
     
-    edgeToSpline_V1(points, trees);
+        edgeToSpline_V1(points, trees);
     // edgeToSpline_V2(points, trees);
     std::cout << points.size() << std::endl;
 
