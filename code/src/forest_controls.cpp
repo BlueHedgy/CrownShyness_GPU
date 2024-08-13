@@ -192,13 +192,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 vec3f &center = current_tree.center;
                 
                 vec3f point1 = points[current_branch.i1];
-                vec3f &point2 = points[current_branch.i2];
-                float str1 = current_tree.points.at(current_branch.i1).strength;
-                float str2 = current_tree.points.at(current_branch.i2).strength;
-
-                float dist = sqrt(dot(point2 - center, point2 - center));
-
-                
+                vec3f &point2 = points[current_branch.i2];           
 
                 auto delta = point2-point1;
                 float l2 = delta[0]*delta[0] + delta[1]*delta[1];
@@ -271,7 +265,7 @@ void addSplineToTrees(std::vector<vec3f> &points, Tree &t, std::vector<vec3f> &c
 
     t.points.at(i2).lastSegmentIndex = index;
     t.points.at(i2).prevNumSegmemts = numSegments ;
-    t.points.at(i2).prevLength = dot(points[i2] - points[i1], points[i2] - points[i1]);
+    t.points.at(i2).prevLength = sqrt(dot(points[i2] - points[i1], points[i2] - points[i1]));
 }
 
 void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
@@ -281,7 +275,7 @@ void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
 
     p1 = points[tree_index];
     vec3f &p2 = points[tree_index + gridZeroPointsCount];
-    p2[2] = BRANCHING * (0.5f * (float) rand() / RAND_MAX + 0.5f);
+    p2[2] = MAX_FOREST_HEIGHT * (0.5f * (float) rand() / RAND_MAX + 0.5f);
 
     vec3f root_Dir = Normalize(t.center - p1);
     root_Dir[2] = 0.3f * rand() / RAND_MAX + 0.7f;
@@ -309,7 +303,6 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
             for (int i = 0; i < t.numBranches; i++){
                     
-                vec3f direction;
                 vec3f &p1 = points[(t.branches[i].i1)];
                 vec3f &p2 = points[(t.branches[i].i2)];
 
@@ -318,6 +311,7 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 int numSegments = ceil(default_numSegments * (BRANCHING - grid_index) / BRANCHING);
                 if (numSegments < 3) numSegments = 3;
                 
+                // int numSegments = default_numSegments;
 
             /* Randomize a branching point from parent branch for the current point */
                 int branchPointIndex;
@@ -328,41 +322,41 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 int &lastSegmentIndex = t.points.at(t.branches[i].i1).lastSegmentIndex;
                 std::vector<int> &prevIndices = t.points.at(t.branches[i].i1).prevIndices;
 
-    //             do {
-    //                 randSegment = rand() % (prevNumSegments-1);
-    //                 branchPointIndex = prevIndices[randSegment];
-    //             }
-    //             while ( (points[branchPointIndex][2] - p2[2] >= 0 )
-    //    /*                                  ||
-    //                     (grid_index == 0 && randSegment < prevNumSegments * 0.5 ) */
-    //             );
-
-                randSegment = rand() % (prevNumSegments-1);
+                randSegment = rand() % ((prevNumSegments - 1)/2) + (prevNumSegments - 1)/2;
                 branchPointIndex = prevIndices[randSegment];
                 branchPoint = &points[branchPointIndex];
+                // std::cout << numSegments << " " << randSegment << std:: endl;
 
             /* Branch styling */
                 float prevLength = t.points.at(t.branches[i].i1).prevLength;
-                float edgeLength = prevLength/pow(2, grid_index);
+                float edgeLength = prevLength * (1.0f - randSegment / prevNumSegments);
 
+                std::cout << prevLength << " " << edgeLength << std::endl;
                 float l2 = dot(*branchPoint - p2, *branchPoint - p2);
-                float deltasqrd = edgeLength - l2;
-                deltasqrd = deltasqrd < 0.2f ?  0.2f : deltasqrd;
+                float deltasqrd = edgeLength*edgeLength - l2;
+                deltasqrd = deltasqrd < 0.1f ?  0.1f : deltasqrd;
                 
                 p2[2] = (*branchPoint)[2] + sqrt(deltasqrd);
+            
+            /* Process edge to spline */
+                vec3f direction = t.points.at(t.branches[i].i1).direction;
+                // std::cout << direction[0] <<" " << direction[1] << " " << direction[2] << std::endl; 
                 
-                float s = sin(rand()/ RAND_MAX);
-                float c = cos(rand()/ RAND_MAX);
-                vec3f tempPrevDir;
-                tempPrevDir[0] = direction[0] * c - direction[1] * s;
-                tempPrevDir[1] = direction[0] * s + direction[1] * c;
+                // float s = sin(rand()/ RAND_MAX);
+                // float c = cos(rand()/ RAND_MAX);
+                // vec3f tempPrevDir;
+                // tempPrevDir[0] = direction[0] * c - direction[1] * s;
+                // tempPrevDir[1] = direction[0] * s + direction[1] * c;
 
-                direction = tempPrevDir;
+                // direction = tempPrevDir; 
+                // direction = (p2 - *branchPoint);
+
+                // std::cout << direction[0] <<" " << direction[1] << " " << direction[2] << std::endl; 
 
                 vec3f cp1 = *branchPoint + (direction) * (1.0f / BRANCHING);
                 vec3f cp2;
 
-                if (t.points.at(t.branches[i].i2).children.size() == 0){
+                if (grid_index == BRANCHING - 1){
                     cp2 = (p2 - p1) * 0.75f + p1;
                 }
                 else{
@@ -370,7 +364,6 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
                 }
 
-            /* Process edge to spline */
                 std::vector<vec3f> cPoints = {*branchPoint, cp1, cp2, p2};
 
                 t.points.at(t.branches[i].i2).direction = Normalize(p2 - cp2);
