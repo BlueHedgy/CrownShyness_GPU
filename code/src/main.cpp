@@ -170,8 +170,8 @@ int main(){
     for (int i = 0; i < edges.size(); i++){
         Edge &e = edges[i];
         if (trees[e.c2.tree_index].numBranches != -1){
-            std::pair<int, Point> iP1 = pointFromCoord(e.c1, grids);
-            std::pair<int, Point> iP2 = pointFromCoord(e.c2, grids);
+            std::pair<int, Point> iP1 = pointFromCoord(e.c1, grids, points);
+            std::pair<int, Point> iP2 = pointFromCoord(e.c2, grids, points);
 
             if (trees[e.c2.tree_index].points.insert(iP1).second == true){
                 trees[e.c2.tree_index].center = trees[e.c2.tree_index].center + points[iP1.first];

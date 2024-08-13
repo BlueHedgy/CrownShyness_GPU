@@ -62,7 +62,7 @@ struct Grid2D{
 
 struct Point {
     int grid_index;
-    vec3f position;
+    vec3f *position;
     int parent = -1;
     std::vector<int> children;
     vec3f avg_children_direction = vec3f{0.0f, 0.0f, 0.0f};

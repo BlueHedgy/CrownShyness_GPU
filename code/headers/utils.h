@@ -15,7 +15,7 @@
 
     void load_Config_Profile(std::string filename);
 
-    std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids);
+    std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids, std::vector<vec3f> &points);
     uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids);
 
     void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees);
