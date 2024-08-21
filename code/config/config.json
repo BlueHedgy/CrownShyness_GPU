@@ -1,11 +1,11 @@
 {
     "default":
     {
-        "BRANCHING"                 : 4,
-        "INIT_SUBDIV"               : 8,
-        "GEN_AREA"                  : 40,
+        "BRANCHING"                 : 8,
+        "INIT_SUBDIV"               : 16,
+        "GEN_AREA"                  : 30,
         "SCALE"                     : 1.2,
-        "MAX_POINT_PER_CELL"        : 8,
+        "MAX_POINT_PER_CELL"        : 4,
         "WEIGHT_ATTENUATION"        : 0.6,
         "DENSITY_IMAGE"             : "",
         "SHRINK_FACTOR_IMAGE"       : "",
@@ -14,7 +14,7 @@
         "FILTER_TREES"              : true,
         "BRANCHES_COUNT_THRESHOLD"  : 15,
         "DEFAULT_SHRINK_FACTOR"     : 0.98,
-        "MAX_FOREST_HEIGHT"         : 8.0,
+        "MAX_FOREST_HEIGHT"         : 5.0,
         "MIN_FOREST_HEIGHT"         : 3.0,
         "FOREST_HEIGHT_IMAGE"       : "../test_images/height_image3.jpg"
     },

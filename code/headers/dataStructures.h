@@ -16,17 +16,6 @@ using namespace LavaCake;
 #ifndef DATA_STRUCTURES
 #define DATA_STRUCTURES
 
-enum TREE_TYPE{
-    Columnar,
-    Pyramidal,
-    Oval,
-    Rounded,
-    Spreading,
-    Vase,
-    Weeping,
-    SIZE=7
-};
-
 struct Coord{
     uint32_t gridIndex;         // the layer which the point belong to
     vec2u coord;                // the cell of said layer
@@ -65,7 +54,6 @@ struct Point {
     vec3f *position;
     int parent = -1;
     std::vector<int> children;
-    vec3f avg_children_direction = vec3f{0.0f, 0.0f, 0.0f};
     vec3f direction;
     int prevNumSegmemts;
     int lastSegmentIndex;
@@ -74,9 +62,6 @@ struct Point {
     float prevLength;
 };
 
-// inline bool operator<(const Point &a, const Point &b){
-//     return a.index < b.index;
-// }
 
 struct Branch{
     int i2, i1;
@@ -94,7 +79,6 @@ struct Tree{
 
     int numBranches = 0;
     int numSplineBranches = 0;
-    TREE_TYPE type;
 
     vec3f center = vec3f{0.0f, 0.0f, 0.0f};
     vec3f rootDirection = vec3f{0.0f, 0.0f, 0.0f};

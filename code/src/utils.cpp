@@ -21,13 +21,15 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
             
             ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
 
-            // Writing the edges
+            // Writing the curved branches
             for (int e = 0; e < current_tree.numSplineBranches; e++){
                 
                 Branch &current_branch = current_tree.spline_Branches[e];
 
                 ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
             }
+
+        /* Uncomment this segments to switch back to straight edges tree
 
             // for (int e = 0; e < current_tree.numBranches; e++){
                 
@@ -38,9 +40,10 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
 
             // ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
 
-            ofs << "\n";
-        }
+            // ofs << "\n";
+        */
 
+        }
     }
     ofs.close();
 }

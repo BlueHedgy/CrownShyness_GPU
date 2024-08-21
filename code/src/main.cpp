@@ -7,7 +7,7 @@
 
 using namespace LavaCake;
 
-// DEFAULT CONFIG
+// DEFAULT CONFIG PARAMETERS
 int BRANCHING;
 int INIT_SUBDIV;
 float GEN_AREA;
@@ -59,8 +59,6 @@ int main(){
 
     for (int i = 0; i < gridZeroPointsCount; i++){
         trees[i].ID = i;
-        TREE_TYPE randomType = static_cast<TREE_TYPE>(rand()%TREE_TYPE::SIZE);
-        trees[i].type = randomType;
     }
 
     /*
@@ -183,8 +181,6 @@ int main(){
 
             trees[e.c2.tree_index].points.at(iP1.first).children.push_back(iP2.first);
             
-            trees[e.c2.tree_index].points.at(iP1.first).avg_children_direction = trees[e.c2.tree_index].points.at(iP1.first).avg_children_direction + points[iP2.first];
-
             trees[e.c2.tree_index].points.at(iP2.first).parent = iP1.first;
             trees[e.c2.tree_index].points.at(iP2.first).direction = Normalize(points[iP2.first] - points[iP1.first]);
 
@@ -193,17 +189,19 @@ int main(){
     }
 
 //----------------------------------------------------------------------------------------
-    if (BRANCH_STYLING == true){
-        // branch_styling(points, trees);
-    }
 
-    // forest_height(points, trees);
+/* LEGACY BRANCH STYLING, NOW CURRENTLY USED IN edgeToSpline_V1 
+    if (BRANCH_STYLING == true){
+        branch_styling(points, trees);
+    }
+*/
+    forest_height(points, trees);
 
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);
     
     edgeToSpline_V1(points, trees);
-    // edgeToSpline_V2(points, trees);
+
     std::cout << points.size() << std::endl;
 
     std::cout << "Writing to OBJ..." << std::endl;
