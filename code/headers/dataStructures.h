@@ -49,15 +49,27 @@ struct Grid2D{
 
 // Data structures after trees have been fully determined
 
+/*  Point:
+
+    grid_index: the layer it was taken from
+    position: 3d coordinates
+    parent: index of the parent branching point
+    children: list of indices of children point in EDGE PAIRS
+    direction: direction of the previous branch curve's last segment
+    prevNumSegments: parent branch number of segments
+    prevIndices: parent branch's list of indices
+    prevLength: parent EDGE's length
+*/
+
 struct Point {
     int grid_index;
     vec3f *position;
     int parent = -1;
     std::vector<int> children;
     vec3f direction;
-    int prevNumSegmemts;
+    int prevNumSegments;
     int lastSegmentIndex;
-    std::vector <int> prevIndices;
+    std::vector <int> prevIndices;  
     float strength;
     float prevLength;
 };
@@ -65,7 +77,7 @@ struct Point {
 
 struct Branch{
     int i2, i1;
-    int k2, k1;
+    int k2, k1; // corresponding grid indices 
 };
 
 struct Tree{

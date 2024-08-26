@@ -30,7 +30,7 @@ int main(){
 
     load_Config_Profile(XSTRING(CMAKE_SOURCE_DIR)"/config/config.json"); 
 
-    // grids: represent the layers of branch deviations (by height)
+    // Represent the layers of branch deviations
     std::vector<Grid2D> grids;
     
     float subdiv = INIT_SUBDIV;
@@ -62,7 +62,7 @@ int main(){
     }
 
     /*
-    Start from the 2nd layer, find and connect to the closest point of the lower layer
+    For each point of the directly higher layer, find the closest point in the current layer and mark them as an Edge
     */
     for (int k = 0; k < BRANCHING-1; k++){
 
