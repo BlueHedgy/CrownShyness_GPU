@@ -40,3 +40,14 @@ NOTE: the code is using Z up, Y forward as coordinate system, change the import 
 
 - Output curves information, vertex weight into a file format somehow
 - Maybe make the trees aware of the angle of the surface it grows on (e.g based on input terrain height texture)
+
+.  
+.  
+.  
+.  
+.  
+.  
+.  
+.  
+  
+Any questions regarding this ***specific*** version of the code send me an email at: *ngphuhung2000@gmail.com*
