@@ -48,6 +48,24 @@ void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     ofs.close();
 }
 
+// DEFAULT CONFIG PARAMETERS
+int BRANCHING;
+int INIT_SUBDIV;
+float GEN_AREA;
+float SCALE;
+int MAX_POINT_PER_CELL;
+float WEIGHT_ATTENUATION;
+std::string DENSITY_IMAGE;
+std::string SHRINK_FACTOR_IMAGE;
+int CROWN_SHYNESS_STEP;
+bool BRANCH_STYLING;
+bool FILTER_TREES;
+int BRANCHES_COUNT_THRESHOLD;
+float DEFAULT_SHRINK_FACTOR;
+float MAX_FOREST_HEIGHT;
+float MIN_FOREST_HEIGHT;
+std::string FOREST_HEIGHT_IMAGE;
+
 void load_Config_Profile(std::string filename){
     std::string profile_name;
 

@@ -4,12 +4,6 @@
 using namespace LavaCake;
 
 
-/*
-    GenerateGrid:   randomize points line by line through an
-                    abstractly subdivided grid
-                    Currently: 1 point per cell per grid
-*/
-uint16_t maxPointsPerCell = 8;
 int tree_index = -1;
 
 Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){

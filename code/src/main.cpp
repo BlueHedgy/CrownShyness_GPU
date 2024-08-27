@@ -5,26 +5,7 @@
 
 using namespace LavaCake;
 
-// DEFAULT CONFIG PARAMETERS
-int BRANCHING;
-int INIT_SUBDIV;
-float GEN_AREA;
-float SCALE;
-int MAX_POINT_PER_CELL;
-float WEIGHT_ATTENUATION;
-std::string DENSITY_IMAGE;
-std::string SHRINK_FACTOR_IMAGE;
-int CROWN_SHYNESS_STEP;
-bool BRANCH_STYLING;
-bool FILTER_TREES;
-int BRANCHES_COUNT_THRESHOLD;
-float DEFAULT_SHRINK_FACTOR;
-float MAX_FOREST_HEIGHT;
-float MIN_FOREST_HEIGHT;
-std::string FOREST_HEIGHT_IMAGE;
-
 int main(){
-
 
     load_Config_Profile(XSTRING(CMAKE_SOURCE_DIR)"/config/config.json"); 
 
@@ -173,7 +154,8 @@ int main(){
             if (trees[e.c2.tree_index].points.insert(iP1).second == true){
                 trees[e.c2.tree_index].center = trees[e.c2.tree_index].center + points[iP1.first];
             }
-
+            
+            // accumulating the total 3d position of the points in the tree
             if (trees[e.c2.tree_index].points.insert(iP2).second == true){
                 trees[e.c2.tree_index].center = trees[e.c2.tree_index].center + points[iP2.first];
             }
@@ -189,7 +171,7 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-/* LEGACY BRANCH STYLING, NOW CURRENTLY USED IN edgeToSpline_V1 
+/* LEGACY BRANCH STYLING, NOW CURRENTLY USED IN edgeToSpline 
     if (BRANCH_STYLING == true){
         branch_styling(points, trees);
     }
@@ -199,7 +181,7 @@ int main(){
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);
     
-    edgeToSpline_V1(points, trees);
+    edgeToSpline(points, trees);
 
     std::cout << points.size() << std::endl;
 

@@ -287,7 +287,7 @@ void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
 
 
 
-void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
+void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
     int default_numSegments = 10;
     int count = -1;
