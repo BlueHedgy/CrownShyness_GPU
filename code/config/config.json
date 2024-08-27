@@ -2,12 +2,12 @@
     "default":
     {
         "BRANCHING"                 : 8,
-        "INIT_SUBDIV"               : 16,
-        "GEN_AREA"                  : 30,
+        "INIT_SUBDIV"               : 50,
+        "GEN_AREA"                  : 70,
         "SCALE"                     : 1.2,
         "MAX_POINT_PER_CELL"        : 4,
         "WEIGHT_ATTENUATION"        : 0.6,
-        "DENSITY_IMAGE"             : "",
+        "DENSITY_IMAGE"             : "../test_images/Density2.png",
         "SHRINK_FACTOR_IMAGE"       : "",
         "CROWN_SHYNESS_STEP"        : 1.0,
         "BRANCH_STYLING"            : true,

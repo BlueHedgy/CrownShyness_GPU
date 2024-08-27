@@ -3,8 +3,6 @@
 #include <fstream> 
 #include <math.h>      
 
-#include "utils.h"
-
 using namespace LavaCake;
 
 // DEFAULT CONFIG PARAMETERS
@@ -115,6 +113,7 @@ int main(){
                 int curr_tree_index = current_cell->pointsInfo[p].tree_index;
                 if ( trees[curr_tree_index].numBranches != -1){
                     gridZeroPointsCount++;
+                    // shift also a bit the root point to create leaning effect of the tree trunks
 					points.push_back(
                         vec3f({
                         (current_cell->points[p][0] + (1.0f/ (MAX_POINT_PER_CELL * INIT_SUBDIV)) * (2.0f * (float) rand() / RAND_MAX - 1.0f)) * gen_area,

@@ -15,6 +15,7 @@
 
     void load_Config_Profile(std::string filename);
 
+    extern int gridZeroPointsCount;
     std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &grids, std::vector<vec3f> &points);
     uint32_t coordToIndex(const Coord & c, const std::vector<Grid2D>& grids);
 
@@ -30,7 +31,6 @@
 
     void forest_height(std::vector<vec3f> &points, std::vector<Tree>&trees);
 
-    extern int gridZeroPointsCount;
 
     void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees);
     void edgeToSpline_V2(std::vector<vec3f> &points, std::vector<Tree> &trees);

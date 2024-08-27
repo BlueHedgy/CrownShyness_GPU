@@ -68,7 +68,7 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
                 newPoint.global_point_index = point_index;    
 
                 currentCell.pointsInfo.push_back(newPoint);
-                // currentCell.pointsInfo.push_back(weight);
+
             }
             currentCellRow.push_back(currentCell);
             currentCellPointsCount.push_back(pointCount);

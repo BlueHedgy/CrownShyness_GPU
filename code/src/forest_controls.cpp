@@ -235,7 +235,7 @@ void addSplineToTrees(std::vector<vec3f> &points, Tree &t, std::vector<vec3f> &c
 
     int &splineBranches = t.numSplineBranches;
     int index;
-    // t.points.at(i2).prevIndices.push_back(i1);
+
     for (int s = 1; s < numSegments; s++){
         float coeff = ((float)s)/numSegments;
         vec3f pt = De_Casteljau_Algo(cPoints, coeff);
@@ -257,8 +257,8 @@ void addSplineToTrees(std::vector<vec3f> &points, Tree &t, std::vector<vec3f> &c
         t.points.at(i2).prevIndices.push_back(index);
         splineBranches++;
     }
-    t.points.at(i2).prevIndices.push_back(i2);
 
+    t.points.at(i2).prevIndices.push_back(i2);
     t.points.at(i2).lastSegmentIndex = index;
     t.points.at(i2).prevNumSegments = numSegments ;
     t.points.at(i2).prevLength = sqrt(dot(points[i2] - points[i1], points[i2] - points[i1]));
@@ -302,10 +302,10 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 vec3f &p1 = points[(t.branches[i].i1)];
                 vec3f &p2 = points[(t.branches[i].i2)];
 
-            /* The higher the branching, the less segments amount */
+            /* The higher the branching, the less the segments amount */
                 grid_index = t.points.at(t.branches[i].i1).grid_index;
                 int numSegments = ceil(default_numSegments * (BRANCHING - grid_index) / BRANCHING);
-                if (numSegments < 3) numSegments = 3;
+                if (numSegments < 3) numSegments = 3; //! BUGGY AT < 3 SEGMENTS
                 
             /* Randomize a branching point from parent branch for the current point */
                 int branchPointIndex;
@@ -316,7 +316,8 @@ void edgeToSpline_V1(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 int &lastSegmentIndex = t.points.at(t.branches[i].i1).lastSegmentIndex;
                 std::vector<int> &prevIndices = t.points.at(t.branches[i].i1).prevIndices;
 
-                randSegment = rand() % ((prevNumSegments - 1)/2) + (prevNumSegments - 1)/2;
+                randSegment = rand() % ((prevNumSegments - 1)/2) + (prevNumSegments - 1)/2; // Just branching from the end half of the parent branch
+
                 branchPointIndex = prevIndices[randSegment];
                 branchPoint = &points[branchPointIndex];
 
