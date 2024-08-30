@@ -2,66 +2,20 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
-   
-void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
-    // Write to OBJ
-    std::ofstream ofs;
-    ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
-
-    for (int k = 0; k < points.size(); k++) {
-        ofs << std::fixed << std::setprecision(4) << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
-    }
-
-    int count = -1;
-    for (int i = 0; i < trees.size(); i++){
-        Tree &current_tree = trees[i];
-    
-        if (current_tree.numBranches != -1){
-            count++;
-            
-            ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
-
-            // Writing the curved branches
-            for (int e = 0; e < current_tree.numSplineBranches; e++){
-                
-                Branch &current_branch = current_tree.spline_Branches[e];
-
-                ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
-            }
-
-        // Uncomment this segments to switch back to straight edges tree
-        /* 
-            for (int e = 0; e < current_tree.numBranches; e++){
-                
-                Branch &current_branch = current_tree.branches[e];
-
-                ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
-            }
-
-            ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
-
-            ofs << "\n";
-        */
-
-        }
-    }
-    ofs.close();
-}
-
 // DEFAULT CONFIG PARAMETERS
-int BRANCHING;
-int INIT_SUBDIV;
-float GEN_AREA;
-float SCALE;
-int MAX_POINT_PER_CELL;
-float WEIGHT_ATTENUATION;
-std::string DENSITY_IMAGE;
-std::string SHRINK_FACTOR_IMAGE;
-int CROWN_SHYNESS_STEP;
-bool BRANCH_STYLING;
+int BRANCHING;                                  // Number of grid layers
+int INIT_SUBDIV;                                // Layer 0 subdivisions
+float GEN_AREA;                                 // Generation area
+float SCALE;                                    // Scale value used in some ops 
+int MAX_POINT_PER_CELL;                         // Max amount of points per grid cell 
+float WEIGHT_ATTENUATION;                       // Root points have weight, diminished by layer index
+std::string DENSITY_IMAGE;                      // Input density image for generation land
+std::string SHRINK_FACTOR_IMAGE;                // Control how much trees of area shrinks
+int CROWN_SHYNESS_STEP;                         // How many times the shrink effect happens across the layers, <= BRANCHING
+bool BRANCH_STYLING;                            // Heuristics tree branches' length function for the straight edges
 bool FILTER_TREES;
-int BRANCHES_COUNT_THRESHOLD;
-float DEFAULT_SHRINK_FACTOR;
+int BRANCHES_COUNT_THRESHOLD;                   // Lower limit to how dense tree needs to be to be kept in output
+float DEFAULT_SHRINK_FACTOR;                    // Shrink coefficient for crownshyness effect
 float MAX_FOREST_HEIGHT;
 float MIN_FOREST_HEIGHT;
 std::string FOREST_HEIGHT_IMAGE;
@@ -120,4 +74,92 @@ void load_Config_Profile(std::string filename){
     else{
         std::cout << "No configuration files, using default parameters" << std::endl;
     }
+}
+
+
+// DENSITY --------------------------------------------------------------
+
+std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv){
+    int width, height, channelsNum;
+    int desiredChannels = 1; // grayscale
+
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char * image = stbi_load(filename.c_str(), &width, &height, &channelsNum, desiredChannels);
+
+    if (image == NULL){
+        std::cout << "Failed to load density map\n" << std::endl;
+        exit(1);
+    }
+
+    unsigned char * resized_im;
+    if (subdiv != 0){
+        resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
+        height = subdiv;
+        width = subdiv;
+
+        stbi_image_free(image);
+    }
+    else{
+        resized_im = image;
+    }
+
+    std::vector<std::vector<float>> map;
+
+    for (int j = 0; j < height; j++){
+        std::vector<float> currentRow;
+        for (int i = 0; i < width; i++){
+            currentRow.push_back(1.0 - float(int(resized_im[j * width + i])/255.0));
+        }
+        map.push_back(currentRow);
+        
+    }
+    stbi_image_free(resized_im);
+
+    return map;
+}
+
+
+void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
+    // Write to OBJ
+    std::ofstream ofs;
+    ofs.open("graph.obj", std::ofstream::out | std::ofstream::trunc);
+
+    for (int k = 0; k < points.size(); k++) {
+        ofs << std::fixed << std::setprecision(4) << "v " << points[k][0] << " " << points[k][1] << " " <<  points[k][2]  << "\n";
+    }
+
+    int count = -1;
+    for (int i = 0; i < trees.size(); i++){
+        Tree &current_tree = trees[i];
+    
+        if (current_tree.numBranches != -1){
+            count++;
+            
+            ofs << "o " << "Tree_"<< std::to_string(trees[i].ID) << "\n";
+
+        // Writing the curved branches
+            for (int e = 0; e < current_tree.numSplineBranches; e++){
+                
+                Branch &current_branch = current_tree.spline_Branches[e];
+
+                ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
+            }
+
+        // Replace the loop above with this segments to switch back to straight edges tree
+        // Also enable the Branch styling and comment out the edgetoSpline in main.cpp
+            // for (int e = 0; e < current_tree.numBranches; e++){
+                
+            //     Branch &current_branch = current_tree.branches[e];
+
+            //     ofs << "l " << (current_branch.i1)+1 << " " << (current_branch.i2)+1 << "\n"; 
+            // }
+
+            // ofs << "l " << count+1 << " " << count+1+ gridZeroPointsCount << "\n";
+
+            // ofs << "\n";
+       
+
+        }
+    }
+    ofs.close();
 }

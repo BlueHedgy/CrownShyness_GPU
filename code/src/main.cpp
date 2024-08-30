@@ -1,7 +1,8 @@
-#include "jitteredGrid.h"
 #include <iostream>
 #include <fstream> 
 #include <math.h>      
+
+#include "jitteredGrid.h"
 
 using namespace LavaCake;
 
@@ -171,19 +172,21 @@ int main(){
 
 //----------------------------------------------------------------------------------------
 
-/* LEGACY BRANCH STYLING, NOW CURRENTLY USED IN edgeToSpline 
-    if (BRANCH_STYLING == true){
-        branch_styling(points, trees);
-    }
-*/
+/* LEGACY BRANCH STYLING, NOW CURRENTLY USED IN edgeToSpline */
+    // if (BRANCH_STYLING == true){
+    //     branch_styling(points, trees);
+    // }
+
+/* UNCOMMENT THE ABOVE TO GO BACK TO STRAIGHT EDGES--------- */
+
     forest_height(points, trees);
 
     // Scaling the trees for the crownshyness effect
     crownShyness(points, trees);
     
-    edgeToSpline(points, trees);
+    edgeToSpline(points, trees);    // comment this out also for straight edges version
 
-    std::cout << points.size() << std::endl;
+    std::cout << points.size() << " VERTICES" << std::endl;
 
     std::cout << "Writing to OBJ..." << std::endl;
     write_to_OBJ(points, trees);

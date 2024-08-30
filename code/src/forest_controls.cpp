@@ -30,47 +30,6 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
 }
 
 
-// DENSITY --------------------------------------------------------------
-
-std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv){
-    int width, height, channelsNum;
-    int desiredChannels = 1; // grayscale
-
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char * image = stbi_load(filename.c_str(), &width, &height, &channelsNum, desiredChannels);
-
-    if (image == NULL){
-        std::cout << "Failed to load density map\n" << std::endl;
-        exit(1);
-    }
-
-    unsigned char * resized_im;
-    if (subdiv != 0){
-        resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
-        height = subdiv;
-        width = subdiv;
-
-        stbi_image_free(image);
-    }
-    else{
-        resized_im = image;
-    }
-
-    std::vector<std::vector<float>> map;
-
-    for (int j = 0; j < height; j++){
-        std::vector<float> currentRow;
-        for (int i = 0; i < width; i++){
-            currentRow.push_back(1.0 - float(int(resized_im[j * width + i])/255.0));
-        }
-        map.push_back(currentRow);
-        
-    }
-    stbi_image_free(resized_im);
-
-    return map;
-}
-
 // This function purely takes all the points of each tree and move it along z axis based on inputs
 void forest_height (std::vector<vec3f> &points, std::vector<Tree> &trees){
     std::vector<std::vector<float>> height_map;
@@ -131,6 +90,7 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
             float x = points[(*t.points.begin()).first][0];
             float y = points[(*t.points.begin()).first][1];
 
+            // the center was previously accumulated by all the points, so now we get the average
             t.center[0] /= t.points.size();
             t.center[1] /= t.points.size();
             t.center[2] /= t.points.size();
@@ -164,6 +124,7 @@ void crownShyness(std::vector<vec3f> &points, std::vector<Tree>&trees){
 
                     vec3f shrink_center = *t.points.at(shrink_target).position;
 
+                    // ! Hard coded shrink values here for clumps, try to make it procedural
                     points[(*it).first][0] = (points[(*it).first][0] - shrink_center[0]) * shrink_factor * 0.9 + shrink_center[0];
                     points[(*it).first][1] = (points[(*it).first][1] - shrink_center[1]) * shrink_factor * 0.9 + shrink_center[1];
 
@@ -180,7 +141,6 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
     
     for (int i = 0; i < trees.size(); i++){
         Tree &current_tree = trees[i];
-        vec3f root = *(*current_tree.points.begin()).second.position;
 
         if (current_tree.numBranches != -1){
             for (int e = 0; e < current_tree.numBranches; e++){
@@ -206,7 +166,7 @@ void branch_styling(std::vector<vec3f> &points, std::vector<Tree> &trees){
     }
 }
 
-// Interpolate edges to curves
+// Interpolate edges to curves --------------------------------------------
 
 vec3f lerp (vec3f &p1, vec3f &p2, float t){
     const float s = 1.0 - t;
@@ -331,9 +291,10 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
                 
                 p2[2] = (*branchPoint)[2] + sqrt(deltasqrd);
 
-            /* Process edge to spline */
+            /* Pre-process edge to spline */
                 vec3f direction = t.points.at(t.branches[i].i1).direction;
                 
+                //! I'm just randomizing rotation in x and y here, doesnt quite work or make sense
                 float s = sin(rand()/ RAND_MAX);
                 float c = cos(rand()/ RAND_MAX);
                 vec3f tempPrevDir;

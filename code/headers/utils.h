@@ -5,12 +5,12 @@
     #include <iomanip>
     #include <fstream>
     #include <numeric> 
-    #include "dataStructures.h"
 
     #include "../stb/stb_image.h"
     #include "../stb/stb_image_write.h"
     #include "../stb/stb_image_resize2.h"
 
+    #include "dataStructures.h"
     #include "global_variables.h"
 
 // Miscellaneous 
