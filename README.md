@@ -1,5 +1,9 @@
 CrownShyness
 ========================
+FIRST OFF:
+This code is a continuation of my internship work at MAVERICK, INRIA.
+All credit on research topic belongs to *https://github.com/ThibaultTricard*
+and the laboratory.
 
 Some few lines about how all these work:
 
@@ -7,18 +11,29 @@ Some few lines about how all these work:
 Clone the code by running the following lines:
 
 ```console
-    git clone git@gitlab.inria.fr:ttricard/crownshyness.git
+    git clone https://github.com/BlueHedgy/CrownShyness_GPU.git
     git update submodules --init --recursive
 ```
 
 ## How to compile and run:
+This code has been tested on Windows 11 SDK and Ubuntu 22.04, 24.04 LTS family.
+
 Vulkan SDK is required to make the code work (specifically for LavaCake):
 - Download instructions are at: https://vulkan.lunarg.com/home/welcome
 - While on Ubuntu, you may be prompted a series of missing development packages, just install all of them
 
 How to get it running: 
 
-- The code uses CMake to manage the compilation, install it
+- The code uses CMake to manage the compilation, install it:
+```bash
+    sudo apt install cmake
+```
+
+or 
+
+```powershell
+    winget install cmake -s winget
+```
 
 - Using terminal (Powershell recommended if using Windows), navigate to code and run the following commands:
 ```console
