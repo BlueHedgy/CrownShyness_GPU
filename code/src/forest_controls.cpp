@@ -294,14 +294,6 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
             /* Pre-process edge to spline */
                 vec3f direction = t.points.at(t.branches[i].i1).direction;
                 
-                //! I'm just randomizing rotation in x and y here, doesnt quite work or make sense
-                float s = sin(rand()/ RAND_MAX);
-                float c = cos(rand()/ RAND_MAX);
-                vec3f tempPrevDir;
-                tempPrevDir[0] = direction[0] * c - direction[1] * s;
-                tempPrevDir[1] = direction[0] * s + direction[1] * c;
-                direction = tempPrevDir; 
-
                 vec3f cp1 = *branchPoint + (direction) * (1.0f / BRANCHING);
                 vec3f cp2;
 
