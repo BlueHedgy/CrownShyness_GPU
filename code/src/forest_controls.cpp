@@ -22,7 +22,7 @@ std::pair<int, Point> pointFromCoord(const Coord &c, const std::vector<Grid2D> &
 
     newPoint.position = &points[returnIndex];
     newPoint.grid_index = gridIndex;
-    newPoint.direction = vec3f {0.0, 0.0, 0.0};
+    newPoint.direction = vec3f({0.0, 0.0, 0.0});
     newPoint.strength = c.strength;
 
 
@@ -233,7 +233,7 @@ void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
     vec3f &p2 = points[tree_index + gridZeroPointsCount];
     p2[2] = MAX_FOREST_HEIGHT * (0.5f * (float) rand() / RAND_MAX + 0.5f);
 
-    vec3f root_Dir = Normalize(t.center - p1);
+    vec3f root_Dir = normalize(t.center - p1);
     root_Dir[2] = 0.3f * rand() / RAND_MAX + 0.7f;
 
     cp1 = p1 + root_Dir * 0.4f;
@@ -242,7 +242,7 @@ void trunkToSpline(std::vector<vec3f> &points, Tree &t, int &tree_index){
     
     addSplineToTrees(points, t, cPoints, tree_index, tree_index+gridZeroPointsCount, numSegments);
 
-    (*t.points.begin()).second.direction = Normalize(p2 - cp2);
+    (*t.points.begin()).second.direction = normalize(p2 - cp2);
 }
 
 
@@ -307,7 +307,7 @@ void edgeToSpline(std::vector<vec3f> &points, std::vector<Tree> &trees){
 
                 std::vector<vec3f> cPoints = {*branchPoint, cp1, cp2, p2};
 
-                t.points.at(t.branches[i].i2).direction = Normalize(p2 - cp2);
+                t.points.at(t.branches[i].i2).direction = normalize(p2 - cp2);
 
                 addSplineToTrees(points, t, cPoints, branchPointIndex, t.branches[i].i2, numSegments);
 
