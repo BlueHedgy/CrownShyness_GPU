@@ -50,7 +50,7 @@ set(SOURCES_CPU
 
 # Adding something we can run - Output name matches target name
 if (USE_CUDA)
-  add_executable(CrownShyness src/main.cpp ${SOURCES} ${SOURCES_GPU})
+  add_executable(CrownShyness src/main.cu ${SOURCES} ${SOURCES_GPU})
 else()
   add_executable(CrownShyness src/main.cpp ${SOURCES} ${SOURCE_CPU})
 endif()

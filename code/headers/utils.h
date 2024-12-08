@@ -10,7 +10,7 @@
     #include "../stb/stb_image_write.h"
     #include "../stb/stb_image_resize2.h"
 
-    #include "dataStructures.h"
+    #include "dataStructures_cuda.h"
     #include "global_variables.h"
 
 // Miscellaneous 

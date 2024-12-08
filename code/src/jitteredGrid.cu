@@ -6,10 +6,14 @@ using namespace LavaCake;
 
 int tree_index = -1;
 
-Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
+__global__ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
 
-    Grid2D grid;
+    Grid2D grid(subdivision);
+
     srand(seed + 124534);
+    
+    cudaMalloc(&grid.cells, pow(subdivision, 2) * sizeof(Cell));
+    cudaMalloc(&grid.pointsCount, subdivision * sizeof(point_Info));
 
     std::vector<std::vector<float>> weight_map;
 
@@ -18,8 +22,8 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
     }
     
     for(uint16_t j = 0; j < subdivision ; j++){
-        std::vector<Cell> currentCellRow;
-        std::vector<int> currentCellPointsCount;
+        // std::vector<Cell> currentCellRow;
+        // std::vector<int> currentCellPointsCount;
 
         for(uint16_t  i = 0; i < subdivision ; i++){
 
@@ -33,7 +37,7 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
             }
 
 
-            Cell currentCell;
+            Cell currentCell(pointCount);
             point_Info newPoint;
             
             for (uint16_t c = 0; c < pointCount; c++){
@@ -43,7 +47,8 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
                 point [1] =  ((float)rand() / RAND_MAX + float(j)) / float(subdivision);
                 point [2] = float(gridLayer);
             
-                currentCell.points.push_back(point);
+                // currentCell.points.push_back(point);
+                currentCell.points[c] = point;
            
                 float weight;
                 // Randomized weight for testing
@@ -61,17 +66,20 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
 
                 newPoint.global_point_index = point_index;    
 
-                currentCell.pointsInfo.push_back(newPoint);
+                // currentCell.pointsInfo.push_back(newPoint);
+                currentCell.pointsInfo[c] = newPoint;
 
             }
-            currentCellRow.push_back(currentCell);
-            currentCellPointsCount.push_back(pointCount);
-        }
-        grid.cells.push_back(currentCellRow);
-        grid.pointsCount.push_back(currentCellPointsCount);
-    }
+            // currentCellRow.push_back(currentCell);
+            // currentCellPointsCount.push_back(pointCount);
 
-    return grid;
+            grid.cells[j * subdivision + i] = currentCell;
+            grid.pointsCount[j * subdivision + i] = pointCount;
+        }
+        // grid.cells.push_back(currentCellRow);
+        // grid.pointsCount.push_back(currentCellPointsCount);
+
+    }
     
 }
 
