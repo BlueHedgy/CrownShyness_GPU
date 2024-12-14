@@ -44,8 +44,8 @@ struct Cell{
     point_Info *pointsInfo;
 
     Cell(const int size){
-        cudaError_t ret1 = cudaMalloc(&points, size * sizeof(LavaCake::vec3f));
-        cudaError_t ret2 = cudaMalloc(&pointsInfo, size * sizeof(point_Info));
+        cudaMalloc(&points, size * sizeof(LavaCake::vec3f));
+        cudaMalloc(&pointsInfo, size * sizeof(point_Info));
     }
 
     ~Cell(){}   // Placeholder destructor
@@ -57,10 +57,11 @@ struct Grid2D{
 
     Cell *cells; 
     int *pointsCount;
-
+ 
+    __host__ __device__
     Grid2D(const int size){
-        cudaError_t ret1 = cudaMalloc(&cells, size * sizeof(Cell));
-        cudaError_t ret2 = cudaMalloc(&pointsCount, size * sizeof(int));
+        cudaMalloc(&cells, size * sizeof(Cell));
+        cudaMalloc(&pointsCount, size * sizeof(int));
     }
 
     ~Grid2D(){}   // Placeholder destructor
