@@ -1,4 +1,4 @@
-#include "jitteredGrid_GPU.h"
+#include "jitter edGrid_GPU.h"
 #include <random>
 
 using namespace LavaCake;

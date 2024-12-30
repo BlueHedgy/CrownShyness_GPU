@@ -25,6 +25,8 @@ include_directories(nlohmann)
 # FLIP THIS FLAG TO USE CPU VERSION
 set(USE_CUDA TRUE)
 
+include_directories(headers_GPU)
+include_directories(headers)
 
 # Adding something we can run - Output name matches target name
 if (USE_CUDA)
@@ -33,7 +35,7 @@ if (USE_CUDA)
   set(CMAKE_CUDA_STANDARD_REQUIRED ON)
   include_directories(${CUDA_INCLUDE_DIRS})
 
-  include_directories(headers_GPU)
+  # include_directories(headers_GPU)
   set(SOURCES_GPU
   src_GPU/jitteredGrid.cu
   src_GPU/utils.cu
@@ -43,7 +45,7 @@ if (USE_CUDA)
   add_executable(CrownShyness src_GPU/main.cu ${SOURCES_GPU})
 
 else()
-  include_directories(headers)
+  # include_directories(headers)
   set(SOURCES_CPU
     src/jitteredGrid.cpp
     src/forest_controls.cpp 

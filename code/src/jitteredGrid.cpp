@@ -33,7 +33,7 @@ Grid2D generateGrid(uint16_t subdivision, int seed, int gridLayer, std::string f
             }
 
 
-            Cell currentCell;
+            Cell currengit tCell;
             point_Info newPoint;
             
             for (uint16_t c = 0; c < pointCount; c++){
