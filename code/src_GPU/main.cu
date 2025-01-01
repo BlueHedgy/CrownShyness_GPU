@@ -11,22 +11,21 @@ int main(){
     load_Config_Profile(XSTRING(CMAKE_SOURCE_DIR)"/config/config.json"); 
 
     // Represent the layers of branch deviations
-    // std::vector<Grid2D> grids;
+    std::vector<Grid2D> grids;
+
     
     float subdiv = INIT_SUBDIV;
     float gen_area = GEN_AREA; 
     int point_index = -1;
 
     std::cout << "Generating forest..." << std::endl;
-    
-    Grid2D *grids;
-    
+  
     // Generate grids and their corresponding points
-    for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid_GPU(int(subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
+    // for(int i = 0; i < BRANCHING; i++){
+    //     grids.push_back(generateGrid_GPU(int(subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
 
-        subdiv *= SCALE;
-    }
+    //     subdiv *= SCALE;
+    // }
 
 //     // Temporary form for the branches of the trees    
 //     std::vector<Edge> edges;

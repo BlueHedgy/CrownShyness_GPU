@@ -10,8 +10,8 @@
     #include "../stb/stb_image_write.h"
     #include "../stb/stb_image_resize2.h"
 
-    #include "dataStructures_cuda.h"
-    #include "global_variables.h"
+    #include "dataStructures_cuda.h"   
+    #include "global_variables_GPU.h"
 
 // Miscellaneous 
     void load_Config_Profile(std::string filename);

@@ -9,49 +9,50 @@
 
 
 #include <LavaCake/Math/basics.h>
+#include "dataStructures.h"
 #include <vector>
 
 using namespace LavaCake;
 
-#ifndef DATA_STRUCTURES
-#define DATA_STRUCTURES
+#ifndef DATA_STRUCTURES_GPU
+#define DATA_STRUCTURES_GPU
 
-struct Coord{
-    uint32_t gridIndex;         // the layer which the point belong to
-    vec2u coord;                // the cell of said layer
-    uint16_t pointIndex;        // the index of the point in the cell
-    float weight;
-    float strength;
-    int tree_index;
-};
+// struct Coord{
+//     uint32_t gridIndex;         // the layer which the point belong to
+//     vec2u coord;                // the cell of said layer
+//     uint16_t pointIndex;        // the index of the point in the cell
+//     float weight;
+//     float strength;
+//     int tree_index;
+// };
 
-struct Edge{
-    Coord c1, c2;
-};
+// struct Edge{
+//     Coord c1, c2;
+// };
 
-struct point_Info{
-    float points_weight;
-    float strength;             // to be compared against gravity
-    int tree_index;
-    int global_point_index;
-};
+// struct point_Info{
+//     float points_weight;
+//     float strength;             // to be compared against gravity
+//     int tree_index;
+//     int global_point_index;
+// };
 
-struct Cell{
+struct Cell_GPU{
     // std::vector<LavaCake::vec3f> points;
     // std::vector<point_Info> pointsInfo;
 
     LavaCake::vec3f * points;
     point_Info *pointsInfo;
 
-    Cell(const int size){
+    Cell_GPU(const int size){
         cudaMalloc(&points, size * sizeof(LavaCake::vec3f));
         cudaMalloc(&pointsInfo, size * sizeof(point_Info));
     }
 
-    ~Cell(){}   // Placeholder destructor
+    ~Cell_GPU(){}   // Placeholder destructor
 };
 
-struct Grid2D{
+struct Grid2D_GPU{
     // std::vector<std::vector<Cell>> cells;
     // std::vector<std::vector<int>> pointsCount; // keep track of number of points in grids and their cells
 
@@ -59,12 +60,12 @@ struct Grid2D{
     int *pointsCount;
  
     __host__ __device__
-    Grid2D(const int size){
+    Grid2D_GPU(const int size){
         cudaMalloc(&cells, size * sizeof(Cell));
         cudaMalloc(&pointsCount, size * sizeof(int));
     }
 
-    ~Grid2D(){}   // Placeholder destructor
+    ~Grid2D_GPU(){}   // Placeholder destructor
 
 };
 

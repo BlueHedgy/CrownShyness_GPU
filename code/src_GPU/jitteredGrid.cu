@@ -1,27 +1,40 @@
-#include "jitter edGrid_GPU.h"
+#include "jitteredGrid_GPU.h"
 #include <random>
 
 using namespace LavaCake;
 
 
 int tree_index = -1;
+struct texture_Image{
+    std::vector<std::vector<float>> weight_map;
+};
 
-__global__ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
+__global__ void generateGrid_GPU(uint16_t init_subdiv, bool isTextureUsed){ 
 
-    Grid2D grid(subdivision);
+    Grid2D_GPU grid(init_subdiv * init_subdiv);
+
+    cudaMalloc(&grid.cells, pow(init_subdiv, 2) * sizeof(Cell_GPU));
+    cudaMalloc(&grid.pointsCount, init_subdiv * sizeof(point_Info)); 
+}
+
+void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
+
+    std::vector<Grid2D> grids(subdivision);
 
     srand(seed + 124534);
-    
-    cudaMalloc(&grid.cells, pow(subdivision, 2) * sizeof(Cell));
-    cudaMalloc(&grid.pointsCount, subdivision * sizeof(point_Info)); 
 
-    // std::vector<std::vector<float>> weight_map;
+    //  Preload all density maps for point generation
+    texture_Image density_map;
+    std::vector<texture_Image> weight_maps;
 
-    // if (!filename.empty()){
-    //     weight_map = user_density_map(filename, subdivision);
-    // }
+    for (int i = 0; i < BRANCHING; i++){
+        if (!filename.empty()){
+            density_map.weight_map = user_density_map(filename, subdivision);
+        }
+        weight_maps.push_back(density_map);
+    }
     
-    for(uint16_t j = 0; j < subdivision ; j++){
+/*     for(uint16_t j = 0; j < subdivision ; j++){
         // std::vector<Cell> currentCellRow;
         // std::vector<int> currentCellPointsCount;
 
@@ -65,6 +78,7 @@ __global__ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, 
                     weight = 1.0f;
                     newPoint.tree_index = -1;
 
+
                 }
 
                 newPoint.global_point_index = point_index;    
@@ -79,7 +93,7 @@ __global__ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, 
 
 
     }
-    
+     */
 }
 
 
