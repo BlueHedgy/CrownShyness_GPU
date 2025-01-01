@@ -9,12 +9,13 @@ struct texture_Image{
     std::vector<std::vector<float>> weight_map;
 };
 
-__global__ void generateGrid_GPU(uint16_t init_subdiv, bool isTextureUsed){ 
+__global__ void generateGrid_GPU(uint16_t init_subdiv, bool isTextureUsed, float* density_images){ 
 
     Grid2D_GPU grid(init_subdiv * init_subdiv);
+    // cudaMalloc(&grid.cells, pow(init_subdiv, 2) * sizeof(Cell_GPU));
+    // cudaMalloc(&grid.pointsCount, init_subdiv * sizeof(point_Info)); 
 
-    cudaMalloc(&grid.cells, pow(init_subdiv, 2) * sizeof(Cell_GPU));
-    cudaMalloc(&grid.pointsCount, init_subdiv * sizeof(point_Info)); 
+
 }
 
 void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
@@ -24,16 +25,17 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     srand(seed + 124534);
 
     //  Preload all density maps for point generation
-    texture_Image density_map;
-    std::vector<texture_Image> weight_maps;
+    std::vector<std::vector<std::vector<float>>> weight_maps;
 
     for (int i = 0; i < BRANCHING; i++){
+        std::vector<std::vector<float>> density_map;
         if (!filename.empty()){
-            density_map.weight_map = user_density_map(filename, subdivision);
+            density_map = user_density_map(filename, subdivision);
         }
         weight_maps.push_back(density_map);
     }
-    
+
+    generateCells_GPU<<<1, 256>>>(subdivision, !filename.empty(), weight_maps.data());
 /*     for(uint16_t j = 0; j < subdivision ; j++){
         // std::vector<Cell> currentCellRow;
         // std::vector<int> currentCellPointsCount;
