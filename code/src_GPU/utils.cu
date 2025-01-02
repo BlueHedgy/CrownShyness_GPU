@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "utils_GPU.h"
 #include "json.hpp"
 using json = nlohmann::json;
 

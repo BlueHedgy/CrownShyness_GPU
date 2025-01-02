@@ -9,10 +9,10 @@ struct texture_Image{
     std::vector<std::vector<float>> weight_map;
 };
 
-__global__ void debugIndex() {
-    int threadId = threadIdx.x + blockIdx.x * blockDim.x;
-    printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
-}
+// __global__ void debugIndex() {
+//     int threadId = threadIdx.x + blockIdx.x * blockDim.x;
+//     printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
+// }
 
 __global__ void generateCells_GPU(uint16_t init_subdiv, bool isTextureUsed, float* density_images){ 
 
@@ -37,7 +37,7 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     for (int i = 0; i < BRANCHING; i++){
         std::vector<float> density_map;
         if (!filename.empty()){
-            density_map = user_density_map(filename, subdivision);
+            density_map = user_density_map_flat(filename, subdivision);
         }
 
         weight_maps.insert(weight_maps.end(), density_map.begin(), density_map.end());
@@ -49,6 +49,8 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     }
     std::cout <<nThreads << std::endl;
     
+    uint16_t * subdiv;
+
     generateCells_GPU<<<1, nThreads>>>(subdivision, !filename.empty(), weight_maps.data());
     // debugIndex<<<3, 8>>>();
     cudaDeviceSynchronize();
