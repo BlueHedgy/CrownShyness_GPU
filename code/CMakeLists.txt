@@ -56,6 +56,6 @@ else()
 
 endif()
 
-
+set_target_properties(CrownShyness PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 target_link_libraries(CrownShyness LavaCake)
 

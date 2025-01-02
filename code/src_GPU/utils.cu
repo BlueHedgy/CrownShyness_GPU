@@ -118,6 +118,43 @@ std::vector<std::vector<float>> user_density_map(std::string filename, int subdi
     return map;
 }
 
+std::vector<float> user_density_map_flat(std::string filename, int subdiv){
+    int width, height, channelsNum;
+    int desiredChannels = 1; // grayscale
+
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char * image = stbi_load(filename.c_str(), &width, &height, &channelsNum, desiredChannels);
+
+    if (image == NULL){
+        std::cout << "Failed to load density map\n" << std::endl;
+        exit(1);
+    }
+
+    unsigned char * resized_im;
+    if (subdiv != 0){
+        resized_im = stbir_resize_uint8_srgb(image, width, height, 0, NULL, subdiv, subdiv, 0, STBIR_1CHANNEL);
+        height = subdiv;
+        width = subdiv;
+
+        stbi_image_free(image);
+    }
+    else{
+        resized_im = image;
+    }
+
+    // std::vector<std::vector<float>> map;
+    std::vector<float> map;
+
+    for (int j = 0; j < height; j++){
+        for (int i = 0; i < width; i++){
+            map.push_back(1.0 - float(int(resized_im[j * width + i])/255.0));
+        }
+    }
+    stbi_image_free(resized_im);
+
+    return map;
+}
+
 
 void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees){
     // Write to OBJ

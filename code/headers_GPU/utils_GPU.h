@@ -18,7 +18,8 @@
 
     void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees);
 
-    std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv);
+    // std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv);
+    std::vector<float> user_density_map(std::string filename, int subdiv);
 
 
 //  Grids to points list helper functions

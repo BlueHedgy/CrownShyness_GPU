@@ -9,13 +9,19 @@ struct texture_Image{
     std::vector<std::vector<float>> weight_map;
 };
 
-__global__ void generateGrid_GPU(uint16_t init_subdiv, bool isTextureUsed, float* density_images){ 
+__global__ void debugIndex() {
+    int threadId = threadIdx.x + blockIdx.x * blockDim.x;
+    printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
+}
+
+__global__ void generateCells_GPU(uint16_t init_subdiv, bool isTextureUsed, float* density_images){ 
 
     Grid2D_GPU grid(init_subdiv * init_subdiv);
     // cudaMalloc(&grid.cells, pow(init_subdiv, 2) * sizeof(Cell_GPU));
     // cudaMalloc(&grid.pointsCount, init_subdiv * sizeof(point_Info)); 
+    int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
 
-
+    printf("THREAD ID IS:  %d", thread_Index);
 }
 
 void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
@@ -25,17 +31,29 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     srand(seed + 124534);
 
     //  Preload all density maps for point generation
-    std::vector<std::vector<std::vector<float>>> weight_maps;
+    // std::vector<std::vector<float>> weight_maps;
+    std::vector<float> weight_maps;
 
     for (int i = 0; i < BRANCHING; i++){
-        std::vector<std::vector<float>> density_map;
+        std::vector<float> density_map;
         if (!filename.empty()){
             density_map = user_density_map(filename, subdivision);
         }
-        weight_maps.push_back(density_map);
+
+        weight_maps.insert(weight_maps.end(), density_map.begin(), density_map.end());
     }
 
-    generateCells_GPU<<<1, 256>>>(subdivision, !filename.empty(), weight_maps.data());
+    int nThreads = 0;
+    for (int i = 0; i < BRANCHING; i++){
+        nThreads += pow(subdivision * (i+1),2);
+    }
+    std::cout <<nThreads << std::endl;
+    
+    generateCells_GPU<<<1, nThreads>>>(subdivision, !filename.empty(), weight_maps.data());
+    // debugIndex<<<3, 8>>>();
+    cudaDeviceSynchronize();
+
+    std::cout << "GOT HERE" << std::endl;
 /*     for(uint16_t j = 0; j < subdivision ; j++){
         // std::vector<Cell> currentCellRow;
         // std::vector<int> currentCellPointsCount;
