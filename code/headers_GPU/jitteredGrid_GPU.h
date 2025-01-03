@@ -9,4 +9,4 @@
 
 void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer,std::string filename, int &point_index);
 
-__global__ void generateCells_GPU(uint16_t *init_subdiv, bool *isTextureUsed, float* density_images);
+__global__ void generateCells_GPU(uint16_t *init_subdiv, bool *isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL);
