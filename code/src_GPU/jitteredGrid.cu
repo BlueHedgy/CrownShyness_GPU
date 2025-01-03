@@ -14,14 +14,15 @@ struct texture_Image{
 //     printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
 // }
 
-__global__ void generateCells_GPU(uint16_t init_subdiv, bool isTextureUsed, float* density_images){ 
+__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images){ 
 
-    Grid2D_GPU grid(init_subdiv * init_subdiv);
+    Grid2D_GPU grid(pow(*init_subdiv, 2));
     // cudaMalloc(&grid.cells, pow(init_subdiv, 2) * sizeof(Cell_GPU));
     // cudaMalloc(&grid.pointsCount, init_subdiv * sizeof(point_Info)); 
     int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
+    printf("SIZE OF CELLS ARRAY: %d\n", grid.cells);
 
-    printf("THREAD ID IS:  %d", thread_Index);
+    // printf("THREAD ID IS:  %d\n", thread_Index);
 }
 
 void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
@@ -48,10 +49,25 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
         nThreads += pow(subdivision * (i+1),2);
     }
     std::cout <<nThreads << std::endl;
-    
-    uint16_t * subdiv;
+    // std::cout << weight_maps.size() * sizeof(weight_maps)[0]<< std::endl;
+    // std::cout << weight_maps.size() * sizeof(float)<< std::endl;
 
-    generateCells_GPU<<<1, nThreads>>>(subdivision, !filename.empty(), weight_maps.data());
+    bool h_isTextureUsed = !filename.empty();
+
+    uint16_t *d_subdiv;
+    bool *d_isTextureUsed;
+    float *d_density_images; 
+
+    cudaMalloc(&d_subdiv, sizeof(uint16_t));
+    cudaMemcpy(d_subdiv, &subdivision, sizeof(uint16_t), cudaMemcpyHostToDevice);
+
+    cudaMalloc(&d_isTextureUsed, sizeof(bool));
+    cudaMemcpy(d_isTextureUsed, &h_isTextureUsed, sizeof(bool), cudaMemcpyHostToDevice);
+
+    cudaMalloc(&d_density_images, sizeof(float)*weight_maps.size());
+    cudaMemcpy(d_density_images, weight_maps.data(), sizeof(float)*weight_maps.size(), cudaMemcpyHostToDevice);
+
+    generateCells_GPU<<<1, 16>>>(d_subdiv, d_isTextureUsed, d_density_images);
     // debugIndex<<<3, 8>>>();
     cudaDeviceSynchronize();
 
