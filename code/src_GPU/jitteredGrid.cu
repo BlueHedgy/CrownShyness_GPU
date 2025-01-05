@@ -23,10 +23,22 @@ __global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, fl
     // printf("SIZE OF CELLS ARRAY: %d\n", grid.cells);
     // printf("THREAD ID IS:  %d\n", thread_Index);
 
-    int point_count = 0;
+    int point_count = density_images[thread_Index] * (*d_MAX_POINT_PER_CELL);
     // printf("MAX POINT PER CELL : %d\n", *d_MAX_POINT_PER_CELL);
+    printf("point_count: %d       MAX_POINT: %d\n", point_count, *d_MAX_POINT_PER_CELL);
+    printf("texture weight: %f\n", density_images[thread_Index]);
+    curandState state;
+    curand_init(393452, threadIdx.x, 0, &state);
+    // float currentCell_points[point_count*3];
 
-    
+    float point_coord[3];
+    for (int p = 0; p < 8; p++){
+        point_coord[0] = curand_uniform(&state);
+        point_coord[1] = curand_uniform(&state);
+        point_coord[2] = curand_uniform(&state);
+        printf("X: %.6f,  Y: %.6f, Z: %.6f\n", point_coord[0], point_coord[1], point_coord[2]);
+    }
+
 }
 
 void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
@@ -47,6 +59,7 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
         weight_maps.insert(weight_maps.end(), density_map.begin(), density_map.end());
     }
     
+    std::cout << weight_maps[4] << std::endl;
     // Compute number of threads == number of cells
     int nCellThreads = 0;
     int init_subdiv = INIT_SUBDIV;
@@ -87,7 +100,7 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     cudaMalloc(&d_MAX_POINT_PER_CELL, sizeof(uint16_t));
     cudaMemcpy(d_MAX_POINT_PER_CELL, &MAX_POINT_PER_CELL, sizeof(uint16_t), cudaMemcpyHostToDevice);
 
-    generateCells_GPU<<<nBlocks, 1024>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL);
+    generateCells_GPU<<<1, 8>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL);
     cudaDeviceSynchronize();
 
     std::cout << "GOT HERE" << std::endl;
