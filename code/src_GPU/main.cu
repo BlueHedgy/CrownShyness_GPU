@@ -21,6 +21,7 @@ int main(){
     std::cout << "Generating forest..." << std::endl;
     
     generateGrid_GPU(subdiv, 1, 1, DENSITY_IMAGE, point_index);
+    
     // Generate grids and their corresponding points
     // for(int i = 0; i < BRANCHING; i++){
     //     grids.push_back(generateGrid_GPU(int(subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));

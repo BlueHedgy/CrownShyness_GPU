@@ -1,5 +1,6 @@
 #include "jitteredGrid_GPU.h"
 #include <random>
+#include <curand_kernel.h>
 
 using namespace LavaCake;
 
@@ -20,11 +21,12 @@ __global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, fl
 
     int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
     // printf("SIZE OF CELLS ARRAY: %d\n", grid.cells);
-
     // printf("THREAD ID IS:  %d\n", thread_Index);
 
     int point_count = 0;
-    printf("MAX POINT PER CELL : %d\n", *d_MAX_POINT_PER_CELL);
+    // printf("MAX POINT PER CELL : %d\n", *d_MAX_POINT_PER_CELL);
+
+    
 }
 
 void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
@@ -44,21 +46,34 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
         subdivision *= SCALE;
         weight_maps.insert(weight_maps.end(), density_map.begin(), density_map.end());
     }
+    
+    // Compute number of threads == number of cells
+    int nCellThreads = 0;
+    int init_subdiv = INIT_SUBDIV;
 
-    // Compute number of threads == number of poitns
-    int nThreads = 0;
     for (int i = 0; i < BRANCHING; i++){
-        nThreads += pow(subdivision * (i+1),2);
+        nCellThreads += pow(init_subdiv ,2);
+        init_subdiv *= SCALE;
     }
-    std::cout <<nThreads << std::endl;
+
+    std::cout <<nCellThreads << " " << weight_maps.size() << std::endl;
 
     bool h_isTextureUsed = !filename.empty();
+    int nBlocks = nCellThreads / 1024 + 1 ;
+    
+    
+    std::cout << nBlocks << std::endl;
 
-    // ALLOCATING CUDA GRID CELLS VARIABLES
+    // ALLOCATING CUDA GRID CELLS VARIABLES 
     uint16_t *d_subdiv;
     bool *d_isTextureUsed;
     float *d_density_images; 
     uint16_t *d_MAX_POINT_PER_CELL;
+    
+    Grid2D_GPU * d_grids;
+    
+    cudaMalloc(&d_grids, BRANCHING*sizeof(Grid2D_GPU));
+    
 
     cudaMalloc(&d_subdiv, sizeof(uint16_t));
     cudaMemcpy(d_subdiv, &subdivision, sizeof(uint16_t), cudaMemcpyHostToDevice);
@@ -72,7 +87,7 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     cudaMalloc(&d_MAX_POINT_PER_CELL, sizeof(uint16_t));
     cudaMemcpy(d_MAX_POINT_PER_CELL, &MAX_POINT_PER_CELL, sizeof(uint16_t), cudaMemcpyHostToDevice);
 
-    generateCells_GPU<<<1, 16>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL);
+    generateCells_GPU<<<nBlocks, 1024>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL);
     cudaDeviceSynchronize();
 
     std::cout << "GOT HERE" << std::endl;
@@ -84,13 +99,13 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
 
             int pointCount;
 
-            // if (!filename.empty()){
-            //     pointCount = int(float(MAX_POINT_PER_CELL) * weight_map[j][i]);
-            // }
-            // else{
-            //     pointCount = MAX_POINT_PER_CELL;            
+            if (!filename.empty()){
+                pointCount = int(float(MAX_POINT_PER_CELL) * weight_map[j][i]);
+            }
+            else{
+                pointCount = MAX_POINT_PER_CELL;            
                 
-            // }
+            }
 
             pointCount = MAX_POINT_PER_CELL;
             
@@ -139,41 +154,41 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
 }
 
 
-// Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gridLayer){
+Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gridLayer){
 
-//     // get the corresponding cell in the lower level projected from the current point
-//     vec2i cell({int(point[0] * grid.cells[0].size() ),int(point[1] * grid.cells.size())});
-//     Coord closestPoint;
-//     float mindistsqrd = 10.0f;
+    // get the corresponding cell in the lower level projected from the current point
+    vec2i cell({int(point[0] * grid.cells[0].size() ),int(point[1] * grid.cells.size())});
+    Coord closestPoint;
+    float mindistsqrd = 10.0f;
 
-//     for(int j = cell[1]-1; j <= cell[1] +1 ; j++){
-//         for(int i = cell[0]-1; i <=cell[0]+1 ; i++){
-//             // make sure the cells that are being checked is within the boundary of the grids
-//             if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
+    for(int j = cell[1]-1; j <= cell[1] +1 ; j++){
+        for(int i = cell[0]-1; i <=cell[0]+1 ; i++){
+            // make sure the cells that are being checked is within the boundary of the grids
+            if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
 
-//                 const Cell &currentCell = (grid.cells[j][i]);
-//                 for (int p = 0; p < grid.cells[j][i].points.size(); p++){
+                const Cell &currentCell = (grid.cells[j][i]);
+                for (int p = 0; p < grid.cells[j][i].points.size(); p++){
                     
-//                     // d² 
-//                     float distsqrd  = dot(point - currentCell.points[p],  point - currentCell.points[p]);
+                    // d² 
+                    float distsqrd  = dot(point - currentCell.points[p],  point - currentCell.points[p]);
 
-//                     float power = distsqrd - pow(currentCell.pointsInfo[p].points_weight, 2.0);
+                    float power = distsqrd - pow(currentCell.pointsInfo[p].points_weight, 2.0);
 
-//                     if(power < mindistsqrd){
-//                         mindistsqrd = power;
+                    if(power < mindistsqrd){
+                        mindistsqrd = power;
  
-//                         closestPoint.gridIndex = gridLayer;
-//                         closestPoint.coord[0] = i;
-//                         closestPoint.coord[1] = j;
-//                         closestPoint.pointIndex = p;
-//                         closestPoint.weight = currentCell.pointsInfo[p].points_weight;
-//                         closestPoint.tree_index = currentCell.pointsInfo[p].tree_index;
-//                     }
-//                 }
-//             }
-//         }
-//     }
+                        closestPoint.gridIndex = gridLayer;
+                        closestPoint.coord[0] = i;
+                        closestPoint.coord[1] = j;
+                        closestPoint.pointIndex = p;
+                        closestPoint.weight = currentCell.pointsInfo[p].points_weight;
+                        closestPoint.tree_index = currentCell.pointsInfo[p].tree_index;
+                    }
+                }
+            }
+        }
+    }
 
-//     return closestPoint;
+    return closestPoint;
 
-// }
+}
