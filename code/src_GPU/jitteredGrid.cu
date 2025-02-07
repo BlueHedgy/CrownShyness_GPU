@@ -15,33 +15,40 @@ struct texture_Image{
 //     printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
 // }
 
-__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL){ 
+__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL, Cell_GPU* cells, int* milestones){ 
 
-    Grid2D_GPU grid(pow(*init_subdiv, 2));
+    // Grid2D_GPU grid(pow(*init_subdiv, 2));
 
     int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
     // printf("SIZE OF CELLS ARRAY: %d\n", grid.cells);
     // printf("THREAD ID IS:  %d\n", thread_Index);
-
+    
     int point_count = density_images[thread_Index] * (*d_MAX_POINT_PER_CELL);
-    // printf("MAX POINT PER CELL : %d\n", *d_MAX_POINT_PER_CELL);
-    printf("point_count: %d       MAX_POINT: %d\n", point_count, *d_MAX_POINT_PER_CELL);
-    printf("texture weight: %f\n", density_images[thread_Index]);
+    
+    printf("point_count: %d       MAX_POINT: %d  ", point_count, *d_MAX_POINT_PER_CELL);
+    // printf("texture weight: %f\n", density_images[thread_Index]);
+    
     curandState state;
     curand_init(393452, threadIdx.x, 0, &state);
-    // float currentCell_points[point_count*3];
+    float *currentCell_points = new float[point_count*3];
 
-    float point_coord[3];
-    for (int p = 0; p < 8; p++){
-        point_coord[0] = curand_uniform(&state);
-        point_coord[1] = curand_uniform(&state);
-        point_coord[2] = curand_uniform(&state);
-        printf("X: %.6f,  Y: %.6f, Z: %.6f\n", point_coord[0], point_coord[1], point_coord[2]);
+    // __device__ float currentCell_points[point_count*3]; 
+    
+    Cell_GPU currentCell(*currentCell_points);
+    
+    for (int p = 0; p < point_count; p++){
+        currentCell.points[p] = curand_uniform(&state);
+        currentCell.points[p+1] = curand_uniform(&state);
+        currentCell.points[p+2] = curand_uniform(&state);
+        
     }
+    
+    cells[thread_Index] = currentCell;  // no race condition here, each thead (Cell) updates independently
+
 
 }
 
-void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string filename, int &point_index){
+void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::string filename, int &point_index){
 
     std::vector<Grid2D> grids(subdivision);
 
@@ -50,43 +57,56 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     //  Preload all density maps for point generation
     std::vector<float> weight_maps;
 
+    // Precompute the amount of cells on each layer 
+    std::vector<int> layer_Milestones(BRANCHING);
+
+    // Load the user defined texture image forr density
     for (int i = 0; i < BRANCHING; i++){
         std::vector<float> density_map;
         if (!filename.empty()){
             density_map = user_density_map_flat(filename, subdivision);
         }
-        subdivision *= SCALE;
         weight_maps.insert(weight_maps.end(), density_map.begin(), density_map.end());
+
+        subdivision *= SCALE;
     }
-    
-    std::cout << weight_maps[4] << std::endl;
+
     // Compute number of threads == number of cells
     int nCellThreads = 0;
     int init_subdiv = INIT_SUBDIV;
 
+    
     for (int i = 0; i < BRANCHING; i++){
         nCellThreads += pow(init_subdiv ,2);
         init_subdiv *= SCALE;
+        
+        // Store the milestones for cell numbers, this helps with the 1D grid array on CUDA
+        layer_Milestones[i] = nCellThreads;
     }
-
-    std::cout <<nCellThreads << " " << weight_maps.size() << std::endl;
-
+    printf("%d\n", nCellThreads);
+    
+    // Init variables for CUDA segment
     bool h_isTextureUsed = !filename.empty();
     int nBlocks = nCellThreads / 1024 + 1 ;
+    uint16_t blockSize = 1024;
     
-    
-    std::cout << nBlocks << std::endl;
 
-    // ALLOCATING CUDA GRID CELLS VARIABLES 
+    // ALLOCATING CUDA GRID CELLS VARIABLES
     uint16_t *d_subdiv;
     bool *d_isTextureUsed;
     float *d_density_images; 
     uint16_t *d_MAX_POINT_PER_CELL;
-    
+    Cell_GPU *d_Cells;
     Grid2D_GPU * d_grids;
+
+    int* d_layer_MileStones;
+    // float* d_points_list;
     
-    cudaMalloc(&d_grids, BRANCHING*sizeof(Grid2D_GPU));
+    // cudaMalloc(&d_grids, BRANCHING*sizeof(Grid2D_GPU));
+    cudaMalloc(&d_Cells, nCellThreads * sizeof(Cell_GPU));
     
+    cudaMalloc(&d_layer_MileStones, BRANCHING * sizeof(int));
+    cudaMemcpy(d_layer_MileStones, layer_Milestones.data(), BRANCHING*sizeof(int), cudaMemcpyHostToDevice);
 
     cudaMalloc(&d_subdiv, sizeof(uint16_t));
     cudaMemcpy(d_subdiv, &subdivision, sizeof(uint16_t), cudaMemcpyHostToDevice);
@@ -100,7 +120,7 @@ void generateGrid_GPU(uint16_t subdivision, int seed, int gridLayer, std::string
     cudaMalloc(&d_MAX_POINT_PER_CELL, sizeof(uint16_t));
     cudaMemcpy(d_MAX_POINT_PER_CELL, &MAX_POINT_PER_CELL, sizeof(uint16_t), cudaMemcpyHostToDevice);
 
-    generateCells_GPU<<<1, 8>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL);
+    generateCells_GPU<<<nBlocks, blockSize>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL, d_Cells, d_layer_MileStones);
     cudaDeviceSynchronize();
 
     std::cout << "GOT HERE" << std::endl;

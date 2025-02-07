@@ -20,13 +20,13 @@ using namespace LavaCake;
 
 struct Cell_GPU{
 
-    LavaCake::vec3f * points;
+    float * points;
     point_Info *pointsInfo;
 
     __device__
     Cell_GPU(const int size){
-        cudaMalloc(&points, size * sizeof(LavaCake::vec3f));
-        cudaMalloc(&pointsInfo, size * sizeof(point_Info));
+        cudaMalloc(&points, size * 3 * sizeof(float));
+        // cudaMalloc(&pointsInfo, size * sizeof(point_Info));
     }
 
     __device__
