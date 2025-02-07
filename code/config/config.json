@@ -16,7 +16,7 @@
         "DEFAULT_SHRINK_FACTOR"     : 0.92,
         "MAX_FOREST_HEIGHT"         : 5.0,
         "MIN_FOREST_HEIGHT"         : 3.0,
-        "FOREST_HEIGHT_IMAGE"       : "../../test_images/height_image3.jpg"
+        "FOREST_HEIGHT_IMAGE"       : "./../test_images/height_image3.jpg"
     },
 
     "test1":
