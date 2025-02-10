@@ -34,7 +34,8 @@ if (USE_CUDA)
   set(CMAKE_CUDA_STANDARD 20)
   set(CMAKE_CUDA_STANDARD_REQUIRED ON)
   include_directories(${CUDA_INCLUDE_DIRS})
-
+  set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS} "-g -G")  # enable cuda-gdb
+  
   # include_directories(headers_GPU)
   set(SOURCES_GPU
   src_GPU/jitteredGrid.cu
