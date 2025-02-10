@@ -15,42 +15,33 @@ struct texture_Image{
 //     printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
 // }
 
-__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL, Cell_GPU* cells, int* milestones){ 
-
-    // Grid2D_GPU grid(pow(*init_subdiv, 2));
+__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL, Cell_GPU* cells){ 
 
     int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
-    // printf("SIZE OF CELLS ARRAY: %d\n", grid.cells);
-    // printf("THREAD ID IS:  %d\n", thread_Index);
-    
-    int point_count = density_images[thread_Index] * (*d_MAX_POINT_PER_CELL);
-    
-    printf("point_count: %d       MAX_POINT: %d  ", point_count, *d_MAX_POINT_PER_CELL);
-    // printf("texture weight: %f\n", density_images[thread_Index]);
-    
+    int point_count = *d_MAX_POINT_PER_CELL;
+    if (*isTextureUsed) point_count = density_images[thread_Index] * (*d_MAX_POINT_PER_CELL);
+
     curandState state;
     curand_init(393452, threadIdx.x, 0, &state);
-    float *currentCell_points = new float[point_count*3];
 
-    // __device__ float currentCell_points[point_count*3]; 
     
-    Cell_GPU currentCell(*currentCell_points);
+    Cell_GPU currentCell(point_count);
     
     for (int p = 0; p < point_count; p++){
-        currentCell.points[p] = curand_uniform(&state);
-        currentCell.points[p+1] = curand_uniform(&state);
-        currentCell.points[p+2] = curand_uniform(&state);
-        
+        currentCell.points[p*3] = curand_uniform(&state);
+        currentCell.points[p*3+1] = curand_uniform(&state);
+        currentCell.points[p*3+2] = curand_uniform(&state);
     }
-    
+
     cells[thread_Index] = currentCell;  // no race condition here, each thead (Cell) updates independently
-
-
+    
+    // for (int p = 0; p < point_count; p++){
+    //     printf("%f %f %f\n", cells[thread_Index].points[p], cells[thread_Index].points[p+1], cells[thread_Index].points[p+2]); 
+    // }
 }
 
 void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::string filename, int &point_index){
 
-    std::vector<Grid2D> grids(subdivision);
 
     srand(seed + 124534);
 
@@ -66,8 +57,10 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
         if (!filename.empty()){
             density_map = user_density_map_flat(filename, subdivision);
         }
-        weight_maps.insert(weight_maps.end(), density_map.begin(), density_map.end());
-
+        for (int j = 0; j < density_map.size(); j++){
+            weight_maps.push_back(density_map[j]);
+        }
+        
         subdivision *= SCALE;
     }
 
@@ -75,7 +68,6 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     int nCellThreads = 0;
     int init_subdiv = INIT_SUBDIV;
 
-    
     for (int i = 0; i < BRANCHING; i++){
         nCellThreads += pow(init_subdiv ,2);
         init_subdiv *= SCALE;
@@ -83,7 +75,8 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
         // Store the milestones for cell numbers, this helps with the 1D grid array on CUDA
         layer_Milestones[i] = nCellThreads;
     }
-    printf("%d\n", nCellThreads);
+
+    printf("TOTAL NUMBER OF CELLS: %d\n", nCellThreads);
     
     // Init variables for CUDA segment
     bool h_isTextureUsed = !filename.empty();
@@ -120,10 +113,41 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     cudaMalloc(&d_MAX_POINT_PER_CELL, sizeof(uint16_t));
     cudaMemcpy(d_MAX_POINT_PER_CELL, &MAX_POINT_PER_CELL, sizeof(uint16_t), cudaMemcpyHostToDevice);
 
-    generateCells_GPU<<<nBlocks, blockSize>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL, d_Cells, d_layer_MileStones);
+    generateCells_GPU<<<nBlocks, blockSize>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL, d_Cells);
     cudaDeviceSynchronize();
 
+    // std::cout <<  nCellThreads << " " << weight_maps.size() << std::endl;
+    std::vector<Cell_GPU> h_cells(nCellThreads);
+    // THIS IS NOT WORKING IDK WHY
+
     std::cout << "GOT HERE" << std::endl;
+    // for (int i = 0; i < nCellThreads; i++){
+    //     int numPoints = MAX_POINT_PER_CELL;
+    //     if (h_isTextureUsed) int numPoints = weight_maps[i] * MAX_POINT_PER_CELL;
+
+    //     h_cells[i].points.resize(3*numPoints);
+    //     // std::cout << h_cells[i].points.size() << std::endl;
+
+    //     cudaMemcpy(h_cells[i].points.data(), d_Cells[i].points, sizeof(float) * 3 * numPoints, cudaMemcpyDeviceToHost);
+
+    //     std::cout << h_cells[i].points[0] << std::endl;
+    // }
+
+    cudaMemcpy(h_cells.data(), d_Cells, sizeof(Cell_GPU) * nCellThreads, cudaMemcpyDeviceToHost);
+ 
+    
+    std::cout << "GOT HERE 1" << std::endl;
+
+    for (int i = 0; i <= h_cells.size(); i++){
+        std::cout << h_cells[i].points[0] << std::endl;
+    }
+
+    // for (int i = 0; i < nCellThreads; i++){
+    //     std::cout << "HELLO:  " << h_cells[i].points[0] <<std::endl;
+    // }
+
+    std::cout << "GOT HERE 2" << std::endl;
+
 /*     for(uint16_t j = 0; j < subdivision ; j++){
         // std::vector<Cell> currentCellRow;
         // std::vector<int> currentCellPointsCount;
@@ -132,10 +156,11 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
 
             int pointCount;
 
-            if (!filename.empty()){
+            if (!filename.empty()){ 
                 pointCount = int(float(MAX_POINT_PER_CELL) * weight_map[j][i]);
             }
             else{
+            
                 pointCount = MAX_POINT_PER_CELL;            
                 
             }
@@ -187,41 +212,41 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
 }
 
 
-Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gridLayer){
+// Coord getClosestPoint(const Grid2D& grid, const vec3f& point, const  uint32_t gridLayer){
 
-    // get the corresponding cell in the lower level projected from the current point
-    vec2i cell({int(point[0] * grid.cells[0].size() ),int(point[1] * grid.cells.size())});
-    Coord closestPoint;
-    float mindistsqrd = 10.0f;
+//     // get the corresponding cell in the lower level projected from the current point
+//     vec2i cell({int(point[0] * grid.cells[0].size() ),int(point[1] * grid.cells.size())});
+//     Coord closestPoint;
+//     float mindistsqrd = 10.0f;
 
-    for(int j = cell[1]-1; j <= cell[1] +1 ; j++){
-        for(int i = cell[0]-1; i <=cell[0]+1 ; i++){
-            // make sure the cells that are being checked is within the boundary of the grids
-            if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
+//     for(int j = cell[1]-1; j <= cell[1] +1 ; j++){
+//         for(int i = cell[0]-1; i <=cell[0]+1 ; i++){
+//             // make sure the cells that are being checked is within the boundary of the grids
+//             if( i >= 0 &&  i < grid.cells[0].size() &&  j >= 0 && j < grid.cells.size()){
 
-                const Cell &currentCell = (grid.cells[j][i]);
-                for (int p = 0; p < grid.cells[j][i].points.size(); p++){
+//                 const Cell &currentCell = (grid.cells[j][i]);
+//                 for (int p = 0; p < grid.cells[j][i].points.size(); p++){
                     
-                    // d² 
-                    float distsqrd  = dot(point - currentCell.points[p],  point - currentCell.points[p]);
+//                     // d² 
+//                     float distsqrd  = dot(point - currentCell.points[p],  point - currentCell.points[p]);
 
-                    float power = distsqrd - pow(currentCell.pointsInfo[p].points_weight, 2.0);
+//                     float power = distsqrd - pow(currentCell.pointsInfo[p].points_weight, 2.0);
 
-                    if(power < mindistsqrd){
-                        mindistsqrd = power;
+//                     if(power < mindistsqrd){
+//                         mindistsqrd = power;
  
-                        closestPoint.gridIndex = gridLayer;
-                        closestPoint.coord[0] = i;
-                        closestPoint.coord[1] = j;
-                        closestPoint.pointIndex = p;
-                        closestPoint.weight = currentCell.pointsInfo[p].points_weight;
-                        closestPoint.tree_index = currentCell.pointsInfo[p].tree_index;
-                    }
-                }
-            }
-        }
-    }
+//                         closestPoint.gridIndex = gridLayer;
+//                         closestPoint.coord[0] = i;
+//                         closestPoint.coord[1] = j;
+//                         closestPoint.pointIndex = p;
+//                         closestPoint.weight = currentCell.pointsInfo[p].points_weight;
+//                         closestPoint.tree_index = currentCell.pointsInfo[p].tree_index;
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    return closestPoint;
+//     return closestPoint;
 
-}
+// }

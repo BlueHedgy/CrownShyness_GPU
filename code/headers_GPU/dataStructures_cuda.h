@@ -21,15 +21,17 @@ using namespace LavaCake;
 struct Cell_GPU{
 
     float * points;
-    point_Info *pointsInfo;
 
-    __device__
+    __host__ __device__
+    Cell_GPU() : points(nullptr) {} 
+
+    __host__ __device__
     Cell_GPU(const int size){
-        cudaMalloc(&points, size * 3 * sizeof(float));
-        // cudaMalloc(&pointsInfo, size * sizeof(point_Info));
+        // cudaMalloc(&points, size * 3 * sizeof(float));
+        points = new float[size * 3];
     }
 
-    __device__
+    __host__ __device__
     ~Cell_GPU(){}   // Placeholder destructor
 };
 
