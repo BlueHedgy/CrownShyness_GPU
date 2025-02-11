@@ -15,29 +15,35 @@ struct texture_Image{
 //     printf("Thread %d in block %d\n", threadIdx.x, blockIdx.x);
 // }
 
-__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL, Cell_GPU* cells){ 
+__global__ void generateCells_GPU(uint16_t* init_subdiv, bool* isTextureUsed, float* density_images, uint16_t* d_MAX_POINT_PER_CELL, Cell_GPU* cells, int* nCellsThread){ 
 
     int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
-    int point_count = *d_MAX_POINT_PER_CELL;
-    if (*isTextureUsed) point_count = density_images[thread_Index] * (*d_MAX_POINT_PER_CELL);
 
-    curandState state;
-    curand_init(393452, threadIdx.x, 0, &state);
+    if (thread_Index < *nCellsThread){
+        int point_count = *d_MAX_POINT_PER_CELL;
+        if (*isTextureUsed) point_count = density_images[thread_Index] * (*d_MAX_POINT_PER_CELL);
 
-    
-    Cell_GPU currentCell(point_count);
-    
-    for (int p = 0; p < point_count; p++){
-        currentCell.points[p*3] = curand_uniform(&state);
-        currentCell.points[p*3+1] = curand_uniform(&state);
-        currentCell.points[p*3+2] = curand_uniform(&state);
+        curandState state;
+        curand_init(393452, threadIdx.x, 0, &state);
+
+        
+        Cell_GPU *currentCell = &cells[thread_Index];
+        
+        for (int p = 0; p < point_count; p++){
+            currentCell->points[p*3] = curand_uniform(&state);
+            currentCell->points[p*3+1] = curand_uniform(&state);
+            currentCell->points[p*3+2] = curand_uniform(&state);
+        }   
+
+        // cells[thread_Index] = currentCell;  // no race condition here, each thead (Cell) updates independently
+        
+        if (thread_Index == 0){
+        for (int p = 0; p < point_count; p++){
+            if (p==0) printf("%f %f %f\n", cells[thread_Index].points[p], cells[thread_Index].points[p+1], cells[thread_Index].points[p+2]); 
+        }
+        }
+
     }
-
-    cells[thread_Index] = currentCell;  // no race condition here, each thead (Cell) updates independently
-    
-    // for (int p = 0; p < point_count; p++){
-    //     printf("%f %f %f\n", cells[thread_Index].points[p], cells[thread_Index].points[p+1], cells[thread_Index].points[p+2]); 
-    // }
 }
 
 void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::string filename, int &point_index){
@@ -81,7 +87,7 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     // Init variables for CUDA segment
     bool h_isTextureUsed = !filename.empty();
     int nBlocks = nCellThreads / 1024 + 1 ;
-    uint16_t blockSize = 1024;
+    uint16_t blockSize = 1023;
     
 
     // ALLOCATING CUDA GRID CELLS VARIABLES
@@ -91,62 +97,103 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     uint16_t *d_MAX_POINT_PER_CELL;
     Cell_GPU *d_Cells;
     Grid2D_GPU * d_grids;
+    int* d_nCellsThread;
 
     int* d_layer_MileStones;
     // float* d_points_list;
     
-    // cudaMalloc(&d_grids, BRANCHING*sizeof(Grid2D_GPU));
-    cudaMalloc(&d_Cells, nCellThreads * sizeof(Cell_GPU));
     
     cudaMalloc(&d_layer_MileStones, BRANCHING * sizeof(int));
     cudaMemcpy(d_layer_MileStones, layer_Milestones.data(), BRANCHING*sizeof(int), cudaMemcpyHostToDevice);
-
+    
     cudaMalloc(&d_subdiv, sizeof(uint16_t));
     cudaMemcpy(d_subdiv, &subdivision, sizeof(uint16_t), cudaMemcpyHostToDevice);
-
+    
     cudaMalloc(&d_isTextureUsed, sizeof(bool));
     cudaMemcpy(d_isTextureUsed, &h_isTextureUsed, sizeof(bool), cudaMemcpyHostToDevice);
-
+    
     cudaMalloc(&d_density_images, sizeof(float)*weight_maps.size());
     cudaMemcpy(d_density_images, weight_maps.data(), sizeof(float)*weight_maps.size(), cudaMemcpyHostToDevice);
-
+    
     cudaMalloc(&d_MAX_POINT_PER_CELL, sizeof(uint16_t));
     cudaMemcpy(d_MAX_POINT_PER_CELL, &MAX_POINT_PER_CELL, sizeof(uint16_t), cudaMemcpyHostToDevice);
+    
+    cudaMalloc(&d_nCellsThread, sizeof(int));
+    cudaMemcpy(d_nCellsThread, &nCellThreads, sizeof(int), cudaMemcpyHostToDevice);
 
-    generateCells_GPU<<<nBlocks, blockSize>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL, d_Cells);
+
+    Cell_GPU * h_cells = new Cell_GPU[nCellThreads];
+    cudaMalloc(&d_Cells, nCellThreads * sizeof(Cell_GPU));
+    
+    for (int i = 0; i < nCellThreads; i++){
+        int numPoints = MAX_POINT_PER_CELL;
+        if (h_isTextureUsed) int numPoints = weight_maps[i] * MAX_POINT_PER_CELL;
+        
+        float *d_points = nullptr;
+        
+        cudaMalloc((void**)&d_points, numPoints * 3 * sizeof(float));
+
+        h_cells[i].points = d_points;   //store the pointer to device-points-array inside in host-points-array
+        
+    }
+    
+    // copy h_cells to d_cells with d_cells now contains the pointers to pre allocated inner structures and array
+    cudaMemcpy(d_Cells, h_cells, nCellThreads * sizeof(Cell_GPU), cudaMemcpyHostToDevice);
+    
+    generateCells_GPU<<<nBlocks, blockSize>>>(d_subdiv, d_isTextureUsed, d_density_images, d_MAX_POINT_PER_CELL, d_Cells, d_nCellsThread);
+    
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        std::cout << "CUDA Kernel Error: " << cudaGetErrorString(err) << std::endl;
+    }
     cudaDeviceSynchronize();
-
-    // std::cout <<  nCellThreads << " " << weight_maps.size() << std::endl;
-    std::vector<Cell_GPU> h_cells(nCellThreads);
-    // THIS IS NOT WORKING IDK WHY
+    
 
     std::cout << "GOT HERE" << std::endl;
-    // for (int i = 0; i < nCellThreads; i++){
-    //     int numPoints = MAX_POINT_PER_CELL;
-    //     if (h_isTextureUsed) int numPoints = weight_maps[i] * MAX_POINT_PER_CELL;
+    
+    float **d_points_array = new float*[nCellThreads]; // array of pointers to all the arrays of float on device
+    for (int i = 0; i < nCellThreads; i++){
+        d_points_array[i] = h_cells[i].points; // copied from previously saved device pointer value
+    }
+    
+    for (int i = 0; i < nCellThreads; i++){
+        int numPoints = MAX_POINT_PER_CELL;
+        if (h_isTextureUsed) int numPoints = weight_maps[i] * MAX_POINT_PER_CELL;
 
-    //     h_cells[i].points.resize(3*numPoints);
-    //     // std::cout << h_cells[i].points.size() << std::endl;
+        float *h_currCellPoints = new float[numPoints * 3];
 
-    //     cudaMemcpy(h_cells[i].points.data(), d_Cells[i].points, sizeof(float) * 3 * numPoints, cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_currCellPoints, d_points_array[i], numPoints * 3 * sizeof(float), cudaMemcpyDeviceToHost);
 
-    //     std::cout << h_cells[i].points[0] << std::endl;
-    // }
+        h_cells[i].points = h_currCellPoints;
+        // for (int p = 0; p < numPoints; p++){
+        //     std::cout << std::fixed << std::setprecision(5) << h_currCellPoints[p*3] << " " << h_currCellPoints[p*3 + 1] << " " << h_currCellPoints[p*3 + 2] << std::endl;
+        // }
+    }
 
-    cudaMemcpy(h_cells.data(), d_Cells, sizeof(Cell_GPU) * nCellThreads, cudaMemcpyDeviceToHost);
+
+    for (int i = 0; i < nCellThreads; i++){
+        if (i==0){
+        int numPoints = MAX_POINT_PER_CELL;
+        if (h_isTextureUsed) int numPoints = weight_maps[i] * MAX_POINT_PER_CELL;
+
+        for (int p = 0; p < numPoints; p++){
+            if (p==0) std::cout << std::fixed << std::setprecision(5) << h_cells[i].points[p*3] << " " << h_cells[i].points[p*3 + 1] << " " << h_cells[i].points[p*3 + 2] << std::endl;
+        }
+        }
+
+    }
+
+
+    // std::cout <<  nCellThreads << " " << weight_maps.size() << std::endl;
+    // std::vector<Cell_GPU> h_cells(nCellThreads);
+    // THIS IS NOT WORKING IDK WHY
+
+
+    // cudaMemcpy(h_cells, d_Cells, sizeof(Cell_GPU) * nCellThreads, cudaMemcpyDeviceToHost);
  
     
     std::cout << "GOT HERE 1" << std::endl;
 
-    for (int i = 0; i <= h_cells.size(); i++){
-        std::cout << h_cells[i].points[0] << std::endl;
-    }
-
-    // for (int i = 0; i < nCellThreads; i++){
-    //     std::cout << "HELLO:  " << h_cells[i].points[0] <<std::endl;
-    // }
-
-    std::cout << "GOT HERE 2" << std::endl;
 
 /*     for(uint16_t j = 0; j < subdivision ; j++){
         // std::vector<Cell> currentCellRow;
