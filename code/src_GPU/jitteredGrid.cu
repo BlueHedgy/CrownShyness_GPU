@@ -23,64 +23,79 @@ __device__ void test(Cell_GPU *cells, generationInfo *genInfo){
 
 __global__ void edgeConnection(Cell_GPU * cells, generationInfo *genInfo){
     int thread_Index = threadIdx.x + blockIdx.x * blockDim.x;
-    if (thread_Index > genInfo->layer_MileStones[0]){
-        // printf("HELLO\n");
+    
+    int gridLayer = 0;
+    for (int l = 0; l < genInfo->branching; l++){
+        if (thread_Index < genInfo->layer_MileStones[l]){
+            gridLayer = l;
+            break;
+        }
+    }
+    
+    if (gridLayer > 0){
+        // printf("HELLO %d\n", gridLayer);
         Cell_GPU *currentCell = &cells[thread_Index];
+        
+        int layerSubdiv = genInfo->init_subdiv * powf(genInfo->scale, gridLayer);
+        int prevLayerSubdiv = genInfo->init_subdiv * powf(genInfo->scale, gridLayer-1);
 
-        int gridLayer = currentCell->points[2];
-        // printf("%d\n", gridLayer);
-        int layerSubdiv = genInfo->init_subdiv * pow(genInfo->scale, gridLayer);
-        int prevLayerSubdiv = genInfo->init_subdiv * pow(genInfo->scale, gridLayer-1);
+        // printf("%d %d\n", layerSubdiv, prevLayerSubdiv);
+        // printf("%d\n", genInfo->scale);
         int search_area = 3;
-
+        
         int point_count = genInfo->MAX_POINT_PER_CELL;
         if (genInfo->isTextureUsed) point_count = genInfo->density_images[thread_Index] * (genInfo->MAX_POINT_PER_CELL);
-
+        
         int projected_ThreadIdx = 0;
-
+        
         for (int p = 0; p < point_count; p++){
             float x = currentCell->points[p*3];
             float y = currentCell->points[p*3+1];
             float z = currentCell->points[p*3+2];
-
-            // projected_ThreadIdx = x * prevLayerSubdiv + y * prevLayerSubdiv * prevLayerSubdiv + genInfo->density_images[gridLayer - 1];
             
-            // int closest_PointIndex = 0;
+            
+            projected_ThreadIdx = x * prevLayerSubdiv + y * prevLayerSubdiv * prevLayerSubdiv + genInfo->layer_MileStones[gridLayer - 1];
+            
+            int currentPointIndex = currentCell->pointsInfo[p].global_point_index;
 
-            // float mindistsqrd = 10.0;
+            int closest_PointIndex = 0;
 
-            // for (int i = -1; i < 2; i++){   
-            //     for (int j = -1; j < 2; j++){
-            //         int neighborIndex = projected_ThreadIdx + i * layerSubdiv  + j;
-            //         if ( genInfo->layer_MileStones[gridLayer -1] < neighborIndex && neighborIndex < genInfo->layer_MileStones[gridLayer]){
+            float mindistsqrd = 10.0;
+
+            for (int i = -1; i < 2; i++){   
+                for (int j = -1; j < 2; j++){
+                    int neighborIndex = projected_ThreadIdx + i * layerSubdiv  + j;
+                    if ( genInfo->layer_MileStones[gridLayer -1] < neighborIndex && neighborIndex < genInfo->layer_MileStones[gridLayer]){
                         
-            //             Cell_GPU * neighborCell = &cells[neighborIndex];
-            //             int point_count_n = genInfo->MAX_POINT_PER_CELL;
-            //             if (genInfo->isTextureUsed) point_count_n = genInfo->density_images[projected_ThreadIdx] * (genInfo->MAX_POINT_PER_CELL);
+                        Cell_GPU * neighborCell = &cells[neighborIndex];
+                        int point_count_n = genInfo->MAX_POINT_PER_CELL;
+                        if (genInfo->isTextureUsed) point_count_n = genInfo->density_images[projected_ThreadIdx] * (genInfo->MAX_POINT_PER_CELL);
             
-            //             for (int p = 0; p < point_count_n; p++){
-            //                 float x1 = neighborCell->points[p*3];
-            //                 float y1 = neighborCell->points[p*3 + 1];
+                        for (int p1 = 0; p1 < point_count_n; p1++){
+                            float x1 = neighborCell->points[p1*3];
+                            float y1 = neighborCell->points[p1*3 + 1];
             
-            //                 float distsqrd = pow(x1 - x, 2.0) + pow(y1 - y, 2.0);
-            //                 float power = distsqrd - pow(neighborCell->pointsInfo[p].points_weight, 2.0);
+                            float distsqrd = pow(x1 - x, 2.0) + pow(y1 - y, 2.0);
+                            float power = distsqrd - pow(neighborCell->pointsInfo[p1].points_weight, 2.0);
                           
-            //                 if (power < mindistsqrd){
-            //                     mindistsqrd = power;
+                            if (power < mindistsqrd){
+                                mindistsqrd = power;
                                 
-            //                     closest_PointIndex = neighborCell->pointsInfo[p].global_point_index; 
-            //                 }
-            //             }   
-            //         }
+                                closest_PointIndex = neighborCell->pointsInfo[p1].global_point_index; 
+                            }
+                        }   
+                    }
         
-            //     }
-            // }
+                }
+            }
 
-            // printf("%d\n", projected_ThreadIdx);
+            // genInfo->edges[currentPointIndex].p1 = currentPointIndex;
+            // genInfo->edges[currentPointIndex].p2 = closest_PointIndex;
 
 
-            // printf("TID: %d ... %f %f %f\n", thread_Index, cells[thread_Index].points[p*3], cells[thread_Index].points[p*3+1], cells[thread_Index].points[p*3+2]); 
 
+        //     // printf("TID: %d ... %f %f %f\n", thread_Index, cells[thread_Index].points[p*3], cells[thread_Index].points[p*3+1], cells[thread_Index].points[p*3+2]); 
+            
         }
     }
     
@@ -106,9 +121,6 @@ __global__ void generateCells_GPU(generationInfo *genInfo, Cell_GPU* cells){
         for (int l = 0; l < genInfo->branching; l++){
             if (thread_Index < genInfo->layer_MileStones[l]){
                 gridLayer = l;
-                // if (thread_Index < genInfo->layer_MileStones[l-1]){
-                //     gridLayer = l-1;
-                // }
                 break;
             }
         }
@@ -132,14 +144,16 @@ __global__ void generateCells_GPU(generationInfo *genInfo, Cell_GPU* cells){
                 currentCell->pointsInfo[p].tree_index = -1;
             }
 
+            currentCell->pointsInfo[p].global_point_index = thread_Index * genInfo->MAX_POINT_PER_CELL + p;
+
         }   
 
         
         
         // if (thread_Index == 0){
-        for (int p = 0; p < point_count; p++){
-            printf("TID: %d ... %f %f %f\n", thread_Index, cells[thread_Index].points[p*3], cells[thread_Index].points[p*3+1], cells[thread_Index].points[p*3+2]); 
-        }
+        // for (int p = 0; p < point_count; p++){
+        //     printf("TID: %d ... %f %f %f\n", thread_Index, cells[thread_Index].points[p*3], cells[thread_Index].points[p*3+1], cells[thread_Index].points[p*3+2]); 
+        // }
         // }
 
         // printf("%d\n", gridLayer);
@@ -191,21 +205,21 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     
 
     // ALLOCATING CUDA GRID CELLS VARIABLES
-    float *d_density_images; 
-    int *d_layer_MileStones;
-
+    
     generationInfo h_genInfo;
-    h_genInfo.init_subdiv = subdivision;
+    h_genInfo.init_subdiv = INIT_SUBDIV;
     h_genInfo.isTextureUsed = h_isTextureUsed;
     h_genInfo.MAX_POINT_PER_CELL = MAX_POINT_PER_CELL;
     h_genInfo.scale = SCALE;
     h_genInfo.branching = BRANCHING;
     h_genInfo.nCellsThread = nCellThreads;
-
+    
+    float *d_density_images; 
+    int *d_layer_MileStones;
+    Edge_GPU *d_edges;
     
     generationInfo *d_genInfo;
     
-    Edge * h_edges;
     
     Cell_GPU *d_Cells;
     
@@ -216,9 +230,10 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     cudaMalloc(&d_density_images, sizeof(float)*weight_maps.size());
     cudaMemcpy(d_density_images, weight_maps.data(), sizeof(float)*weight_maps.size(), cudaMemcpyHostToDevice);
 
+    cudaMalloc(&d_edges, sizeof(Edge_GPU) * layer_Milestones[BRANCHING-1]);
     h_genInfo.density_images = d_density_images;
     h_genInfo.layer_MileStones = d_layer_MileStones;
-
+    h_genInfo.edges = d_edges;
     
     cudaMalloc(&d_genInfo, sizeof(h_genInfo));
     cudaMemcpy(d_genInfo, &h_genInfo, sizeof(h_genInfo), cudaMemcpyHostToDevice);
@@ -256,12 +271,18 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     generateCells_GPU<<<nBlocks, blockSize>>>(d_genInfo, d_Cells);
     cudaDeviceSynchronize();
 
-    cudaEventRecord(stop);
-
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        std::cout << "CUDA Kernel Error: " << cudaGetErrorString(err) << std::endl;
+    }
+    
     edgeConnection<<<nBlocks, blockSize>>>(d_Cells, d_genInfo);
     cudaDeviceSynchronize();
+
     
-    cudaError_t err = cudaGetLastError();
+    cudaEventRecord(stop);
+    
+    err = cudaGetLastError();
     if (err != cudaSuccess) {
         std::cout << "CUDA Kernel Error: " << cudaGetErrorString(err) << std::endl;
     }

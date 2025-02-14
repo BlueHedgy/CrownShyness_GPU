@@ -53,17 +53,23 @@ struct Grid2D_GPU{
 
 };
 
+struct Edge_GPU{
+    int p1,p2;
+};
+
 struct generationInfo{
     uint16_t init_subdiv;
     bool isTextureUsed;
     uint16_t MAX_POINT_PER_CELL;
-    int scale;
+    float scale;
     int branching;
     int nCellsThread;
     
     float *density_images; 
     int *layer_MileStones;
+    Edge_GPU *edges;
 };
+
 
 #endif
 
