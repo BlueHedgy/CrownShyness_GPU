@@ -21,6 +21,8 @@ using namespace LavaCake;
 struct Cell_GPU{
 
     float * points;
+    point_Info * pointsInfo;
+    int point_count;
 
     __host__ __device__
     Cell_GPU() : points(nullptr) {} 
@@ -51,6 +53,18 @@ struct Grid2D_GPU{
 
 };
 
+struct generationInfo{
+    uint16_t init_subdiv;
+    bool isTextureUsed;
+    uint16_t MAX_POINT_PER_CELL;
+    int scale;
+    int branching;
+    int nCellsThread;
+    
+    float *density_images; 
+    int *layer_MileStones;
+    int *layer_pointcount
+};
 
 #endif
 
