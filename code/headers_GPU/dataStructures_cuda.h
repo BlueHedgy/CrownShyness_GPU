@@ -63,7 +63,6 @@ struct generationInfo{
     
     float *density_images; 
     int *layer_MileStones;
-    int *layer_pointcount
 };
 
 #endif
