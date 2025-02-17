@@ -41,12 +41,22 @@ or
     mkdir build && cd build
     cmake --build .
 ```
+Upon building the project the executable is located in: ***code/bin*** on Ubuntu or ***code/bin/Debug*** on Windows
+```console
+    ./CrownShyness
+```
+
+or 
+```console
+    .\CrownShyness.exe
+```
 
 - Using Visual Studio Code (vscode)
     - Install cmake extension
     - simply click build and then run on the bottom left of the screen (extension's functionality)
 
-By default a ***graph.obj*** file will be generated upon running the compiled file inside the **bin** folder in the top directory.
+By default a ***graph.obj*** file will be generated upon running the compiled file inside the **bin** folder in the top directory (***THIS IS ONLY VALID FOR CPU VERSION***).
+***The GPU version of the code currently can only print out to terminal the list of points and edges.***
 
 You can open and view the output via 3D softwares such as Blender, Maya, 3DSMax, etc...  
 **NOTE:** the code is using **Z up, Y forward** as coordinate system, change the import settings accordingly in your preview software to avoid confusion.
