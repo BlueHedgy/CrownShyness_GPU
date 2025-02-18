@@ -4,7 +4,7 @@
         "INIT_SUBDIV"               : 4,
         "BRANCHING"                 : 8,
         "SCALE"                     : 2,
-        "MAX_POINT_PER_CELL"        : 128,
+        "MAX_POINT_PER_CELL"        : 32,
         "GEN_AREA"                  : 70,
         "WEIGHT_ATTENUATION"        : 0.6,
         "DENSITY_IMAGE"             : "",

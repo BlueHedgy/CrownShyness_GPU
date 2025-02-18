@@ -7,7 +7,7 @@
 
 using namespace LavaCake;
 
-# define BLOCKSIZE 512
+# define BLOCKSIZE 128
 
 int tree_index = -1;
 struct texture_Image{
