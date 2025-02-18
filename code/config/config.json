@@ -1,11 +1,11 @@
 {
     "default":
     {
+        "INIT_SUBDIV"               : 4,
         "BRANCHING"                 : 8,
-        "INIT_SUBDIV"               : 50,
+        "SCALE"                     : 2,
+        "MAX_POINT_PER_CELL"        : 128,
         "GEN_AREA"                  : 70,
-        "SCALE"                     : 1.2,
-        "MAX_POINT_PER_CELL"        : 4,
         "WEIGHT_ATTENUATION"        : 0.6,
         "DENSITY_IMAGE"             : "../../test_images/Density3.png",
         "SHRINK_FACTOR_IMAGE"       : "",

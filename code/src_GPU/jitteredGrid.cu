@@ -2,9 +2,12 @@
 #include <random>
 #include <curand_kernel.h>
 #include <math.h>
+#include "chrono"
+
 
 using namespace LavaCake;
 
+# define BLOCKSIZE 512
 
 int tree_index = -1;
 struct texture_Image{
@@ -191,8 +194,9 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     
     // Init variables for CUDA segment
     bool h_isTextureUsed = !filename.empty();
-    uint16_t blockSize = 256;
+    uint16_t blockSize = BLOCKSIZE;
     int nBlocks = nCellThreads / blockSize + 1 ;
+    printf("Number of blocks : %d,\tThreads per block : %d\n", nBlocks, blockSize);
     
 
     // ALLOCATING CUDA GRID CELLS VARIABLES---------------------------------------------------------------
@@ -257,12 +261,14 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     cudaMemcpy(d_Cells, h_cells, nCellThreads * sizeof(Cell_GPU), cudaMemcpyHostToDevice);
 
     // COMPUTING ON DEVICE ---------------------------------------------------------------------------------
-    
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
 
-    cudaEventRecord(start);
+    // ---------------- POINT GENERATION ---------------- //
+    std::cout << "Point Generation..."<< std::endl;
+    cudaEvent_t start1, stop1;
+    cudaEventCreate(&start1);
+    cudaEventCreate(&stop1);
+
+    cudaEventRecord(start1, 0);
 
     generateCells_GPU<<<nBlocks, blockSize>>>(d_genInfo, d_Cells);
     cudaDeviceSynchronize();
@@ -271,29 +277,54 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     if (err != cudaSuccess) {
         std::cout << "CUDA Kernel Error: " << cudaGetErrorString(err) << std::endl;
     }
+
+    cudaEventRecord(stop1, 0);
+    cudaEventSynchronize(stop1);
+    float pointGenTime = 0;
+    cudaEventElapsedTime(&pointGenTime, start1, stop1);
     
+    cudaEventDestroy(start1);
+    cudaEventDestroy(stop1);
+    std::cout << "CUDA RUN TIME (Point generation): " << pointGenTime << std::endl;
+
+
+    // ---------------- EDGE CONNECTION ---------------- //
+    std::cout << "Edge connection..."<< std::endl;
+
+
+    cudaEvent_t start2, stop2;
+    cudaEventCreate(&start2);
+    cudaEventCreate(&stop2);
+
+    
+    cudaEventRecord(start2);
     edgeConnection<<<nBlocks, blockSize>>>(d_Cells, d_genInfo);
     cudaDeviceSynchronize();
 
-    cudaEventRecord(stop);
-    
     err = cudaGetLastError();
     if (err != cudaSuccess) {
         std::cout << "CUDA Kernel Error: " << cudaGetErrorString(err) << std::endl;
     }
-    
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, stop);
 
-    std::cout << "CUDA RUN TIME: " << milliseconds << std::endl;
+    cudaEventRecord(stop2);
+    cudaEventSynchronize(stop2);
+    float edgeConnTime = 0;
+    cudaEventElapsedTime(&edgeConnTime, start2, stop2);
+
+    cudaEventDestroy(start2);
+    cudaEventDestroy(stop2);
+    std::cout << "CUDA RUN TIME (Edge connection): " << edgeConnTime << std::endl;
     
 
     // TRANSFERING DATA TO HOST ---------------------------------------------------------------------------
+    std::cout << "Transfering data to host...";
     float **d_points_array = new float*[nCellThreads]; // array of pointers to all the arrays of float on device
     for (int i = 0; i < nCellThreads; i++){
         d_points_array[i] = h_cells[i].points; // copied from previously saved device pointer value
     }
     
+    auto start3 = std::chrono::high_resolution_clock::now();
+
     for (int i = 0; i < nCellThreads; i++){
         int numPoints = MAX_POINT_PER_CELL;
         if (h_isTextureUsed) int numPoints = weight_maps[i] * MAX_POINT_PER_CELL;
@@ -309,7 +340,12 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
 
     }
     cudaMemcpy(h_edges, d_edges, sizeof(Edge_GPU) * numEdges, cudaMemcpyDeviceToHost);
-    
+    cudaDeviceSynchronize();
+    std::cout << " done !"<< std::endl;
+
+    auto stop3 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop3 - start3);
+    std::cout << "Data transfert duration : " << duration.count() << " ms" << std::endl;
     
     // CLEANING UP -------------------------------------------------------------------------------------
     cudaFree(d_Cells);
@@ -323,29 +359,25 @@ void generateGrid_GPU(uint16_t  subdivision, int seed, int gridLayer, std::strin
     }
     // ---------------------------------------------------------------------------------------------------
 
-    std::cout << "Point list: \n";
+    //std::cout <<"Point list: \n";
 
     for (int c = 0; c < nCellThreads; c++){
 
         for (int p = 0; p < h_cells[c].point_count; p++){
-            std::cout << "x: " << h_cells[c].points[p*3] << " " << "y: " << h_cells[c].points[p*3+1] << " " << "z: " << h_cells[c].points[p*3+2] << "\n";
+            // std::cout << "x: " << h_cells[c].points[p*3] << " " << "y: " << h_cells[c].points[p*3+1] << " " << "z: " << h_cells[c].points[p*3+2] << "\n";
             // std::cout << p << std::endl;
             
         }
     }
 
-    std::cout << "\n Edges list: \n";
+    //std::cout << "\nEdges list: \n";
     for (int e = 0; e < numEdges; e++){
-        std::cout << "p1: " << h_edges[e].p1 << " p2: " << h_edges[e].p2 << "\n";
+        // std::cout << "p1: " << h_edges[e].p1 << " p2: " << h_edges[e].p2 << "\n";
     }
 
     std::cout << std::endl;
 
-    std::cout << std::fixed << std::setprecision(6) << h_cells[0].points[0*3] << " " << h_cells[0].points[0*3 + 1] << " " << h_cells[0].points[0*3 + 2] << std::endl;
-
-    
-    std::cout << "GOT HERE 1" << std::endl;
-
+    // std::cout << std::fixed << std::setprecision(6) << h_cells[0].points[0*3] << " " << h_cells[0].points[0*3 + 1] << " " << h_cells[0].points[0*3 + 2] << std::endl;
 }
 
 
