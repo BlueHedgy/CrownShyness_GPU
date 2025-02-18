@@ -2,8 +2,7 @@
 #include <fstream> 
 #include <math.h>      
 
-#include "jitteredGrid.h"
-#include "chrono"
+#include "jitteredGrid_GPU.h"
 
 using namespace LavaCake;
 
@@ -13,27 +12,23 @@ int main(){
 
     // Represent the layers of branch deviations
     std::vector<Grid2D> grids;
+
     
     float subdiv = INIT_SUBDIV;
     float gen_area = GEN_AREA; 
     int point_index = -1;
 
     std::cout << "Generating forest..." << std::endl;
-
-    auto start = std::chrono::high_resolution_clock::now();
-
+    
+    generateGrid_GPU(subdiv, 1, 1, DENSITY_IMAGE, point_index);
+    
     // Generate grids and their corresponding points
-    for(int i = 0; i < BRANCHING; i++){
-        grids.push_back(generateGrid(int(subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
+    // for(int i = 0; i < BRANCHING; i++){
+    //     grids.push_back(generateGrid_GPU(int(subdiv),(i * 15634) % 3445, i, DENSITY_IMAGE, point_index));
 
-        subdiv *= SCALE;
-    }
+    //     subdiv *= SCALE;
+    // }
 
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-
-    std::cout << "CPU RUN TIME: " << duration.count() << " ms" << std::endl;
 //     // Temporary form for the branches of the trees    
 //     std::vector<Edge> edges;
 
@@ -62,7 +57,7 @@ int main(){
 
 //                     // closest point in the lower level
 //                     Coord c2 = getClosestPoint(grids[k], currentCell->points[p], k);
-https://www.reddit.com/r/Ubuntu/comments/i09vao/hello_is_their_a_way_to_tell_to_ubuntu_to_change/
+
 //                     // current point
 //                     Coord c1;
 //                     c1.coord = vec2u({uint32_t(i),uint32_t(j)});
@@ -202,4 +197,4 @@ https://www.reddit.com/r/Ubuntu/comments/i09vao/hello_is_their_a_way_to_tell_to_
     std::cout << "All done !!" << std::endl;
 
     return 0;
-}                   
+}

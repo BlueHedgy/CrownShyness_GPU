@@ -10,8 +10,8 @@
     #include "../stb/stb_image_write.h"
     #include "../stb/stb_image_resize2.h"
 
-    #include "dataStructures.h"
-    #include "global_variables.h"
+    #include "dataStructures_cuda.h"   
+    #include "global_variables_GPU.h"
 
 // Miscellaneous 
     void load_Config_Profile(std::string filename);
@@ -19,7 +19,8 @@
     void write_to_OBJ(std::vector<vec3f> points, std::vector<Tree> &trees);
 
     std::vector<std::vector<float>> user_density_map(std::string filename, int subdiv);
-    
+    std::vector<float> user_density_map_flat(std::string filename, int subdiv);
+
 
 //  Grids to points list helper functions
     extern int gridZeroPointsCount;
