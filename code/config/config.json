@@ -7,7 +7,7 @@
         "MAX_POINT_PER_CELL"        : 128,
         "GEN_AREA"                  : 70,
         "WEIGHT_ATTENUATION"        : 0.6,
-        "DENSITY_IMAGE"             : "../../test_images/Density3.png",
+        "DENSITY_IMAGE"             : "",
         "SHRINK_FACTOR_IMAGE"       : "",
         "CROWN_SHYNESS_STEP"        : 1.0,
         "BRANCH_STYLING"            : true,
@@ -16,7 +16,7 @@
         "DEFAULT_SHRINK_FACTOR"     : 0.92,
         "MAX_FOREST_HEIGHT"         : 5.0,
         "MIN_FOREST_HEIGHT"         : 3.0,
-        "FOREST_HEIGHT_IMAGE"       : "./../test_images/height_image3.jpg"
+        "FOREST_HEIGHT_IMAGE"       : ""
     },
 
     "test1":
