@@ -12,7 +12,7 @@ Clone the code by running the following lines:
 
 ```console
     git clone https://github.com/BlueHedgy/CrownShyness_GPU.git
-    git update submodules --init --recursive
+    git submodule update --init --recursive
 ```
 
 ## How to compile and run:
@@ -39,6 +39,7 @@ or
 ```console
     cd code
     mkdir build && cd build
+    cmake ..
     cmake --build .
 ```
 
